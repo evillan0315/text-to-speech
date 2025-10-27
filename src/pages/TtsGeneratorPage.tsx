@@ -22,6 +22,7 @@ import {
   Alert,
   List,
   ListItem,
+  Autocomplete, // Added Autocomplete
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -30,6 +31,66 @@ import { Link as RouterLink } from 'react-router-dom';
 
 import type { TtsRequestDto } from '../types/tts';
 import { useAuth } from '../hooks/useAuth';
+
+// --- Autocomplete Options ---
+const LANGUAGE_CODE_OPTIONS: string[] = [
+  'en-US',
+  'en-GB',
+  'es-ES',
+  'fr-FR',
+  'de-DE',
+  'it-IT',
+  'ja-JP',
+  'ko-KR',
+  'pt-BR',
+  'zh-CN',
+  'ar-XA',
+  'hi-IN',
+];
+
+// These voice names are examples and should ideally be fetched from a backend API
+// based on the selected language code for a comprehensive list.
+const VOICE_NAME_OPTIONS: string[] = [
+  'en-US-Studio-F',
+  'en-US-Studio-B',
+  'en-US-Wavenet-A',
+  'en-US-Wavenet-B',
+  'en-US-Wavenet-C',
+  'en-US-Wavenet-D',
+  'en-US-Wavenet-E',
+  'en-GB-Wavenet-A',
+  'en-GB-Wavenet-B',
+  'en-GB-Wavenet-C',
+  'en-GB-Wavenet-D',
+  'es-ES-Wavenet-A',
+  'fr-FR-Wavenet-A',
+  'de-DE-Wavenet-F',
+  'ja-JP-Wavenet-A',
+  'ko-KR-Wavenet-A',
+  'pt-BR-Wavenet-A',
+  'zh-CN-Standard-A',
+  // Add more as needed or fetched from an API
+];
+
+const textFieldSx = {
+  '& .MuiOutlinedInput-root': {
+    '& fieldset': { borderColor: 'primary.light' },
+    '&:hover fieldset': { borderColor: 'primary.main' },
+    '&.Mui-focused fieldset': { borderColor: 'primary.dark' },
+  },
+  '& .MuiInputLabel-root': { color: 'text.secondary' },
+  '& .MuiInputBase-input': { color: 'text.primary' },
+};
+
+const speakerTextFieldSx = {
+  '& .MuiOutlinedInput-root': {
+    '& fieldset': { borderColor: 'secondary.light' },
+    '&:hover fieldset': { borderColor: 'secondary.main' },
+    '&.Mui-focused fieldset': { borderColor: 'secondary.dark' },
+  },
+  '& .MuiInputLabel-root': { color: 'text.secondary' },
+  '& .MuiInputBase-input': { color: 'text.primary' },
+};
 
 export const TtsGeneratorPage: React.FC = () => {
   const { isLoggedIn } = useAuth();
@@ -79,7 +140,7 @@ export const TtsGeneratorPage: React.FC = () => {
     mb: 3,
     borderRadius: 2,
     boxShadow: 3,
-    className: 'bg-white dark:bg-gray-800',
+    bgcolor: 'background.paper', // Rely on theme for background color
   };
 
   return (
@@ -92,7 +153,6 @@ export const TtsGeneratorPage: React.FC = () => {
         <Alert
           severity="warning"
           sx={{ mb: 3 }}
-          // Removed specific Tailwind color classes, relying on MUI theme's warning palette
           className="flex items-center justify-between"
         >
           You are not logged in. Please{' '}
@@ -117,42 +177,35 @@ export const TtsGeneratorPage: React.FC = () => {
           variant="outlined"
           disabled={loading || !isLoggedIn}
           className="mb-4"
-          sx={{
-            '& .MuiOutlinedInput-root': {
-              '& fieldset': { borderColor: 'primary.light' },
-              '&:hover fieldset': { borderColor: 'primary.main' },
-              '&.Mui-focused fieldset': { borderColor: 'primary.dark' },
-            },
-            '& .MuiInputLabel-root': { color: 'text.secondary' },
-            '& .MuiInputBase-input': { color: 'text.primary' },
-          }}
+          sx={textFieldSx}
         />
 
-        <TextField
-          label="Language Code (e.g., en-US)"
-          fullWidth
+        <Autocomplete
+          freeSolo
+          options={LANGUAGE_CODE_OPTIONS}
           value={languageCode}
-          onChange={(e) => setLanguageCode(e.target.value)}
-          margin="normal"
-          variant="outlined"
-          disabled={loading || !isLoggedIn}
-          className="mb-4"
-          sx={{
-            '& .MuiOutlinedInput-root': {
-              '& fieldset': { borderColor: 'primary.light' },
-              '&:hover fieldset': { borderColor: 'primary.main' },
-              '&.Mui-focused fieldset': { borderColor: 'primary.dark' },
-            },
-            '& .MuiInputLabel-root': { color: 'text.secondary' },
-            '& .MuiInputBase-input': { color: 'text.primary' },
+          onChange={(_event, newValue) => {
+            setLanguageCode(newValue || ''); // Ensure newValue is always a string
           }}
+          onInputChange={(_event, newInputValue) => {
+            setLanguageCode(newInputValue || ''); // Update on manual input change as well
+          }}
+          disabled={loading || !isLoggedIn}
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              label="Language Code (e.g., en-US)"
+              margin="normal"
+              variant="outlined"
+              fullWidth
+              className="mb-4"
+              sx={textFieldSx}
+            />
+          )}
+          className="mb-4"
         />
 
-        <Typography
-          variant="h6"
-          sx={{ mt: 2, mb: 1 }}
-          className="text-lg font-semibold text-gray-700 dark:text-gray-300"
-        >
+        <Typography variant="h6" sx={{ mt: 2, mb: 1, color: 'text.primary' }}>
           Speakers
         </Typography>
         <List dense>
@@ -166,35 +219,31 @@ export const TtsGeneratorPage: React.FC = () => {
                 size="small"
                 disabled={loading || !isLoggedIn}
                 className="flex-1"
-                sx={{
-                  '& .MuiOutlinedInput-root': {
-                    '& fieldset': { borderColor: 'secondary.light' },
-                    '&:hover fieldset': { borderColor: 'secondary.main' },
-                    '&.Mui-focused fieldset': { borderColor: 'secondary.dark' },
-                  },
-                  '& .MuiInputLabel-root': { color: 'text.secondary' },
-                  '& .MuiInputBase-input': { color: 'text.primary' },
-                }}
+                sx={speakerTextFieldSx}
               />
-              <TextField
-                label={`Voice Name (e.g., en-US-Studio-F, en-US-Studio-B)`}
+              <Autocomplete
+                freeSolo
+                options={VOICE_NAME_OPTIONS}
                 value={speakerData.voiceName}
-                onChange={(e) =>
-                  updateSpeaker(speakerData.id, 'voiceName', e.target.value)
-                }
-                variant="outlined"
-                size="small"
-                disabled={loading || !isLoggedIn}
-                className="flex-1"
-                sx={{
-                  '& .MuiOutlinedInput-root': {
-                    '& fieldset': { borderColor: 'secondary.light' },
-                    '&:hover fieldset': { borderColor: 'secondary.main' },
-                    '&.Mui-focused fieldset': { borderColor: 'secondary.dark' },
-                  },
-                  '& .MuiInputLabel-root': { color: 'text.secondary' },
-                  '& .MuiInputBase-input': { color: 'text.primary' },
+                onChange={(_event, newValue) => {
+                  updateSpeaker(speakerData.id, 'voiceName', newValue || '');
                 }}
+                onInputChange={(_event, newInputValue) => {
+                  updateSpeaker(speakerData.id, 'voiceName', newInputValue || '');
+                }}
+                disabled={loading || !isLoggedIn}
+                size="small"
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label={`Voice Name`}
+                    variant="outlined"
+                    fullWidth
+                    className="flex-1"
+                    sx={speakerTextFieldSx}
+                  />
+                )}
+                className="flex-1"
               />
               {speakers.length > 1 && (
                 <IconButton
@@ -221,11 +270,7 @@ export const TtsGeneratorPage: React.FC = () => {
         </Button>
 
         {error && (
-          <Alert
-            severity="error"
-            sx={{ mt: 3 }}
-            // Removed specific Tailwind color classes, relying on MUI theme's error palette
-          >
+          <Alert severity="error" sx={{ mt: 3 }}>
             {error}
           </Alert>
         )}
@@ -251,11 +296,7 @@ export const TtsGeneratorPage: React.FC = () => {
 
       {audioUrl && (
         <Paper sx={paperSx}>
-          <Typography
-            variant="h6"
-            sx={{ mb: 2 }}
-            className="text-lg font-semibold text-gray-700 dark:text-gray-300"
-          >
+          <Typography variant="h6" sx={{ mb: 2, color: 'text.primary' }}>
             Generated Audio
           </Typography>
           <audio controls src={audioUrl} className="w-full" />

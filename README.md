@@ -4,6 +4,8 @@
 
 This is a modern React/Vite frontend application designed to interact with a Node.js/NestJS backend for Google Gemini Text-to-Speech (TTS) generation. It empowers users to input text, configure multiple speakers with specific voice profiles, generate high-quality speech audio, and play it directly within the browser. The application emphasizes a clean, intuitive user experience with robust authentication and error handling.
 
+For a deep dive into the application's architecture and design principles, please refer to the [Overview and Architecture document](docs/OVERVIEW_ARCHITECTURE.md).
+
 ## Features
 
 -   **Authentication:** Seamless integration with JWT-based authentication, supporting Google OAuth2 and GitHub OAuth2 via the backend server.
@@ -113,6 +115,7 @@ For more in-depth information, refer to the following documentation files:
 
 *   [**User Guide**](docs/USER_GUIDE.md): How to use the application's features.
 *   [**Developer Guide**](docs/DEVELOPER_GUIDE.md): Detailed setup, coding standards, and project architecture for contributors.
+*   [**Overview and Architecture**](docs/OVERVIEW_ARCHITECTURE.md): A comprehensive explanation of the system's design and architecture.
 *   [**Deployment Guide**](docs/DEPLOYMENT.md): Instructions for deploying the application to various environments.
 
 ## Project Structure
@@ -129,7 +132,7 @@ text-to-speech/
 │   ├── theme/                  # Material UI theme configuration
 │   ├── types/                  # TypeScript type definitions
 │   └── App.tsx                 # Main application component
-├── docs/                       # Project documentation (User, Developer, Deployment guides)
+├── docs/                       # Project documentation (User, Developer, Overview, Deployment guides)
 ├── kubernetes/                 # Kubernetes deployment configurations
 ├── .env                        # Environment variables
 ├── .editorconfig               # Editor configuration
