@@ -62,9 +62,11 @@ Create a `.env` file in the `apps/text-to-speech` directory for local developmen
 
 ```env
 VITE_APP_API_BASE_URL=http://localhost:3000
+VITE_FRONTEND_PORT=3002
 ```
 
 -   `VITE_APP_API_BASE_URL`: The base URL of your backend API. Ensure this matches the URL where your `project-board-server` is running.
+-   `VITE_FRONTEND_PORT`: The port your frontend application runs on during development (e.g., `3002`). This is used for OAuth callback URLs.
 
 #### Backend OAuth Configuration
 
@@ -162,8 +164,8 @@ This frontend interacts with the following backend endpoints (assuming `VITE_APP
         {
           "prompt": "Eddie: AI is changing everything!\nMarionette: And it's influencing fashion too.",
           "speakers": [
-            { "speaker": "Eddie", "voiceName": "en-US-Studio-F" },
-            { "speaker": "Marionette", "voiceName": "en-US-Studio-B" }
+            { "speaker": "Eddie", "voiceName": "kore" },
+            { "speaker": "Marionette", "voiceName": "puck" }
           ],
           "languageCode": "en-US" // Optional
         }

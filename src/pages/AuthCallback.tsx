@@ -66,19 +66,13 @@ export const AuthCallback: React.FC = () => {
   return (
     <Box className="flex flex-col items-center justify-center min-h-[50vh]" sx={{ mt: 4 }}>
       {currentError ? (
-        <Alert
-          severity="error"
-          sx={{ mb: 2 }}
-          // Removed specific Tailwind color classes, relying on MUI theme's error palette
-        >
+        <Alert severity="error" sx={{ mb: 2 }}>
           Authentication failed: {currentError}
         </Alert>
       ) : (
         <>
-          <CircularProgress
-            // Removed specific Tailwind color classes, relying on MUI theme's primary color
-          />
-          <Typography variant="h6" sx={{ mt: 2 }} className="text-gray-700 dark:text-gray-300">
+          <CircularProgress />
+          <Typography variant="h6" sx={{ mt: 2, color: 'text.secondary' }}>
             Authenticating...
           </Typography>
         </>

@@ -22,7 +22,7 @@ import {
   Alert,
   List,
   ListItem,
-  Autocomplete, // Added Autocomplete
+  Autocomplete,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -82,21 +82,21 @@ const VOICE_NAME_OPTIONS: string[] = [
 
 const textFieldSx = {
   '& .MuiOutlinedInput-root': {
-    '& fieldset': { borderColor: 'primary.light' },
+    '& fieldset': { borderColor: 'primary.light'},
     '&:hover fieldset': { borderColor: 'primary.main' },
     '&.Mui-focused fieldset': { borderColor: 'primary.dark' },
   },
   '& .MuiInputLabel-root': { color: 'text.secondary' },
-  '& .MuiInputBase-input': { color: 'text.primary' },
+  '& .MuiInputBase-input': { color: 'text.primary'  },
 };
 
 const speakerTextFieldSx = {
   '& .MuiOutlinedInput-root': {
-    '& fieldset': { borderColor: 'secondary.light' },
-    '&:hover fieldset': { borderColor: 'secondary.main' },
+    '& fieldset': { borderColor: 'secondary.light'},
+    '&:hover fieldset': { borderColor: 'secondary.main'  },
     '&.Mui-focused fieldset': { borderColor: 'secondary.dark' },
   },
-  '& .MuiInputLabel-root': { color: 'text.secondary' },
+  '& .MuiInputLabel-root': { color: 'text.dark', },
   '& .MuiInputBase-input': { color: 'text.primary' },
 };
 
@@ -148,7 +148,7 @@ export const TtsGeneratorPage: React.FC = () => {
     mb: 3,
     borderRadius: 2,
     boxShadow: 3,
-    bgcolor: 'background.paper', // Rely on theme for background color
+    bgcolor: 'background.default',
   };
 
   return (
@@ -193,10 +193,10 @@ export const TtsGeneratorPage: React.FC = () => {
           options={LANGUAGE_CODE_OPTIONS}
           value={languageCode}
           onChange={(_event, newValue) => {
-            setLanguageCode(newValue || ''); // Ensure newValue is always a string
+            setLanguageCode(newValue || '');
           }}
           onInputChange={(_event, newInputValue) => {
-            setLanguageCode(newInputValue || ''); // Update on manual input change as well
+            setLanguageCode(newInputValue || '');
           }}
           disabled={loading || !isLoggedIn}
           renderInput={(params) => (
@@ -216,9 +216,10 @@ export const TtsGeneratorPage: React.FC = () => {
         <Typography variant="h6" sx={{ mt: 2, mb: 1, color: 'text.primary' }}>
           Speakers
         </Typography>
+        <Paper elevation={3} sx={{backgroundColor:'background.default', pt:1}}>
         <List dense>
           {speakers.map((speakerData, index) => (
-            <ListItem key={speakerData.id} className="flex items-center space-x-2 mb-2">
+            <ListItem key={speakerData.id} className="flex items-center gap-x-2 mb-2"> { /* Changed space-x-2 to gap-x-2 */}
               <TextField
                 label={`Speaker ${index + 1} Name`}
                 value={speakerData.speaker}
@@ -266,6 +267,7 @@ export const TtsGeneratorPage: React.FC = () => {
             </ListItem>
           ))}
         </List>
+          </Paper>
         <Button
           onClick={addSpeaker}
           startIcon={<AddIcon />}

@@ -63,19 +63,17 @@ export const getMuiTheme = (mode: 'light' | 'dark') =>
   createTheme({
     palette: {
       mode,
-      // Dark Maroon & Light Maroon for Primary
       primary: {
-        main: mode === 'light' ? '#8A1A3F' : '#E0405E', // Deep Rosewood / Vibrant Raspberry
-        light: mode === 'light' ? '#BB5E7C' : '#F48FB1', // Muted Rosewood / Light Raspberry
-        dark: mode === 'light' ? '#5E0A28' : '#C51143', // Dark Rosewood / Deep Raspberry
+        main: mode === 'light' ? '#4A3C32' : '#9E8C7F', // Dark Coffee / Light Mocha
+        light: mode === 'light' ? '#7A6A5E' : '#C2B5AA', // Muted Coffee / Pale Mocha
+        dark: mode === 'light' ? '#2A1C12' : '#7C6A5F', // Very Dark Coffee / Medium Mocha
         contrastText: '#FFFFFF',
       },
-      // Complementary Soft Pink/Mauve for Secondary
       secondary: {
-        main: mode === 'light' ? '#C87799' : '#F06292', // Dusty Rose / Bright Pink
-        light: mode === 'light' ? '#E0A3BD' : '#FFC4DD', // Light Dusty Rose / Very Light Pink
-        dark: mode === 'light' ? '#A65775' : '#D81B60', // Deep Dusty Rose / Dark Pink
-        contrastText: mode === 'light' ? '#210002' : '#210002', // Very dark almost black for contrast
+        main: mode === 'light' ? '#8B7D72' : '#E0D8D0', // Warm Gray-Brown / Very Light Tan
+        light: mode === 'light' ? '#AF9C90' : '#F0ECE8', // Pale Warm Gray-Brown / Almost White Tan
+        dark: mode === 'light' ? '#685C52' : '#BDB3AB', // Dark Warm Gray-Brown / Medium Light Tan
+        contrastText: '#210002', // Very dark almost black for contrast
       },
       error: {
         main: '#D32F2F', // Default MUI Red for error
@@ -102,12 +100,12 @@ export const getMuiTheme = (mode: 'light' | 'dark') =>
         contrastText: '#FFFFFF',
       },
       background: {
-        default: mode === 'light' ? '#FFF8F9' : '#210002', // Very light / Very dark deep maroon base
-        paper: mode === 'light' ? '#FFFFFF' : '#3D0213', // White / Darker maroon for elements
+        default: mode === 'light' ? '#F8F5F2' : '#2A1C12', // Off-white creamy / Very dark coffee
+        paper: mode === 'light' ? '#FFFFFF' : '#4A3C32', // White / Dark coffee
       },
       text: {
-        primary: mode === 'light' ? '#333333' : '#F8F8F8', // Dark gray / Light gray
-        secondary: mode === 'light' ? '#666666' : '#E0E0E0', // Medium gray / Lighter gray
+        primary: mode === 'light' ? '#333333' : '#F8F8F8', // Dark gray / Off-white
+        secondary: mode === 'light' ? '#666666' : '#E0E0E0', // Medium gray / Light gray
       },
     },
     ...commonSettings,

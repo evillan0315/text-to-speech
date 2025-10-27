@@ -40,11 +40,11 @@ export const LoginPage: React.FC = () => {
   };
 
   const handleGoogleLogin = () => {
-    window.location.href = `/api/auth/google`;
+    window.location.href = `/api/auth/google?cli_port=${import.meta.env.VITE_FRONTEND_PORT}`;
   };
 
   const handleGitHubLogin = () => {
-    window.location.href = `/api/auth/github`;
+    window.location.href = `/api/auth/github?cli_port=${import.meta.env.VITE_FRONTEND_PORT}`;
   };
 
   const paperSx = {
@@ -52,7 +52,7 @@ export const LoginPage: React.FC = () => {
     mb: 3,
     borderRadius: 2,
     boxShadow: 3,
-    className: 'bg-white dark:bg-gray-800',
+    bgcolor: 'background.paper', // Rely on theme for background color
   };
 
   return (
@@ -70,15 +70,9 @@ export const LoginPage: React.FC = () => {
         </Typography>
       </Stack>
 
-      
-
       <Paper sx={paperSx}>
         {error && (
-          <Alert
-            severity="error"
-            sx={{ mb: 2 }}
-            // Removed specific Tailwind color classes, relying on MUI theme's error palette
-          >
+          <Alert severity="error" sx={{ mb: 2 }}>
             {error}
           </Alert>
         )}
@@ -159,7 +153,7 @@ export const LoginPage: React.FC = () => {
           </Button>
         </Box>
 
-        <Typography variant="body2" sx={{ mt: 3, textAlign: 'center' }}>
+        <Typography variant="body2" sx={{ mt: 3, textAlign: 'center', color: 'text.secondary' }}>
           Don't have an account?{' '}
           <Link
             component={RouterLink}
@@ -167,6 +161,7 @@ export const LoginPage: React.FC = () => {
             sx={{
               textDecoration: 'none',
               '&:hover': { textDecoration: 'underline' },
+              color: 'primary.main',
             }}
           >
             Register
