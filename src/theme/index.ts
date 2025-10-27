@@ -1,5 +1,5 @@
 import { createTheme } from '@mui/material/styles';
-import type { TextFieldProps } from '@mui/material/TextField'; // Import for type casting
+import type { TextFieldProps } from '@mui/material/TextField';
 
 // Common configurations regardless of theme mode
 const commonSettings = {
@@ -13,7 +13,7 @@ const commonSettings = {
     h6: { fontSize: '1rem', fontWeight: 500 },
     body1: { fontSize: '1rem' },
     body2: { fontSize: '0.875rem' },
-    button: { textTransform: 'none' as const, fontWeight: 600 }, // Added 'as const' for strict type checking
+    button: { textTransform: 'none' as const, fontWeight: 600 },
   },
   shape: {
     borderRadius: 8,
@@ -34,7 +34,7 @@ const commonSettings = {
       defaultProps: {
         variant: 'outlined',
         fullWidth: true,
-      } as Partial<TextFieldProps>, // Cast to Partial<TextFieldProps> to correctly type 'variant' literal
+      } as Partial<TextFieldProps>,
       styleOverrides: {
         root: {
           // Some global styles for text fields if needed
@@ -63,41 +63,51 @@ export const getMuiTheme = (mode: 'light' | 'dark') =>
   createTheme({
     palette: {
       mode,
+      // Dark Maroon & Light Maroon for Primary
       primary: {
-        main: mode === 'light' ? '#075985' : '#7dd3fc', // Tailwind sky-900 / sky-300
-        light: mode === 'light' ? '#38bdf8' : '#e0f2fe', // Tailwind sky-500 / sky-100
-        dark: mode === 'light' ? '#0c4a6e' : '#0ea5e9', // Tailwind sky-950 / sky-400
-        contrastText: mode === 'light' ? '#ffffff' : '#0f172a', // White / slate-900
+        main: mode === 'light' ? '#8A1A3F' : '#E0405E', // Deep Rosewood / Vibrant Raspberry
+        light: mode === 'light' ? '#BB5E7C' : '#F48FB1', // Muted Rosewood / Light Raspberry
+        dark: mode === 'light' ? '#5E0A28' : '#C51143', // Dark Rosewood / Deep Raspberry
+        contrastText: '#FFFFFF',
       },
+      // Complementary Soft Pink/Mauve for Secondary
       secondary: {
-        main: mode === 'light' ? '#2563eb' : '#93c5fd', // Tailwind blue-600 / blue-300
-        light: mode === 'light' ? '#60a5fa' : '#dbeafe', // Tailwind blue-400 / blue-100
-        dark: mode === 'light' ? '#1d4ed8' : '#3b82f6', // Tailwind blue-700 / blue-500
-        contrastText: mode === 'light' ? '#ffffff' : '#1e3a8a', // White / blue-900
+        main: mode === 'light' ? '#C87799' : '#F06292', // Dusty Rose / Bright Pink
+        light: mode === 'light' ? '#E0A3BD' : '#FFC4DD', // Light Dusty Rose / Very Light Pink
+        dark: mode === 'light' ? '#A65775' : '#D81B60', // Deep Dusty Rose / Dark Pink
+        contrastText: mode === 'light' ? '#210002' : '#210002', // Very dark almost black for contrast
       },
       error: {
-        main: '#ef4444', // Tailwind red-500
-        contrastText: '#ffffff',
+        main: '#D32F2F', // Default MUI Red for error
+        light: '#EF5350',
+        dark: '#C62828',
+        contrastText: '#FFFFFF',
       },
       warning: {
-        main: '#f97316', // Tailwind orange-500
-        contrastText: '#ffffff',
+        main: '#ED6C02', // Default MUI Orange for warning
+        light: '#FF9800',
+        dark: '#E65100',
+        contrastText: '#FFFFFF',
       },
       info: {
-        main: '#3b82f6', // Tailwind blue-500
-        contrastText: '#ffffff',
+        main: '#0288D1', // Default MUI Blue for info
+        light: '#03A9F4',
+        dark: '#01579B',
+        contrastText: '#FFFFFF',
       },
       success: {
-        main: '#22c55e', // Tailwind green-500
-        contrastText: '#ffffff',
+        main: '#2E7D32', // Default MUI Green for success
+        light: '#4CAF50',
+        dark: '#1B5E20',
+        contrastText: '#FFFFFF',
       },
       background: {
-        default: mode === 'light' ? '#f8fafc' : '#0f172a', // Tailwind slate-50 / slate-950
-        paper: mode === 'light' ? '#ffffff' : '#1e293b', // White / slate-800
+        default: mode === 'light' ? '#FFF8F9' : '#210002', // Very light / Very dark deep maroon base
+        paper: mode === 'light' ? '#FFFFFF' : '#3D0213', // White / Darker maroon for elements
       },
       text: {
-        primary: mode === 'light' ? '#1f2937' : '#f9fafb', // Gray-800 / Gray-50
-        secondary: mode === 'light' ? '#4b5563' : '#e5e7eb', // Gray-600 / Gray-200
+        primary: mode === 'light' ? '#333333' : '#F8F8F8', // Dark gray / Light gray
+        secondary: mode === 'light' ? '#666666' : '#E0E0E0', // Medium gray / Lighter gray
       },
     },
     ...commonSettings,

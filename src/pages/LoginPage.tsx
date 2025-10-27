@@ -70,21 +70,14 @@ export const LoginPage: React.FC = () => {
         </Typography>
       </Stack>
 
-      <Typography
-        variant="h5" // Changed from h4 to h5 for better hierarchy after adding logo
-        component="h1"
-        sx={{ mb: 3 }}
-        className="font-bold text-gray-800 dark:text-gray-100"
-      >
-        Login
-      </Typography>
+      
 
       <Paper sx={paperSx}>
         {error && (
           <Alert
             severity="error"
             sx={{ mb: 2 }}
-            className="bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200"
+            // Removed specific Tailwind color classes, relying on MUI theme's error palette
           >
             {error}
           </Alert>

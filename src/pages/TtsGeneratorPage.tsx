@@ -92,7 +92,8 @@ export const TtsGeneratorPage: React.FC = () => {
         <Alert
           severity="warning"
           sx={{ mb: 3 }}
-          className="bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200 flex items-center justify-between"
+          // Removed specific Tailwind color classes, relying on MUI theme's warning palette
+          className="flex items-center justify-between"
         >
           You are not logged in. Please{' '}
           <RouterLink to="/login" style={{ textDecoration: 'none' }}>
@@ -223,7 +224,7 @@ export const TtsGeneratorPage: React.FC = () => {
           <Alert
             severity="error"
             sx={{ mt: 3 }}
-            className="bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200"
+            // Removed specific Tailwind color classes, relying on MUI theme's error palette
           >
             {error}
           </Alert>
