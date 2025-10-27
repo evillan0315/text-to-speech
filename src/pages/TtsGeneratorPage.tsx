@@ -48,28 +48,36 @@ const LANGUAGE_CODE_OPTIONS: string[] = [
   'hi-IN',
 ];
 
-// These voice names are examples and should ideally be fetched from a backend API
-// based on the selected language code for a comprehensive list.
+// These voice names are a selection of those allowed by the Google Gemini TTS API
+// based on the provided error message. Ideally, these should be fetched dynamically from a backend.
 const VOICE_NAME_OPTIONS: string[] = [
-  'en-US-Studio-F',
-  'en-US-Studio-B',
-  'en-US-Wavenet-A',
-  'en-US-Wavenet-B',
-  'en-US-Wavenet-C',
-  'en-US-Wavenet-D',
-  'en-US-Wavenet-E',
-  'en-GB-Wavenet-A',
-  'en-GB-Wavenet-B',
-  'en-GB-Wavenet-C',
-  'en-GB-Wavenet-D',
-  'es-ES-Wavenet-A',
-  'fr-FR-Wavenet-A',
-  'de-DE-Wavenet-F',
-  'ja-JP-Wavenet-A',
-  'ko-KR-Wavenet-A',
-  'pt-BR-Wavenet-A',
-  'zh-CN-Standard-A',
-  // Add more as needed or fetched from an API
+  'kore',
+  'puck',
+  'fenrir',
+  'zephyr',
+  'achernar',
+  'gacrux',
+  'umbriel',
+  'vindemiatrix',
+  'algieba',
+  'aoede',
+  'autonoe',
+  'callirrhoe',
+  'charon',
+  'despina',
+  'enceladus',
+  'erinome',
+  'iapetus',
+  'laomedeia',
+  'leda',
+  'orus',
+  'pulcherrima',
+  'rasalgethi',
+  'sadachbia',
+  'sadaltager',
+  'schedar',
+  'sulafat',
+  'zubenelgenubi',
 ];
 
 const textFieldSx = {
