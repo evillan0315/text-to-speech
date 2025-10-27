@@ -1,9 +1,10 @@
 import type { ReactNode } from 'react';
 import React from 'react';
-import { AppBar, Toolbar, Typography, Box, Button } from '@mui/material';
+import { AppBar, Toolbar, Typography, Box, Button, Stack } from '@mui/material';
 import { ThemeToggle } from './ThemeToggle';
 import { Link as RouterLink } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
+import RecordVoiceOverIcon from '@mui/icons-material/RecordVoiceOver'; // Import the chosen icon
 
 interface LayoutProps {
   children: ReactNode;
@@ -19,13 +20,15 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     >
       <AppBar position="static" className="shadow-md">
         <Toolbar sx={{ justifyContent: 'space-between' }}>
-          {/* Left section: App Title and Home Link */}
+          {/* Left section: App Logo and Title as a Home Link */}
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <Typography variant="h6" component="div" sx={{ mr: 2, color: 'inherit' }}>
-              Gemini TTS Generator
-            </Typography>
-            <RouterLink to="/" style={{ textDecoration: 'none' }}>
-              <Button color="inherit">Home</Button>
+            <RouterLink to="/" style={{ textDecoration: 'none', color: 'inherit' }}>
+              <Stack direction="row" alignItems="center" spacing={1}>
+                <RecordVoiceOverIcon sx={{ fontSize: 30 }} /> {/* Adjusted size for navbar */}
+                <Typography variant="h6" component="div" sx={{ color: 'inherit' }}>
+                  Gemini TTS Generator
+                </Typography>
+              </Stack>
             </RouterLink>
           </Box>
 
