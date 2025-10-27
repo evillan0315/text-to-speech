@@ -9,9 +9,11 @@ import {
   Alert,
   Paper,
   Link,
+  Stack,
 } from '@mui/material';
 import GoogleIcon from '@mui/icons-material/Google';
 import GitHubIcon from '@mui/icons-material/GitHub';
+import RecordVoiceOverIcon from '@mui/icons-material/RecordVoiceOver'; // Import the chosen icon
 import { useAuth } from '../hooks/useAuth';
 
 export const LoginPage: React.FC = () => {
@@ -38,14 +40,10 @@ export const LoginPage: React.FC = () => {
   };
 
   const handleGoogleLogin = () => {
-    // In a production environment, the backend's `FRONTEND_URL` environment variable
-    // should be correctly configured to generate the full OAuth callback URL.
-    // The frontend should not hardcode or infer its own port for this.
     window.location.href = `/api/auth/google`;
   };
 
   const handleGitHubLogin = () => {
-    // Same as Google login, rely on backend's `FRONTEND_URL` for callback construction.
     window.location.href = `/api/auth/github`;
   };
 
@@ -59,8 +57,21 @@ export const LoginPage: React.FC = () => {
 
   return (
     <Box className="flex flex-col items-center justify-center p-6 max-w-md mx-auto min-h-[calc(100vh-128px)]">
+      {/* Logo Section */}
+      <Stack
+        direction="row"
+        alignItems="center"
+        spacing={1}
+        sx={{ mb: 4, color: 'primary.main' }}
+      >
+        <RecordVoiceOverIcon sx={{ fontSize: 60 }} />
+        <Typography variant="h3" component="div" className="font-extrabold">
+          Gemini TTS
+        </Typography>
+      </Stack>
+
       <Typography
-        variant="h4"
+        variant="h5" // Changed from h4 to h5 for better hierarchy after adding logo
         component="h1"
         sx={{ mb: 3 }}
         className="font-bold text-gray-800 dark:text-gray-100"
