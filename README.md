@@ -37,21 +37,16 @@ Before you begin, ensure you have the following installed:
 
 1.  **Clone the repository (if you haven't already):**
     ```bash
-    git clone https://github.com/evillan0315/project-board-server.git
-    cd project-board-server
+    git clone [https://github.com/evillan0315/project-board-server.git](https://github.com/evillan0315/text-to-speech)
+    cd text-to-speech)
     ```
 
-2.  **Navigate to the frontend application directory:**
-    ```bash
-    cd apps/text-to-speech
-    ```
-
-3.  **Install dependencies:**
+2.  **Install dependencies:**
     ```bash
     pnpm install
     ```
 
-4.  **Initialize Tailwind CSS (if not already done by script):**
+3.  **Initialize Tailwind CSS (if not already done by script):**
     ```bash
     pnpm run tailwind:init
     ```
