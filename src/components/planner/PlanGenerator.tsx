@@ -26,7 +26,7 @@ import CustomDrawer from '@/components/Drawer/CustomDrawer';
 import DirectoryPickerDrawer from '@/components/planner/drawerContent/DirectoryPickerDrawer';
 import ScanPathsDrawer from '@/components/planner/drawerContent/ScanPathsDrawer';
 import InstructionEditorDrawer from '@/components/planner/drawerContent/InstructionEditorDrawer'; // Planner-specific instruction drawer
-import { projectRootDirectoryStore, loadInitialTree, fileTreeStore } from '@/stores/fileTreeStore';
+import { projectRootDirectoryStore } from '@/stores/fileTreeStore';
 import * as path from 'path-browserify';
 
 const styles = {
@@ -56,7 +56,7 @@ const styles = {
 
 const PlanGenerator: React.FC = () => {
   const { userPrompt, plan, isLoading, error, projectRoot, scanPathsInput, additionalInstructions, expectedOutputFormat } = useStore(plannerStore);
-  const { flatFileList } = useStore(fileTreeStore);
+
   const globalProjectRoot = useStore(projectRootDirectoryStore);
 
   const [isProjectRootPickerDialogOpen, setIsProjectRootPickerDialogOpen] = useState(false);
@@ -78,7 +78,7 @@ const PlanGenerator: React.FC = () => {
       const base = import.meta.env.VITE_BASE_DIR;
       setLocalProjectRootInput(base);
       setProjectRoot(base);
-      loadInitialTree(base);
+
     }
   }, [globalProjectRoot]); // Only react to globalProjectRoot changes
 
@@ -102,10 +102,10 @@ const PlanGenerator: React.FC = () => {
   );
 
   const scanPathAutocompleteOptions = useMemo(() => {
-    const options = flatFileList.map((e) => e.filePath).filter(Boolean);
+    //const options = flatFileList.map((e) => e.filePath).filter(Boolean);
     return Array.from(
       new Set([
-        ...options,
+        //...options,
         'src',
         'public',
         'package.json',
@@ -113,31 +113,27 @@ const PlanGenerator: React.FC = () => {
         '.env',
       ]),
     ).sort();
-  }, [flatFileList]);
+  }, []);
 
   const getRelevantFiles = useMemo(() => {
-    if (!projectRoot || !scanPathsInput || flatFileList.length === 0) return [];
+    if (!projectRoot || !scanPathsInput ) return [];
 
     const scannedPaths = scanPathsInput
       .split(',')
       .map((s) => s.trim())
       .filter(Boolean);
 
-    return flatFileList
-      .filter((file) => {
-        if (!file.filePath) return false;
+
         return scannedPaths.some(
           (scanPath) =>
             file.filePath.startsWith(path.join(projectRoot, scanPath)) ||
             file.filePath === path.join(projectRoot, scanPath),
-        );
-      })
-      .map((file) => ({
+        ).map((file) => ({
         filePath: file.filePath,
         relativePath: path.relative(projectRoot, file.filePath),
         content: '', // Content will be fetched on backend
       }));
-  }, [projectRoot, scanPathsInput, flatFileList]);
+  }, [projectRoot, scanPathsInput]);
 
   const handleLoadProject = useCallback((selectedPath: string) => {
     if (!selectedPath.trim()) return setError('Please provide a project root path.');
@@ -146,7 +142,7 @@ const PlanGenerator: React.FC = () => {
     setError('');
     setPlan(null, null);
     setIsLoading(false);
-    loadInitialTree(selectedPath); // Load initial tree for the new root
+    
   }, []);
 
   const updateScanPaths = useCallback(
