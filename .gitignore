@@ -5,6 +5,7 @@
 /.pnpm-store
 /.pnpm-cache
 /samples/recorded
+/recorded
 # build output
 /dist
 /build
