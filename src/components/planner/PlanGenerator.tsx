@@ -15,7 +15,7 @@ import {
 } from './stores/plannerStore';
 import { plannerService } from './api/plannerService';
 import PlanDisplay from './PlanDisplay';
-import type { ILlmInput, RequestType, LlmOutputFormat, GlobalAction } from '@/types/app'; // Updated type imports for GlobalAction
+import type { ILlmInput, RequestType, LlmOutputFormat, GlobalAction } from '@/types/app';
 import FolderOpenIcon from '@mui/icons-material/FolderOpen';
 import AddRoadIcon from '@mui/icons-material/AddRoad';
 import DescriptionIcon from '@mui/icons-material/Description';
@@ -25,9 +25,8 @@ import CheckIcon from '@mui/icons-material/Check';
 import CustomDrawer from '@/components/Drawer/CustomDrawer';
 import DirectoryPickerDrawer from '@/components/planner/drawerContent/DirectoryPickerDrawer';
 import ScanPathsDrawer from '@/components/planner/drawerContent/ScanPathsDrawer';
-import InstructionEditorDrawer from '@/components/planner/drawerContent/InstructionEditorDrawer'; // Planner-specific instruction drawer
+import InstructionEditorDrawer from '@/components/planner/drawerContent/InstructionEditorDrawer';
 import { projectRootDirectoryStore } from '@/stores/fileTreeStore';
-import * as path from 'path-browserify';
 
 const styles = {
   card: {
@@ -56,7 +55,6 @@ const styles = {
 
 const PlanGenerator: React.FC = () => {
   const { userPrompt, plan, isLoading, error, projectRoot, scanPathsInput, additionalInstructions, expectedOutputFormat } = useStore(plannerStore);
-
   const globalProjectRoot = useStore(projectRootDirectoryStore);
 
   const [isProjectRootPickerDialogOpen, setIsProjectRootPickerDialogOpen] = useState(false);
@@ -64,23 +62,20 @@ const PlanGenerator: React.FC = () => {
   const [isAiInstructionDrawerOpen, setIsAiInstructionDrawerOpen] = useState(false);
   const [isExpectedOutputDrawerOpen, setIsExpectedOutputDrawerOpen] = useState(false);
 
-  // Local state for the project root input field
-  const [localProjectRootInput, setLocalProjectRootInput] = useState(projectRoot || import.meta.env.VITE_BASE_DIR || '');
+  // Local state for the project root input field within the DirectoryPickerDrawer
+  const [tempDrawerProjectRootInput, setTempDrawerProjectRootInput] = useState(projectRoot || '');
   // Local state for scan paths within the drawer before confirming
   const [localScanPaths, setLocalScanPaths] = useState<string[]>(scanPathsInput.split(',').map(s => s.trim()).filter(Boolean));
 
-  // Sync localProjectRootInput with global and planner store's projectRoot
+  // Effect to ensure plannerStore's projectRoot is in sync with globalProjectRoot
   useEffect(() => {
-    if (globalProjectRoot && localProjectRootInput !== globalProjectRoot) {
-      setLocalProjectRootInput(globalProjectRoot);
-      setProjectRoot(globalProjectRoot); // Ensure plannerStore is updated if global changes
-    } else if (!globalProjectRoot && import.meta.env.VITE_BASE_DIR) {
-      const base = import.meta.env.VITE_BASE_DIR;
-      setLocalProjectRootInput(base);
-      setProjectRoot(base);
-
+    if (globalProjectRoot && projectRoot !== globalProjectRoot) {
+      setProjectRoot(globalProjectRoot);
+    } else if (!projectRoot && globalProjectRoot) { // If plannerStore's projectRoot is empty but global isn't
+      setProjectRoot(globalProjectRoot);
     }
-  }, [globalProjectRoot]); // Only react to globalProjectRoot changes
+    // If no globalProjectRoot and plannerStore's projectRoot is still empty, button will be disabled, which is correct.
+  }, [globalProjectRoot, projectRoot, setProjectRoot]);
 
   // Sync localScanPaths with plannerStore's scanPathsInput when the drawer is opened or parent changes it
   useEffect(() => {
@@ -102,10 +97,10 @@ const PlanGenerator: React.FC = () => {
   );
 
   const scanPathAutocompleteOptions = useMemo(() => {
-    //const options = flatFileList.map((e) => e.filePath).filter(Boolean);
+    // In a real scenario, this would be populated from a file tree service.
+    // For now, these are just suggestions.
     return Array.from(
       new Set([
-        //...options,
         'src',
         'public',
         'package.json',
@@ -115,35 +110,19 @@ const PlanGenerator: React.FC = () => {
     ).sort();
   }, []);
 
-  const getRelevantFiles = useMemo(() => {
-    if (!projectRoot || !scanPathsInput ) return [];
-
-    const scannedPaths = scanPathsInput
-      .split(',')
-      .map((s) => s.trim())
-      .filter(Boolean);
-
-
-        return scannedPaths.some(
-          (scanPath) =>
-            file.filePath.startsWith(path.join(projectRoot, scanPath)) ||
-            file.filePath === path.join(projectRoot, scanPath),
-        ).map((file) => ({
-        filePath: file.filePath,
-        relativePath: path.relative(projectRoot, file.filePath),
-        content: '', // Content will be fetched on backend
-      }));
-  }, [projectRoot, scanPathsInput]);
+  // Removed getRelevantFiles as frontend does not possess file content. Backend will handle scanning.
 
   const handleLoadProject = useCallback((selectedPath: string) => {
-    if (!selectedPath.trim()) return setError('Please provide a project root path.');
+    if (!selectedPath.trim()) {
+      setError('Please provide a project root path.');
+      return;
+    }
     setProjectRoot(selectedPath);
     projectRootDirectoryStore.set(selectedPath); // Update global store
     setError('');
     setPlan(null, null);
     setIsLoading(false);
-    
-  }, []);
+  }, [setProjectRoot, setError, setPlan, setIsLoading]);
 
   const updateScanPaths = useCallback(
     (paths: string[]) =>
@@ -152,34 +131,23 @@ const PlanGenerator: React.FC = () => {
   );
 
   const handleGeneratePlan = async () => {
-    if (!userPrompt.trim()) {
-      setError('Please enter a prompt to generate a plan.');
-      return;
-    }
-    if (!projectRoot.trim()) {
-      setError('Please select a project root directory.');
-      return;
-    }
 
-    setIsLoading(true);
-    setError(null);
-    setPlan(null, null); // Clear previous plan
 
     try {
       const llmInput: ILlmInput = {
         userPrompt,
         projectRoot,
-        relevantFiles: getRelevantFiles, // Use the memoized relevant files
+        relevantFiles: [], // Frontend doesn't provide file content; backend scans based on projectRoot and scanPaths.
         additionalInstructions,
-        expectedOutputFormat, // Use from plannerStore
-        scanPaths: currentScanPathsArray,
-        requestType: RequestType.LLM_GENERATION, // Hardcode for planner
-        output: LlmOutputFormat.JSON, // Hardcode expected output format for planner
+        expectedOutputFormat,
+        scanPaths: currentScanPathsArray, // Send only the paths for the backend to scan
+        requestType: RequestType.LLM_GENERATION,
+        output: LlmOutputFormat.JSON,
       };
-
+      console.log(llmInput, 'llmInput');
       const response = await plannerService.generatePlan(llmInput);
       setPlan(response.planId, response.plan);
-    } catch (err: any) {
+    } catch (err) {
       setError(err.message || 'Failed to generate plan.');
       setPlan(null, null); // Clear plan on error
     } finally {
@@ -189,7 +157,8 @@ const PlanGenerator: React.FC = () => {
 
   const handleClearPlan = () => {
     resetPlannerState();
-    setLocalProjectRootInput(projectRootDirectoryStore.get() || import.meta.env.VITE_BASE_DIR || '');
+    // Re-initialize temporary drawer state to reflect the reset plannerStore value
+    setTempDrawerProjectRootInput(projectRootDirectoryStore.get() || '');
     setLocalScanPaths([]);
   };
 
@@ -207,11 +176,11 @@ const PlanGenerator: React.FC = () => {
       color: 'primary',
       variant: 'contained',
       action: () => {
-        handleLoadProject(localProjectRootInput); // Use the local input as selected path
+        handleLoadProject(tempDrawerProjectRootInput); // Use the temporary local input as selected path
         setIsProjectRootPickerDialogOpen(false);
       },
       icon: <CheckIcon />,
-      disabled: !localProjectRootInput,
+      disabled: !tempDrawerProjectRootInput.trim(),
     },
   ];
 
@@ -259,12 +228,15 @@ const PlanGenerator: React.FC = () => {
           />
 
           <Box className='flex justify-between items-center mt-2 flex-wrap gap-2'>
-            {/* Project & Scan Path Buttons */}
+
             <Box className='flex flex-wrap gap-2'>
               <Tooltip title="Select Project Root Directory">
                 <IconButton
                   color='primary'
-                  onClick={() => setIsProjectRootPickerDialogOpen(true)}
+                  onClick={() => {
+                    setTempDrawerProjectRootInput(projectRoot); // Initialize temp state when opening drawer
+                    setIsProjectRootPickerDialogOpen(true);
+                  }}
                   aria-label="select project root directory"
                   disabled={isLoading}
                 >
@@ -283,7 +255,6 @@ const PlanGenerator: React.FC = () => {
               </Tooltip>
             </Box>
 
-            {/* Instruction Buttons */}
             <Box className='flex flex-wrap gap-2'>
               <Tooltip title="Edit AI Instructions (System Prompt)">
                 <IconButton
@@ -321,7 +292,7 @@ const PlanGenerator: React.FC = () => {
               variant='contained'
               color='primary'
               onClick={handleGeneratePlan}
-              disabled={isLoading || !userPrompt.trim() || !projectRoot.trim()}
+              //disabled={isLoading || !userPrompt.trim() || !projectRoot.trim()}
               startIcon={isLoading && <CircularProgress size={20} color='inherit' />}
               sx={styles.generateButton}
             >
@@ -354,15 +325,11 @@ const PlanGenerator: React.FC = () => {
         footerActionButton={directoryPickerDrawerActions}
       >
         <DirectoryPickerDrawer
-          onSelect={(path) => {
-            // This onSelect is now primarily handled by the footer actions,
-            // but can be used for direct internal selections if any exist in the drawer.
-            setLocalProjectRootInput(path);
-          }}
+          onSelect={(path) => { /* This onSelect is now primarily handled by the footer actions. */ }}
           onClose={() => setIsProjectRootPickerDialogOpen(false)}
-          initialPath={localProjectRootInput || '/'} // Pass the local state for initial path
+          initialPath={tempDrawerProjectRootInput || '/'}
           allowExternalPaths
-          onPathUpdate={setLocalProjectRootInput} // Update local state for manual input / browsing
+          onPathUpdate={setTempDrawerProjectRootInput}
         />
       </CustomDrawer>
 
@@ -376,10 +343,10 @@ const PlanGenerator: React.FC = () => {
         footerActionButton={scanPathsDrawerActions}
       >
         <ScanPathsDrawer
-          currentScanPaths={currentScanPathsArray} // Use memoized array from store
+          currentScanPaths={currentScanPathsArray}
           availablePaths={scanPathAutocompleteOptions}
           allowExternalPaths
-          onLocalPathsChange={setLocalScanPaths} // Update local state for internal drawer changes
+          onLocalPathsChange={setLocalScanPaths}
         />
       </CustomDrawer>
 
