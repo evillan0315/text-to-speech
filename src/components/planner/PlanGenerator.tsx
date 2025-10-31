@@ -15,7 +15,7 @@ import {
 } from './stores/plannerStore';
 import { plannerService } from './api/plannerService';
 import PlanDisplay from './PlanDisplay';
-import type { GlobalAction } from '@/types/app';
+import type { GlobalAction } from '@/types/action'; // Corrected import path from '@/types/app' to '@/types/action'
 import type { ILlmInput, RequestType, LlmOutputFormat } from './types';
 import FolderOpenIcon from '@mui/icons-material/FolderOpen';
 import AddRoadIcon from '@mui/icons-material/AddRoad';

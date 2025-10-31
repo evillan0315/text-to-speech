@@ -170,6 +170,7 @@ const ScanPathsDrawer: React.FC<ScanPathsDrawerProps> = ({
               <ListItem
                 key={option}
                 button
+                component="li"
                 selected={localSelectedPaths.includes(option)}
                 onClick={() => addPath(option)}
               >
