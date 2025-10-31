@@ -16,7 +16,7 @@ import {
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import { useStore } from '@nanostores/react';
-import { themeAtom } from '@/stores/themeStore'; // Corrected import
+import { themeStore } from '@/stores/themeStore';
 import { GlobalAction } from '@/types';
 import GlobalActionButton from '@/components/ui/GlobalActionButton';
 // Define the types for the drawer
@@ -52,7 +52,7 @@ const CustomDrawer: React.FC<CustomDrawerProps> = ({
   title,
 }) => {
   const theme = useTheme();
-  const { theme: mode } = useStore(themeAtom); // Corrected usage
+  const { mode } = useStore(themeStore);
   const drawerWidth = `${drawerWidthPercentage[size] * 100}%`;
   const isFullScreen = size === 'fullscreen';
   // Styles for the drawer based on the position
@@ -78,12 +78,6 @@ const CustomDrawer: React.FC<CustomDrawerProps> = ({
       open={open}
       onClose={onClose}
       hideBackdrop={backdrop}
-      sx={
-        ...(position === 'left' || position === 'right'
-          ? { width: isFullScreen ? '100%' : drawerWidth }
-          : { height: isFullScreen ? '100%' : drawerWidth }),
-        top: `${position === 'bottom' ? '100%' : 0}`,
-      }
       PaperProps={{ sx: drawerPaperStyle }}
     >
       {isFullScreen ? (

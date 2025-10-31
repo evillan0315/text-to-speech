@@ -15,7 +15,8 @@ import {
 } from './stores/plannerStore';
 import { plannerService } from './api/plannerService';
 import PlanDisplay from './PlanDisplay';
-import type { ILlmInput, RequestType, LlmOutputFormat, GlobalAction } from '@/types/app';
+import type { GlobalAction } from '@/types/app';
+import type { ILlmInput, RequestType, LlmOutputFormat } from './types';
 import FolderOpenIcon from '@mui/icons-material/FolderOpen';
 import AddRoadIcon from '@mui/icons-material/AddRoad';
 import DescriptionIcon from '@mui/icons-material/Description';
@@ -131,7 +132,8 @@ const PlanGenerator: React.FC = () => {
   );
 
   const handleGeneratePlan = async () => {
-
+    setIsLoading(true);
+    setError(null); // Clear any previous errors
 
     try {
       const llmInput: ILlmInput = {
@@ -141,13 +143,14 @@ const PlanGenerator: React.FC = () => {
         additionalInstructions,
         expectedOutputFormat,
         scanPaths: currentScanPathsArray, // Send only the paths for the backend to scan
-        requestType: RequestType.LLM_GENERATION,
-        output: LlmOutputFormat.JSON,
+        requestType: 'LLM_GENERATION',
+        output: 'JSON',
       };
       console.log(llmInput, 'llmInput');
       const response = await plannerService.generatePlan(llmInput);
       setPlan(response.planId, response.plan);
-    } catch (err) {
+    } catch (err: any) {
+      console.log(err, 'err');
       setError(err.message || 'Failed to generate plan.');
       setPlan(null, null); // Clear plan on error
     } finally {
@@ -292,7 +295,7 @@ const PlanGenerator: React.FC = () => {
               variant='contained'
               color='primary'
               onClick={handleGeneratePlan}
-              //disabled={isLoading || !userPrompt.trim() || !projectRoot.trim()}
+              disabled={isLoading || !userPrompt.trim() || !projectRoot.trim()}
               startIcon={isLoading && <CircularProgress size={20} color='inherit' />}
               sx={styles.generateButton}
             >

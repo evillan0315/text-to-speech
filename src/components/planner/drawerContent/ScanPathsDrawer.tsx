@@ -14,7 +14,30 @@ import {
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import SearchIcon from '@mui/icons-material/Search';
-import { truncateFilePath } from '@/utils/fileUtils';
+
+/**
+ * Truncates a file path for display purposes.
+ * @param filePath The full file path.
+ * @param maxLength The maximum length before truncation (default: 30).
+ * @returns The truncated path with '...' if necessary.
+ */
+const truncate = (filePath: string, maxLength: number = 30): string => {
+  if (!filePath) return '';
+  const parts = filePath.split(/[\\/]/); // Split by / or \\ // Double quotes escaped
+  const fileName = parts[parts.length - 1];
+
+  if (fileName.length > maxLength - 3) {
+    return `...${fileName.substring(fileName.length - (maxLength - 3))}`;
+  } else if (filePath.length > maxLength) {
+    // If filename is short but full path is long, show beginning + filename
+    const availableLength = maxLength - fileName.length - 3; // 3 for '...'
+    if (availableLength > 0) {
+      return `${filePath.substring(0, availableLength)}...${fileName}`;
+    }
+    return `...${fileName}`; // Fallback if not enough space
+  }
+  return filePath;
+};
 
 interface ScanPathsDrawerProps {
   currentScanPaths: string[]; // Initial paths from parent (store)
@@ -164,10 +187,9 @@ const ScanPathsDrawer: React.FC<ScanPathsDrawerProps> = ({
           <Typography variant="body2" color="text.secondary">No paths selected.</Typography>
         ) : (
           localSelectedPaths.map((pathItem) => (
-            <Tooltip title={pathItem}>
+            <Tooltip title={pathItem} key={pathItem}>
             <Chip
-              key={pathItem}
-              label={truncateFilePath(pathItem)}
+              label={truncate(pathItem)}
               onDelete={() => handleRemovePath(pathItem)}
               size="small"
               color="primary"

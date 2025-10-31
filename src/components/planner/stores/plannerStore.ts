@@ -6,6 +6,15 @@ import {
 } from '../constants/instructions';
 import { projectRootDirectoryStore } from '@/stores/fileTreeStore';
 
+// Define a reasonable default project root path if none is set
+// This path is specific to the user's environment, based on the project structure.
+const DEFAULT_PROJECT_ROOT = '/media/eddie/Data/projects/nestJS/nest-modules/project-board-server/apps/text-to-speech';
+
+// Initialize projectRootDirectoryStore with a default if it's empty
+if (!projectRootDirectoryStore.get()) {
+  projectRootDirectoryStore.set(DEFAULT_PROJECT_ROOT);
+}
+
 interface PlannerState {
   userPrompt: string;
   currentPlanId: string | null;
@@ -28,8 +37,8 @@ export const plannerStore = atom<PlannerState>({
   error: null,
   applyStatus: 'idle',
   applyError: null,
-  projectRoot: projectRootDirectoryStore.get() || '', // Initialize with current project root or empty string
-  scanPathsInput: '', // Initialize empty, user will add paths
+  projectRoot: projectRootDirectoryStore.get(), // Now projectRootDirectoryStore should have a default
+  scanPathsInput: 'src, public, package.json, README.md, .env', // Provide sensible defaults for scan paths
   additionalInstructions: PLANNER_AI_INSTRUCTION, // Default from constants
   expectedOutputFormat: PLANNER_EXPECTED_OUTPUT_FORMAT, // Default from constants
 });
@@ -79,8 +88,8 @@ export const resetPlannerState = () => {
     error: null,
     applyStatus: 'idle',
     applyError: null,
-    projectRoot: projectRootDirectoryStore.get() || '',
-    scanPathsInput: '',
+    projectRoot: projectRootDirectoryStore.get(),
+    scanPathsInput: 'src, public, package.json, README.md, .env', // Reset to default scan paths as well
     additionalInstructions: PLANNER_AI_INSTRUCTION,
     expectedOutputFormat: PLANNER_EXPECTED_OUTPUT_FORMAT,
   });

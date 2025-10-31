@@ -18,13 +18,9 @@ import {
   Button,
 } from '@mui/material';
 import FolderOpenIcon from '@mui/icons-material/FolderOutlined';
-import FolderIcon from '@mui/icons-material/FolderOutlined';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
-import CheckIcon from '@mui/icons-material/Check';
 import * as path from 'path-browserify';
 import { projectRootDirectoryStore } from '@/stores/fileTreeStore';
-import { fetchDirectoryContents } from '@/api/file';
-import { FileTreeNode } from '@/types';
 
 interface DirectoryPickerDrawerProps {
   onSelect: (selectedPath: string) => void;
@@ -37,102 +33,64 @@ interface DirectoryPickerDrawerProps {
 const DirectoryPickerDrawer: React.FC<DirectoryPickerDrawerProps> = ({
   onSelect,
   onClose,
-  initialPath = '/media/eddie/Data/projects',
+  initialPath = '/media/eddie/Data/projects', // Default initial path, adjusted based on typical dev environment
   allowExternalPaths = false,
   onPathUpdate, // Destructure new prop
 }) => {
   const theme = useTheme();
   const [currentBrowsingPath, setCurrentBrowsingPath] = useState<string>('');
   const [tempPathInput, setTempPathInput] = useState<string>('');
-  const [directoryContents, setDirectoryContents] = useState<FileTreeNode[]>(
-    [],
-  );
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null); // Re-purposed for path validation errors
 
   const projectRoot = useStore(projectRootDirectoryStore);
+
+  // Internal handler to update path states and notify parent
+  const handlePathUpdateInternal = useCallback((newPath: string) => {
+    setCurrentBrowsingPath(newPath);
+    setTempPathInput(newPath);
+    if (onPathUpdate) {
+      onPathUpdate(newPath);
+    }
+    setError(null); // Clear any path errors on update
+  }, [onPathUpdate]);
 
   useEffect(() => {
     // Initialize with effective initial path
     const effectiveInitialPath = initialPath || projectRoot || '/';
-    setCurrentBrowsingPath(effectiveInitialPath);
-    setTempPathInput(effectiveInitialPath);
-    // Only fetch contents if the drawer is logically 'open' or relevant for initial load
-    fetchContents(effectiveInitialPath);
-    if (onPathUpdate) {
-      onPathUpdate(effectiveInitialPath);
-    }
-  }, [initialPath, projectRoot]); // Dependencies for initial setup
-
-  useEffect(() => {
-    setTempPathInput(currentBrowsingPath);
-  }, [currentBrowsingPath]);
-
-  const fetchContents = useCallback(async (dirPath: string) => {
-    setIsLoading(true);
-    setError(null);
-    setDirectoryContents([]);
-    try {
-      const contents = await fetchDirectoryContents(dirPath);
-      const foldersOnly = contents.filter((item) => item.type === 'folder');
-      foldersOnly.sort((a, b) => a.name.localeCompare(b.name));
-      setDirectoryContents(foldersOnly);
-      setCurrentBrowsingPath(dirPath); // Update current path after successful fetch
-      if (onPathUpdate) {
-        onPathUpdate(dirPath);
-      }
-    } catch (err) {
-      console.error(`Error fetching directory contents for ${dirPath}:`, err);
-      setError(
-        `Failed to load directory contents: ${err instanceof Error ? err.message : String(err)}`,
-      );
-      if (onPathUpdate) {
-        // Notify parent of path, even if loading failed (e.g., for error context)
-        onPathUpdate(dirPath);
-      }
-    } finally {
-      setIsLoading(false);
-    }
-  }, [onPathUpdate]);
+    handlePathUpdateInternal(effectiveInitialPath);
+  }, [initialPath, projectRoot, handlePathUpdateInternal]);
 
   const handleGoUp = useCallback(() => {
     const parentPath = path.dirname(currentBrowsingPath);
     const normalizedCurrentPath = currentBrowsingPath.replace(/\\/g, '/');
     const normalizedParentPath = parentPath.replace(/\\/g, '/');
 
-    const canGoAboveRoot = allowExternalPaths || normalizedParentPath.startsWith(projectRoot.replace(/\\/g, '/'));
+    const rootPatterns = ['/', /^[a-zA-Z]:(\/|\\)$/]; // Fixed regex for Windows drive roots (e.g., 'C:/' or 'C:\\')
+    const isRoot = rootPatterns.some((pattern) =>
+      typeof pattern === 'string'
+        ? normalizedCurrentPath === pattern
+        : pattern.test(normalizedCurrentPath),
+    );
 
-    if (
-      normalizedParentPath &&
-      normalizedParentPath !== normalizedCurrentPath &&
-      canGoAboveRoot
-    ) {
-      setCurrentBrowsingPath(normalizedParentPath);
-      if (onPathUpdate) {
-        onPathUpdate(normalizedParentPath);
+    if (normalizedParentPath && normalizedParentPath !== normalizedCurrentPath && !isRoot) {
+      // Check if going above project root is allowed
+      const normalizedProjectRoot = projectRoot.replace(/\\/g, '/');
+      if (allowExternalPaths || normalizedParentPath.startsWith(normalizedProjectRoot)) {
+        handlePathUpdateInternal(normalizedParentPath);
+      } else if (normalizedParentPath === normalizedProjectRoot) {
+        // Allow going to project root but not above if external paths are not allowed
+        handlePathUpdateInternal(normalizedParentPath);
       }
-      fetchContents(normalizedParentPath);
     }
-  }, [currentBrowsingPath, fetchContents, allowExternalPaths, projectRoot, onPathUpdate]);
+  }, [currentBrowsingPath, projectRoot, allowExternalPaths, handlePathUpdateInternal]);
 
   const handleOpenDirectory = useCallback(
     (dirPath: string) => {
-      setCurrentBrowsingPath(dirPath);
-      if (onPathUpdate) {
-        onPathUpdate(dirPath);
-      }
-      // No need to set projectRootDirectoryStore here, it's done upon 'Select' by parent
-      fetchContents(dirPath);
+      // This function now merely updates the *displayed* path without API interaction
+      handlePathUpdateInternal(dirPath);
     },
-    [fetchContents, onPathUpdate],
+    [handlePathUpdateInternal],
   );
-
-  // Removed handleSelectCurrent as selection is handled by parent's footer action
-  // const handleSelectCurrent = useCallback(() => {
-  //   onSelect(currentBrowsingPath);
-  //   // The parent (BottomToolbar) will handle projectRootDirectoryStore.set(currentBrowsingPath)
-  //   onClose(); // Close the drawer after selection
-  // }, [currentBrowsingPath, onSelect, onClose]);
 
   const handleTempPathInputChange = (
     e: React.ChangeEvent<HTMLInputElement>,
@@ -147,26 +105,29 @@ const DirectoryPickerDrawer: React.FC<DirectoryPickerDrawerProps> = ({
   const handleGoToPath = useCallback(() => {
     const trimmedPath = tempPathInput.trim();
     if (trimmedPath) {
-      setCurrentBrowsingPath(trimmedPath);
-      if (onPathUpdate) {
-        onPathUpdate(trimmedPath);
-      }
-      fetchContents(trimmedPath);
+      handlePathUpdateInternal(trimmedPath);
+    } else {
+      setError('Path cannot be empty.');
     }
-  }, [tempPathInput, fetchContents, onPathUpdate]);
+  }, [tempPathInput, handlePathUpdateInternal]);
 
   const canGoUp = useMemo(() => {
     const normalizedPath = currentBrowsingPath.replace(/\\/g, '/');
     const normalizedProjectRoot = projectRoot.replace(/\\/g, '/');
-    const rootPatterns = ['/', /^[a-zA-Z]:\/$/];
-    if (allowExternalPaths) return true;
-    return (
-      !rootPatterns.some((pattern) =>
-        typeof pattern === 'string'
-          ? normalizedPath === pattern
-          : pattern.test(normalizedPath),
-      ) && normalizedPath.startsWith(normalizedProjectRoot)
+    const rootPatterns = ['/', /^[a-zA-Z]:(\/|\\)$/]; // Fixed regex for root patterns
+
+    const isCurrentPathRoot = rootPatterns.some((pattern) =>
+      typeof pattern === 'string'
+        ? normalizedPath === pattern
+        : pattern.test(normalizedPath),
     );
+
+    if (isCurrentPathRoot) return false; // Cannot go up from a root
+
+    if (allowExternalPaths) return true; // Can always go up unless it's a root itself
+    
+    // If not allowing external paths, can only go up within projectRoot
+    return normalizedPath.startsWith(normalizedProjectRoot);
   }, [currentBrowsingPath, allowExternalPaths, projectRoot]);
 
   return (
@@ -184,7 +145,7 @@ const DirectoryPickerDrawer: React.FC<DirectoryPickerDrawerProps> = ({
         <MuiTextField
           fullWidth
           variant="outlined"
-          placeholder="Enter path or browse..."
+          placeholder="Enter path..."
           value={tempPathInput}
           onChange={handleTempPathInputChange}
           InputProps={{
@@ -223,7 +184,7 @@ const DirectoryPickerDrawer: React.FC<DirectoryPickerDrawerProps> = ({
           <span>
             <IconButton
               onClick={handleGoUp}
-              disabled={!canGoUp || isLoading}
+              disabled={!canGoUp}
               size="small"
               sx={{ color: theme.palette.text.secondary }}
             >
@@ -240,63 +201,15 @@ const DirectoryPickerDrawer: React.FC<DirectoryPickerDrawerProps> = ({
         </Typography>
       </Typography>
 
-      {isLoading ? (
-        <Box className="flex justify-center items-center h-48">
-          <CircularProgress size={24} />
-          <Typography
-            variant="body2"
-            sx={{ ml: 2, color: theme.palette.text.secondary }}
-          >
-            Loading folders...
-          </Typography>
-        </Box>
-      ) : error ? (
+      {error && (
         <Alert severity="error" sx={{ mt: 2 }}>
           {error}
         </Alert>
-      ) : directoryContents.length === 0 ? (
-        <Alert severity="info" sx={{ mt: 2 }}>
-          No subfolders found in "{currentBrowsingPath}".
-        </Alert>
-      ) : (
-        <List
-          dense
-          sx={{
-            maxHeight: '100%',
-            overflowY: 'auto',
-            border: `1px solid ${theme.palette.divider}`,
-            borderRadius: 1,
-            bgcolor: theme.palette.background.default,
-            flexGrow: 1,
-          }}
-        >
-          {directoryContents.map((folder) => (
-            <ListItem
-              key={folder.path}
-              onClick={() => handleOpenDirectory(folder.path)}
-              sx={
-                {
-                  '&:hover': { bgcolor: theme.palette.action.hover },
-                  cursor: 'pointer',
-                }
-              }
-            >
-              <ListItemIcon>
-                <FolderIcon
-                  fontSize="small"
-                  sx={{ color: theme.palette.warning.main }}
-                />
-              </ListItemIcon>
-              <ListItemText
-                primary={folder.name}
-                primaryTypographyProps={{
-                  style: { color: theme.palette.text.primary },
-                }}
-              />
-            </ListItem>
-          ))}
-        </List>
       )}
+
+      <Alert severity="info" sx={{ mt: 2 }}>
+        This dialog is for manually selecting a path. Dynamic folder browsing is disabled.
+      </Alert>
     </Box>
   );
 };
