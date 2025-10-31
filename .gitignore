@@ -4,7 +4,7 @@
 /node_modules
 /.pnpm-store
 /.pnpm-cache
-
+/samples/recorded
 # build output
 /dist
 /build
