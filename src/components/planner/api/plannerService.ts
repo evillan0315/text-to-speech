@@ -5,7 +5,7 @@ import type { IApplyPlanResult, IGeneratePlanResponse, ILlmInput, IPlan } from '
 const API_BASE_URL = '/api';
 
 const getAuthHeaders = () => {
-  const token = authStore.get().jwtToken;
+  const token = authStore.get().token; // Corrected from jwtToken to token
   return token ? { Authorization: `Bearer ${token}` } : {};
 };
 

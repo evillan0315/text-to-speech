@@ -53,7 +53,7 @@ const InstructionEditorDrawer: React.FC<InstructionEditorDrawerProps> = ({
   const drawerTitle = type === 'ai' ? 'Edit AI Instructions' : 'Edit Expected Output Format';
 
   const drawerActions: GlobalAction[] = [
-    { label: 'Cancel', action: handleCancel, icon: <ClearIcon />, color: 'text', variant: 'outlined' },
+    { label: 'Cancel', action: handleCancel, icon: <ClearIcon />, color: 'inherit', variant: 'outlined' },
     { label: 'Save', action: handleSave, icon: <SaveIcon />, color: 'primary', variant: 'contained' },
   ];
 

@@ -61,11 +61,13 @@ const DirectoryPickerDrawer: React.FC<DirectoryPickerDrawerProps> = ({
   }, [initialPath, projectRoot, handlePathUpdateInternal]);
 
   const handleGoUp = useCallback(() => {
+    // Ensure projectRoot is a string before calling replace
+    const normalizedProjectRoot = (projectRoot ?? '').replace(/\\/g, '/');
     const parentPath = path.dirname(currentBrowsingPath);
     const normalizedCurrentPath = currentBrowsingPath.replace(/\\/g, '/');
     const normalizedParentPath = parentPath.replace(/\\/g, '/');
 
-    const rootPatterns = ['/', /^[a-zA-Z]:(\/|\\)$/]; // Fixed regex for Windows drive roots (e.g., 'C:/' or 'C:\\')
+    const rootPatterns = ['/', /^[a-zA-Z]:(\/|\\)$/];
     const isRoot = rootPatterns.some((pattern) =>
       typeof pattern === 'string'
         ? normalizedCurrentPath === pattern
@@ -74,7 +76,6 @@ const DirectoryPickerDrawer: React.FC<DirectoryPickerDrawerProps> = ({
 
     if (normalizedParentPath && normalizedParentPath !== normalizedCurrentPath && !isRoot) {
       // Check if going above project root is allowed
-      const normalizedProjectRoot = projectRoot.replace(/\\/g, '/');
       if (allowExternalPaths || normalizedParentPath.startsWith(normalizedProjectRoot)) {
         handlePathUpdateInternal(normalizedParentPath);
       } else if (normalizedParentPath === normalizedProjectRoot) {
@@ -113,8 +114,9 @@ const DirectoryPickerDrawer: React.FC<DirectoryPickerDrawerProps> = ({
 
   const canGoUp = useMemo(() => {
     const normalizedPath = currentBrowsingPath.replace(/\\/g, '/');
-    const normalizedProjectRoot = projectRoot.replace(/\\/g, '/');
-    const rootPatterns = ['/', /^[a-zA-Z]:(\/|\\)$/]; // Fixed regex for root patterns
+    // Ensure projectRoot is a string before calling replace
+    const normalizedProjectRoot = (projectRoot ?? '').replace(/\\/g, '/');
+    const rootPatterns = ['/', /^[a-zA-Z]:(\/|\\)$/];
 
     const isCurrentPathRoot = rootPatterns.some((pattern) =>
       typeof pattern === 'string'

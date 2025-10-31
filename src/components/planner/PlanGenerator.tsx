@@ -15,8 +15,9 @@ import {
 } from './stores/plannerStore';
 import { plannerService } from './api/plannerService';
 import PlanDisplay from './PlanDisplay';
-import type { GlobalAction } from '@/types/action'; // Corrected import path from '@/types/app' to '@/types/action'
-import type { ILlmInput, RequestType, LlmOutputFormat } from './types';
+import type { GlobalAction } from '@/types/action';
+import type { ILlmInput } from './types';
+
 import FolderOpenIcon from '@mui/icons-material/FolderOpen';
 import AddRoadIcon from '@mui/icons-material/AddRoad';
 import DescriptionIcon from '@mui/icons-material/Description';
@@ -169,7 +170,7 @@ const PlanGenerator: React.FC = () => {
   const directoryPickerDrawerActions: GlobalAction[] = [
     {
       label: 'Cancel',
-      color: 'text',
+      color: 'inherit',
       variant: 'outlined',
       action: () => setIsProjectRootPickerDialogOpen(false),
       icon: <CloseIcon />,
@@ -179,7 +180,7 @@ const PlanGenerator: React.FC = () => {
       color: 'primary',
       variant: 'contained',
       action: () => {
-        handleLoadProject(tempDrawerProjectRootInput); // Use the temporary local input as selected path
+        handleLoadProject(tempDrawerProjectRootInput);
         setIsProjectRootPickerDialogOpen(false);
       },
       icon: <CheckIcon />,
@@ -191,7 +192,7 @@ const PlanGenerator: React.FC = () => {
   const scanPathsDrawerActions: GlobalAction[] = [
     {
       label: 'Cancel',
-      color: 'text',
+      color: 'inherit',
       variant: 'outlined',
       action: () => setIsScanPathsDialogOpen(false),
       icon: <CloseIcon />,
@@ -201,7 +202,7 @@ const PlanGenerator: React.FC = () => {
       color: 'primary',
       variant: 'contained',
       action: () => {
-        updateScanPaths(localScanPaths); // Commit changes from local state to store
+        updateScanPaths(localScanPaths);
         setIsScanPathsDialogOpen(false);
       },
       icon: <CheckIcon />,
@@ -237,7 +238,7 @@ const PlanGenerator: React.FC = () => {
                 <IconButton
                   color='primary'
                   onClick={() => {
-                    setTempDrawerProjectRootInput(projectRoot); // Initialize temp state when opening drawer
+                    setTempDrawerProjectRootInput(projectRoot);
                     setIsProjectRootPickerDialogOpen(true);
                   }}
                   aria-label="select project root directory"

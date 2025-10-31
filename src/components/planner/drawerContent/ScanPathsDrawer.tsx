@@ -2,7 +2,6 @@ import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import {
   TextField,
   List,
-  ListItem,
   ListItemText,
   IconButton,
   Box,
@@ -11,6 +10,7 @@ import {
   InputAdornment,
   useTheme,
   Tooltip,
+  ListItemButton,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import SearchIcon from '@mui/icons-material/Search';
@@ -167,15 +167,13 @@ const ScanPathsDrawer: React.FC<ScanPathsDrawerProps> = ({
             }}
           >
             {filteredOptions.map((option) => (
-              <ListItem
+              <ListItemButton
                 key={option}
-                button
-                component="li"
                 selected={localSelectedPaths.includes(option)}
                 onClick={() => addPath(option)}
               >
                 <ListItemText primary={option} />
-              </ListItem>
+              </ListItemButton>
             ))}
           </List>
         </>

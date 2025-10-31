@@ -1,4 +1,4 @@
-import { atom, map } from 'nanostores';
+import { atom } from 'nanostores';
 
 interface ThemeState {
   theme: 'light' | 'dark';
@@ -18,9 +18,8 @@ const getInitialTheme = (): 'light' | 'dark' => {
   }
   return 'light'; // Ultimate fallback
 };
-export const themeStore = atom<ThemeState>({
-  mode: getInitialTheme(),
-});
+
+// themeAtom is the primary store for theme state, used consistently across the app.
 export const themeAtom = atom<ThemeState>({
   theme: getInitialTheme(),
 });

@@ -1,25 +1,21 @@
-import React, { useState, ReactNode } from 'react';
+import React, { ReactNode } from 'react';
 import {
   Drawer,
   Box,
   IconButton,
   Typography,
   useTheme,
-  Slide,
-  Zoom,
-  Dialog,
   DialogContent,
   AppBar,
   Toolbar,
-  Paper,
   DialogActions
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import { useStore } from '@nanostores/react';
-import { themeStore } from '@/stores/themeStore';
+import { themeAtom } from '@/stores/themeStore'; // Changed from themeStore to themeAtom
 import { type GlobalAction } from '@/types/action';
 import GlobalActionButton from '@/components/ui/GlobalActionButton';
-// Define the types for the drawer
+
 interface CustomDrawerProps {
   open: boolean;
   onClose: () => void;
@@ -32,29 +28,32 @@ interface CustomDrawerProps {
   children: ReactNode;
   title?: string;
 }
+
 const drawerWidthPercentage: Record<CustomDrawerProps['size'], number> = {
   normal: 1 / 3,
   medium: 1 / 2,
   large: 3 / 4,
   fullscreen: 1,
 };
-// Drawer component
+
 const CustomDrawer: React.FC<CustomDrawerProps> = ({
   open,
   onClose,
   position,
   size = 'medium',
   hasBackdrop = false,
-  closeOnEscape = true,
+  closeOnEscape = true, // eslint-disable-line @typescript-eslint/no-unused-vars
   stickyHeader,
   footerActionButton,
   children,
   title,
 }) => {
   const theme = useTheme();
-  const { mode } = useStore(themeStore);
+  const { theme: currentThemeMode } = useStore(themeAtom); // Changed from { mode } = useStore(themeStore) to { theme } = useStore(themeAtom)
+
   const drawerWidth = `${drawerWidthPercentage[size] * 100}%`;
   const isFullScreen = size === 'fullscreen';
+
   // Styles for the drawer based on the position
   const drawerPaperStyle = {
     ...(position === 'left' || position === 'right'
@@ -69,19 +68,21 @@ const CustomDrawer: React.FC<CustomDrawerProps> = ({
     borderBottom: `${position === 'top' ? '1px solid' : ''}`,
     borderColor: theme.palette.divider,
   };
-  const backdrop = hasBackdrop ? true : false;
-  const closeOnKey = closeOnEscape ? undefined : 'escapeKeyDown';
-  const container = isFullScreen ? Dialog : Slide;
+  
+  // const backdrop = hasBackdrop ? true : false; // Backdrop controlled by hasBackdrop prop
+  // const closeOnKey = closeOnEscape ? undefined : 'escapeKeyDown'; // Not directly used in Drawer component props
+
   return (
     <Drawer
       anchor={position}
       open={open}
       onClose={onClose}
-      hideBackdrop={backdrop}
+      hideBackdrop={!hasBackdrop} // hideBackdrop is true if no backdrop, so negate hasBackdrop
       PaperProps={{ sx: drawerPaperStyle }}
+      disableEscapeKeyDown={!closeOnEscape} // Control escape key behavior
     >
       {isFullScreen ? (
-        <DialogContent>
+        <DialogContent sx={{ p: 0, '&:first-of-type': { pt: 0 } }}>
           <AppBar sx={{ position: 'relative' }}>
             <Toolbar>
               <IconButton
@@ -130,7 +131,7 @@ const CustomDrawer: React.FC<CustomDrawerProps> = ({
               </IconButton>
             </Box>
           )}
-          {title && (
+          {!stickyHeader && title && (
             <Box
               sx={{
                 p: 2,
