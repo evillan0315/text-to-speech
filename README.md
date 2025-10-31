@@ -152,7 +152,7 @@ This frontend interacts with the following backend endpoints (assuming `VITE_APP
 -   `GET /api/auth/google`: Initiates Google OAuth2 login redirect.
 -   `GET /api/auth/github`: Initiates GitHub OAuth2 login redirect.
 -   `GET /api/auth/me`: Fetches the profile of the currently authenticated user.
--   `POST /api/google-tts/generate`: Generates speech audio from text (requires authentication).
+-   `POST /api/google-tts/generate`: Generates speech audio from a structured dialogue `prompt` using Google Gemini's TTS model, supporting multiple named speakers and their voice profiles (requires authentication).
     -   **Description:** Generates speech audio from text using Google Gemini's TTS model, supporting multiple speakers.
     -   **Request Body (JSON):**
         ```json

@@ -5,6 +5,7 @@ import { getMuiTheme } from './theme';
 import { Layout } from './components/Layout';
 import { TtsGeneratorPage } from './pages/TtsGeneratorPage';
 import { AuthCallback } from './pages/AuthCallback';
+import { PlannerPage } from './pages/PlannerPage'; 
 import { LoginPage } from './pages/LoginPage'; // Import LoginPage
 import { themeAtom } from './stores/themeStore';
 import { useStore } from '@nanostores/react';
@@ -27,13 +28,13 @@ function App() {
       <CssBaseline />
       <Layout>
         <Routes>
-          <Route path="/" element={<TtsGeneratorPage />} />
-          <Route path="/login" element={<LoginPage />} /> { /* Add login route */ }
+          <Route path="/" element={<PlannerPage />} />
+          <Route path="/login" element={<LoginPage />} /> 
           <Route
             path="/auth/callback"
             element={<AuthCallback key={nanoid()} />} // Use nanoid for unique key on callback
           />
-          { /* Add other routes here if needed */ }
+          <Route path="/tts" element={<TtsGeneratorPage />} /> 
         </Routes>
       </Layout>
     </ThemeProvider>
