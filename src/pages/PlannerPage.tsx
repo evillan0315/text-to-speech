@@ -18,5 +18,3 @@ export const PlannerPage: React.FC = () => {
     </Box>
   );
 };
-
-

@@ -1,3 +1,4 @@
+```markdown
 # Google Gemini TTS & AI Code Planner Frontend
 
 ## Project Overview
@@ -102,7 +103,7 @@ To start the development server:
 pnpm run dev
 ```
 
-This will start the development server, usually accessible at `http://localhost:3003`. You can then navigate to `/login` to authenticate or `/` to access the AI Planner.
+This will start the development server, usually accessible at `http://localhost:3003`. You can then navigate to `/` to access the homepage, `/login` to authenticate, `/tts` for Text-to-Speech features, or `/planner` for AI Code Planner features.
 
 ### Building for Production
 
@@ -146,6 +147,13 @@ text-to-speech/
 │   │   └── ui/                 # General UI components
 │   ├── hooks/                  # Custom React hooks
 │   ├── pages/                  # Page-level components (routes)
+│   │   ├── AuthCallback.tsx
+│   │   ├── HomePage.tsx        # NEW: Main application homepage
+│   │   ├── LoginPage.tsx
+│   │   ├── PlannerLandingPage.tsx # NEW: Landing page for AI Planner
+│   │   ├── PlannerPage.tsx     # Actual AI Planner generator component
+│   │   ├── TtsGeneratorPage.tsx # Actual TTS generator component
+│   │   └── TtsLandingPage.tsx  # NEW: Landing page for TTS
 │   ├── stores/                 # Nanostores for global state management
 │   ├── theme/                  # Material UI theme configuration
 │   ├── types/                  # TypeScript type definitions
@@ -245,3 +253,4 @@ This project is licensed under the [MIT License](LICENSE).
 Eddie Villanueva - [evillan0315@gmail.com](mailto:evillan0315@gmail.com)
 [LinkedIn](https://www.linkedin.com/in/eddie-villalon/)
 [GitHub](https://github.com/evillan0315)
+```
