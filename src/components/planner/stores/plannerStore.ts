@@ -1,5 +1,5 @@
 import { atom } from 'nanostores';
-import type { IPlan } from '../types'; // Updated import
+import type { IPlan } from '../types';
 import {
   INSTRUCTION as PLANNER_AI_INSTRUCTION,
   INSTRUCTION_SCHEMA_OUTPUT as PLANNER_EXPECTED_OUTPUT_FORMAT,
@@ -9,7 +9,7 @@ import { projectRootDirectoryStore } from '@/stores/fileTreeStore';
 interface PlannerState {
   userPrompt: string;
   currentPlanId: string | null;
-  plan: IPlan | null; // Updated type
+  plan: IPlan | null;
   isLoading: boolean;
   error: string | null;
   applyStatus: 'idle' | 'applying' | 'success' | 'failure';
@@ -28,7 +28,7 @@ export const plannerStore = atom<PlannerState>({
   error: null,
   applyStatus: 'idle',
   applyError: null,
-  projectRoot: projectRootDirectoryStore.get() || import.meta.env.VITE_BASE_DIR || '', // Initialize with current project root or default
+  projectRoot: projectRootDirectoryStore.get() || '', // Initialize with current project root or empty string
   scanPathsInput: '', // Initialize empty, user will add paths
   additionalInstructions: PLANNER_AI_INSTRUCTION, // Default from constants
   expectedOutputFormat: PLANNER_EXPECTED_OUTPUT_FORMAT, // Default from constants
@@ -38,7 +38,7 @@ export const setUserPrompt = (prompt: string) => {
   plannerStore.set({ ...plannerStore.get(), userPrompt: prompt });
 };
 
-export const setPlan = (planId: string | null, plan: IPlan | null) => { // Updated parameter types
+export const setPlan = (planId: string | null, plan: IPlan | null) => {
   plannerStore.set({ ...plannerStore.get(), currentPlanId: planId, plan: plan, isLoading: false, error: null });
 };
 
@@ -79,7 +79,7 @@ export const resetPlannerState = () => {
     error: null,
     applyStatus: 'idle',
     applyError: null,
-    projectRoot: projectRootDirectoryStore.get() || import.meta.env.VITE_BASE_DIR || '',
+    projectRoot: projectRootDirectoryStore.get() || '',
     scanPathsInput: '',
     additionalInstructions: PLANNER_AI_INSTRUCTION,
     expectedOutputFormat: PLANNER_EXPECTED_OUTPUT_FORMAT,
