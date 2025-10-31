@@ -18,7 +18,7 @@ const getInitialTheme = (): 'light' | 'dark' => {
   }
   return 'light'; // Ultimate fallback
 };
-export const themeStore = map<ThemeState>({
+export const themeStore = atom<ThemeState>({
   mode: getInitialTheme(),
 });
 export const themeAtom = atom<ThemeState>({

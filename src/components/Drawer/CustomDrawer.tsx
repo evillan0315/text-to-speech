@@ -17,7 +17,7 @@ import {
 import CloseIcon from '@mui/icons-material/Close';
 import { useStore } from '@nanostores/react';
 import { themeStore } from '@/stores/themeStore';
-import { GlobalAction } from '@/types';
+import { type GlobalAction } from '@/types/action';
 import GlobalActionButton from '@/components/ui/GlobalActionButton';
 // Define the types for the drawer
 interface CustomDrawerProps {
