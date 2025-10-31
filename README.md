@@ -23,7 +23,7 @@ For a deep dive into the application's architecture and design principles, pleas
 
 ## Technologies Used
 
--   **Frontend**: React, Vite, TypeScript, Material UI v6, Tailwind CSS v4, Nanostores, Axios, React Router DOM, path-browserify.
+-   **Frontend**: React, Vite, TypeScript, Material UI v6, Material Icons v6, Tailwind CSS v4, Nanostores, Axios, React Router DOM, path-browserify.
 -   **Backend (Interacts with)**: Node.js, NestJS, Google Gemini API.
 
 ## Getting Started
