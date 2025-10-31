@@ -1,4 +1,4 @@
-```markdown
+
 # Google Gemini TTS & AI Code Planner Frontend
 
 ## Project Overview
@@ -253,4 +253,3 @@ This project is licensed under the [MIT License](LICENSE).
 Eddie Villanueva - [evillan0315@gmail.com](mailto:evillan0315@gmail.com)
 [LinkedIn](https://www.linkedin.com/in/eddie-villalon/)
 [GitHub](https://github.com/evillan0315)
-```
