@@ -54,7 +54,7 @@ const styles = {
   },
   tableContainer: {
     borderRadius: '8px',
-    overflow: 'hidden',
+    overflowY: 'auto', // Changed from 'hidden' to 'auto'
     backgroundColor: 'rgba(255, 255, 255, 0.05)',
   },
   tableHeadCell: {
