@@ -5,6 +5,7 @@ import {
   INSTRUCTION_SCHEMA_OUTPUT as PLANNER_EXPECTED_OUTPUT_FORMAT,
 } from '../constants/instructions';
 import { projectRootDirectoryStore } from '@/stores/fileTreeStore';
+import { persistentAtom } from '@/utils/persistentAtom';
 
 // Define a reasonable default project root path if none is set
 // This path is specific to the user's environment, based on the project structure.
@@ -43,7 +44,10 @@ export const plannerStore = atom<PlannerState>({
   additionalInstructions: PLANNER_AI_INSTRUCTION, // Default from constants
   expectedOutputFormat: PLANNER_EXPECTED_OUTPUT_FORMAT, // Default from constants
 });
-
+export const currentPlanId = persistentAtom<string | null>('currentPlanId', null);
+export const setCurrentPlanId = (planId: string) => {
+  currentPlanId.set(planId);
+};
 export const setUserPrompt = (prompt: string) => {
   plannerStore.set({ ...plannerStore.get(), userPrompt: prompt });
 };

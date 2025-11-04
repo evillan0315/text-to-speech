@@ -24,6 +24,7 @@ import {
   setScanPathsInput,
   updateCurrentPlanMetadata,
   updateFileChange,
+  setCurrentPlanId
 } from './stores/plannerStore';
 import { plannerService } from './api/plannerService';
 import PlanDisplay from './PlanDisplay';
@@ -198,6 +199,7 @@ const PlanGenerator: React.FC = () => {
       console.log(llmInput, 'llmInput');
       const response = await plannerService.generatePlan(llmInput);
       setPlan(response.planId, response.plan);
+      setCurrentPlanId(response.planId);
     } catch (err: any) {
       console.log(err, 'err');
       setError(err.message || 'Failed to generate plan.');
