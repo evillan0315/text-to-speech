@@ -10,7 +10,7 @@ export const PlannerPage: React.FC = () => {
   // or persistent storage (for projectRoot).
 
   return (
-    <Box className="h-full w-full overflow-hidden">
+    <Box className="h-full w-full overflow-hidden p-2">
       <PlanGenerator />
     </Box>
   );
