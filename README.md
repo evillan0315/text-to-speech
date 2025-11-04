@@ -19,9 +19,10 @@ For a deep dive into the application's architecture and design principles, pleas
 *   **Multi-Speaker Configuration (TTS):** Dynamically add, remove, and configure speaker profiles, assigning a unique speaker name (for AI prompting) and a specific voice name (e.g., 'kore', 'puck').
 *   **Integrated Audio Playback (TTS):** Generated `.wav` audio files are played directly in the browser for immediate feedback.
 *   **AI Code Planning & Generation:** Define project context through user prompts, specify scan paths for relevant files, provide detailed AI instructions (system prompt), and define the expected JSON output format to generate structured code modification plans (add, modify, delete, repair, analyze files, install, run).
+*   **Multimodal Input for Planner:** Upload images or other files to provide additional context for the AI during plan generation.
 *   **Granular Plan Review & Editing:** Review detailed plans including overall metadata (title, summary, thought process, documentation, git instructions) and individual file changes. Edit any aspect of the plan or its file changes (path, action, reason, new content) directly in the UI before application.
 *   **Granular Plan Application:** Apply entire generated plans or individual file changes to your local project directory, automating code modifications with clear status feedback.
-*   **User Feedback:** Provides clear visual cues for loading states, along with comprehensive error handling and messaging.
+*   **User Feedback & Error Details:** Provides clear visual cues for loading states, comprehensive error handling, and a dedicated UI to view detailed error messages from AI generation.
 *   **Theming:** Light/Dark mode toggle for personalized viewing.
 
 ## Technologies Used
@@ -161,12 +162,12 @@ text-to-speech/
 │   │   │   │   ├── FileChangeEditorDrawer.tsx # Drawer for editing individual file change details
 │   │   │   │   ├── InstructionEditorDrawer.tsx
 │   │   │   │   ├── PlanMetadataEditorDrawer.tsx # Editor for plan's high-level metadata
-│   │   │   │   ├── ScanPathsDrawer.tsx
-│   │   │   │   └── PlannerList.tsx # Drawer content for displaying a list of plans
+│   │   │   │   └── ScanPathsDrawer.tsx
 │   │   │   ├── stores/         # Nanostore for planner state
 │   │   │   │   └── plannerStore.ts
 │   │   │   ├── PlanDisplay.tsx # Component to display generated AI plans
 │   │   │   ├── PlanGenerator.tsx # Main component for AI plan generation
+│   │   │   ├── PlannerList.tsx # Component for displaying a list of plans (used within a drawer)
 │   │   │   └── types.ts        # Type definitions for the planner
 │   │   ├── ThemeToggle.tsx     # Light/Dark theme toggle
 │   │   └── ui/                 # General UI components (e.g., GlobalActionButton)
