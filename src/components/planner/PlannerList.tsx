@@ -73,8 +73,8 @@ const PlannerList: React.FC<PlannerListProps> = () => {
   };
 
   return (
-    <Box className="p-4 sm:p-6 lg:p-8 flex flex-col h-full"> {/* Removed overflow-hidden */}
-      <Typography variant="h4" component="h1" gutterBottom className="font-bold text-primary-main mb-6"> {/* Applied Tailwind classes */}
+    <Box className="p-4 sm:p-6 lg:p-8 flex flex-col h-full"> 
+      <Typography variant="h4" component="h1" gutterBottom className="font-bold text-primary-main mb-6"> 
         Existing AI Plans
       </Typography>
 
@@ -99,8 +99,8 @@ const PlannerList: React.FC<PlannerListProps> = () => {
       ))}
 
       {!loading && !error && plans.length > 0 && (
-        <Paper className="flex-grow" sx={{ width: '100%', mb: 3, display: 'flex', flexDirection: 'column' }}> {/* Added flex-grow and flex-column to Paper */}
-          <TableContainer sx={{ flexGrow: 1, overflowY: 'auto' }}> {/* Made TableContainer grow and scrollable */}
+        <Paper className="flex-grow" sx={{ width: '100%', mb: 3, display: 'flex', flexDirection: 'column' }}> 
+          <TableContainer sx={{ flexGrow: 1, overflowY: 'auto' }}> 
             <Table stickyHeader aria-label="planner list table">
               <TableHead>
                 <TableRow>
@@ -142,7 +142,7 @@ const PlannerList: React.FC<PlannerListProps> = () => {
               </TableBody>
             </Table>
           </TableContainer>
-          <Box className="flex justify-center p-4 flex-shrink-0"> {/* Centered pagination and prevented shrinking */}
+          <Box className="flex justify-center p-4 flex-shrink-0"> 
             <Pagination
               count={totalPages}
               page={page}
@@ -159,3 +159,4 @@ const PlannerList: React.FC<PlannerListProps> = () => {
 };
 
 export default PlannerList;
+
