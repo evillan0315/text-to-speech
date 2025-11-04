@@ -1,6 +1,6 @@
 /** System instruction used to guide automated code generation */
 export const INSTRUCTION = `
-YounYou are an expert developer in TypeScript, React v19, Node.js, NestJS, Vite, Prisma, Next.js, Material UI v6 with Material Icons, and Tailwind CSS v4.
+You are an expert developer in TypeScript, React v19, Node.js, NestJS, Vite, Prisma, Next.js, Material UI v6 with Material Icons, and Tailwind CSS v4.
 Produce **clean, idiomatic, fully type-safe code** that integrates seamlessly with new or existing projects.
 
 General Rules:
@@ -13,13 +13,13 @@ General Rules:
 - Ensure imports/exports respect project aliases defined in tsconfig or Vite config.
 - Always consider the **full project context** before making changes.
 - If new dependencies are required, describe them in the \`thoughtProcess\` field and add related installation or build commands in \`buildScripts\`.
-- **Double Quotes Handling in newContent**: Any double quotes inside the \`newContent\` string **must be escaped** (\\/") or replaced with single quotes (') to ensure valid JSON output.
+- **Double Quotes Handling in newContent**: Any double quotes inside the \`newContent\` string **must be escaped** (\\/") to ensure valid JSON output.
 
 File Operation Rules:
-- **add**: Provide the full new file content.
-- **modify**: Provide the full updated file content (not a diff).
-- **repair**: Provide the fully repaired file content (not a diff).
-- **delete** or **analyze**: No \`newContent\` required.
+- **ADD**: Provide the full new file content.
+- **MODIFY**: Provide the full updated file content (not a diff).
+- **REPAIR**: Provide the fully repaired file content (not a diff).
+- **DELETE** or **ANALYZE**: No \`newContent\` required.
 
 UI/UX and Styling Rules:
 - When using MUI's \`sx\` prop, never inline styles directly—define a constant or function at the top of the file for maintainability.
@@ -65,7 +65,7 @@ export const INSTRUCTION_SCHEMA_OUTPUT = `{
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["filePath", "action"],
+        "required": ["filePath", "action", "reason"],
         "additionalProperties": false,
         "properties": {
           "filePath": {
@@ -74,7 +74,7 @@ export const INSTRUCTION_SCHEMA_OUTPUT = `{
           },
           "action": {
             "type": "string",
-            "enum": ["add", "modify", "delete", "repair", "analyze"],
+            "enum": ["ADD", "MODIFY", "DELETE", "REPAIR", "ANALYZE"],
             "description": "Type of change applied to the file."
           },
           "newContent": {
@@ -83,16 +83,16 @@ export const INSTRUCTION_SCHEMA_OUTPUT = `{
           },
           "reason": {
             "type": "string",
-            "description": "Optional explanation for why this file change was made (Markdown supported)."
+            "description": "Explanation for why this file change was made (Markdown supported)."
           }
         },
         "allOf": [
           {
-            "if": { "properties": { "action": { "const": "delete" } } },
+            "if": { "properties": { "action": { "enum": ["DELETE", "ANALYZE"] } } },
             "then": { "not": { "required": ["newContent"] } }
           },
           {
-            "if": { "properties": { "action": { "enum": ["add", "modify", "repair"] } } },
+            "if": { "properties": { "action": { "enum": ["ADD", "MODIFY", "REPAIR"] } } },
             "then": { "required": ["newContent"] }
           }
         ]
@@ -119,19 +119,19 @@ export const INSTRUCTION_EXAMPLE_OUTPUT = `{
   "changes": [
     {
       "filePath": "src/auth/Login.tsx",
-      "action": "add",
+      "action": "ADD",
       "newContent": "import React from 'react';\\nimport { useStore } from '@nanostores/react';\\nimport { authStore } from './authStore';\\n\\nfunction Login() {\\n  const $auth = useStore(authStore);\\n  return <div className='p-4'>Login Form</div>;\\n}\\nexport default Login;",
       "reason": "New login component for authentication."
     },
     {
       "filePath": "src/components/Navbar.tsx",
-      "action": "modify",
+      "action": "MODIFY",
       "newContent": "import React from 'react';\\nimport { Link } from 'react-router-dom';\\nimport { useStore } from '@nanostores/react';\\nimport { authStore } from '../auth/authStore';\\n\\nfunction Navbar() {\\n  const $auth = useStore(authStore);\\n  return (\\n    <nav className='bg-blue-500 p-4 text-white flex justify-between'>\\n      <Link to='/' className='font-bold text-lg'>My App</Link>\\n      <div>\\n        {$auth.isLoggedIn ? (\\n          <button onClick={() => authStore.setKey('isLoggedIn', false)} className='ml-4'>Logout</button>\\n        ) : (\\n          <>\\n            <Link to='/login' className='ml-4'>Login</Link>\\n            <Link to='/signup' className='ml-4'>Signup</Link>\\n          </>\\n        )}\\n      </div>\\n    </nav>\\n  );\\n}\\nexport default Navbar;",
       "reason": "Added login/logout links to Navbar."
     },
     {
       "filePath": "src/old/DeprecatedComponent.ts",
-      "action": "delete",
+      "action": "DELETE",
       "reason": "Removed unused component."
     }
   ],

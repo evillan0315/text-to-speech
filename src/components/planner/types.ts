@@ -4,24 +4,60 @@
  */
 
 // Replicate backend enums as string unions to avoid direct Prisma dependency
-export type FileAction =
-  'ADD' | 'MODIFY' | 'DELETE' | 'REPAIR' | 'ANALYZE' | 'INSTALL' | 'RUN';
+export type FileAction = 'ADD' | 'MODIFY' | 'DELETE' | 'REPAIR' | 'ANALYZE' | 'INSTALL' | 'RUN';
 
 export type RequestType =
-  'TEXT_ONLY' | 'TEXT_WITH_IMAGE' | 'TEXT_WITH_FILE' | 'LLM_GENERATION' |
-  'LLM_CODE_ANALYSIS' | 'LLM_CODE_OPTIMIZATION' | 'LLM_CODE_REPAIR' |
-  'LLM_CODE_DOCUMENTATION' | 'LLM_ERROR_REPORTING' | 'LIVE_API' |
-  'RESUME_GENERATION' | 'RESUME_OPTIMIZATION' | 'RESUME_ENHANCEMENT' |
-  'VIDEO_GENERATION' | 'IMAGE_GENERATION' | 'AUDIO_GENERATION' |
-  'TEXT_TO_SPEECH' | 'SPEECH_TO_TEXT' | 'VOICE_COMMAND' |
-  'AUDIO_TRANSCRIPTION' | 'ERROR_ANALYSIS' | 'REFACTOR' |
-  'IMAGE_CAPTIONING' | 'SCREENSHOT_ANALYSIS' | 'WEB_SCRAPE_ANALYSIS' |
-  'OTHER' | 'PLAYWRIGHT_TASK_ANALYSIS';
+  | 'TEXT_ONLY'
+  | 'TEXT_WITH_IMAGE'
+  | 'TEXT_WITH_FILE'
+  | 'LLM_GENERATION'
+  | 'LLM_CODE_ANALYSIS'
+  | 'LLM_CODE_OPTIMIZATION'
+  | 'LLM_CODE_REPAIR'
+  | 'LLM_CODE_DOCUMENTATION'
+  | 'LLM_ERROR_REPORTING'
+  | 'LIVE_API'
+  | 'RESUME_GENERATION'
+  | 'RESUME_OPTIMIZATION'
+  | 'RESUME_ENHANCEMENT'
+  | 'VIDEO_GENERATION'
+  | 'IMAGE_GENERATION'
+  | 'AUDIO_GENERATION'
+  | 'TEXT_TO_SPEECH'
+  | 'SPEECH_TO_TEXT'
+  | 'VOICE_COMMAND'
+  | 'AUDIO_TRANSCRIPTION'
+  | 'ERROR_ANALYSIS'
+  | 'REFACTOR'
+  | 'IMAGE_CAPTIONING'
+  | 'SCREENSHOT_ANALYSIS'
+  | 'WEB_SCRAPE_ANALYSIS'
+  | 'OTHER'
+  | 'PLAYWRIGHT_TASK_ANALYSIS';
 
 export type LlmOutputFormat =
-  'JSON' | 'TEXT' | 'MARKDOWN' | 'YAML' | 'JAVASCRIPT' | 'TYPESCRIPT' |
-  'PYTHON' | 'GO' | 'JAVA' | 'CPP' | 'C' | 'CSHARP' | 'PHP' | 'RUBY' |
-  'RUST' | 'HTML' | 'CSS' | 'SQL' | 'XML' | 'SHELL' | 'DIFF' | 'PRISMA_SCHEMA';
+  | 'JSON'
+  | 'TEXT'
+  | 'MARKDOWN'
+  | 'YAML'
+  | 'JAVASCRIPT'
+  | 'TYPESCRIPT'
+  | 'PYTHON'
+  | 'GO'
+  | 'JAVA'
+  | 'CPP'
+  | 'C'
+  | 'CSHARP'
+  | 'PHP'
+  | 'RUBY'
+  | 'RUST'
+  | 'HTML'
+  | 'CSS'
+  | 'SQL'
+  | 'XML'
+  | 'SHELL'
+  | 'DIFF'
+  | 'PRISMA_SCHEMA';
 
 // Frontend DTOs and Interfaces
 
@@ -84,6 +120,30 @@ export interface IPlan {
   lastExecutionTimestamp?: Date;
   createdById?: string; // ID of the User who created the plan
   changes: IFileChange[];
+}
+
+/**
+ * Represents a simplified plan item for display in a list.
+ * This typically includes fields relevant for showing an overview.
+ */
+export interface IPlannerListItem {
+  id: string;
+  title: string;
+  summary?: string;
+  createdAt: Date;
+  updatedAt?: Date;
+  lastExecutionStatus?: string;
+}
+
+/**
+ * Response structure for a paginated list of plans.
+ */
+export interface IPaginatedPlansResponse {
+  items: IPlannerListItem[];
+  total: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
 }
 
 /**

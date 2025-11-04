@@ -1,25 +1,22 @@
-import React, { useState, ReactNode } from 'react';
+import type { ReactNode } from 'react';
+import React from 'react';
 import {
   Drawer,
   Box,
   IconButton,
   Typography,
   useTheme,
-  Slide,
-  Zoom,
-  Dialog,
   DialogContent,
   AppBar,
   Toolbar,
-  Paper,
-  DialogActions
+  DialogActions,
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import { useStore } from '@nanostores/react';
-import { themeAtom } from '@/stores/themeStore'; // Corrected import
-import { GlobalAction } from '@/types';
+import { themeAtom } from '@/stores/themeStore'; // Changed from themeStore to themeAtom
+import { type GlobalAction } from '@/types/action';
 import GlobalActionButton from '@/components/ui/GlobalActionButton';
-// Define the types for the drawer
+
 interface CustomDrawerProps {
   open: boolean;
   onClose: () => void;
@@ -32,13 +29,14 @@ interface CustomDrawerProps {
   children: ReactNode;
   title?: string;
 }
+
 const drawerWidthPercentage: Record<CustomDrawerProps['size'], number> = {
   normal: 1 / 3,
   medium: 1 / 2,
   large: 3 / 4,
   fullscreen: 1,
 };
-// Drawer component
+
 const CustomDrawer: React.FC<CustomDrawerProps> = ({
   open,
   onClose,
@@ -52,9 +50,11 @@ const CustomDrawer: React.FC<CustomDrawerProps> = ({
   title,
 }) => {
   const theme = useTheme();
-  const { theme: mode } = useStore(themeAtom); // Corrected usage
+  const { theme: currentThemeMode } = useStore(themeAtom); // Changed from { mode } = useStore(themeStore) to { theme } = useStore(themeAtom)
+
   const drawerWidth = `${drawerWidthPercentage[size] * 100}%`;
   const isFullScreen = size === 'fullscreen';
+
   // Styles for the drawer based on the position
   const drawerPaperStyle = {
     ...(position === 'left' || position === 'right'
@@ -69,42 +69,37 @@ const CustomDrawer: React.FC<CustomDrawerProps> = ({
     borderBottom: `${position === 'top' ? '1px solid' : ''}`,
     borderColor: theme.palette.divider,
   };
-  const backdrop = hasBackdrop ? true : false;
-  const closeOnKey = closeOnEscape ? undefined : 'escapeKeyDown';
-  const container = isFullScreen ? Dialog : Slide;
+
   return (
     <Drawer
       anchor={position}
       open={open}
       onClose={onClose}
-      hideBackdrop={backdrop}
-      sx={
-        ...(position === 'left' || position === 'right'
-          ? { width: isFullScreen ? '100%' : drawerWidth }
-          : { height: isFullScreen ? '100%' : drawerWidth }),
-        top: `${position === 'bottom' ? '100%' : 0}`,
-      }
+      hideBackdrop={!hasBackdrop} // hideBackdrop is true if no backdrop, so negate hasBackdrop
       PaperProps={{ sx: drawerPaperStyle }}
+      disableEscapeKeyDown={!closeOnEscape} // Control escape key behavior
     >
       {isFullScreen ? (
-        <DialogContent>
-          <AppBar sx={{ position: 'relative' }}>
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            height: '100vh',
+            width: '100vw',
+          }}
+        >
+          <AppBar position="static" className="shadow-md"> {/* Added shadow-md for consistency */}
             <Toolbar>
-              <IconButton
-                edge="start"
-                color="inherit"
-                onClick={onClose}
-                aria-label="close"
-              >
+              <IconButton edge="start" color="inherit" onClick={onClose} aria-label="close">
                 <CloseIcon />
               </IconButton>
-              <Typography sx={{ ml: 2, flex: 1 }} variant="h6" component="div">
+              <Typography sx={{ ml: 2, flex: 1 }} variant="h6" component="div" color="inherit"> {/* Ensure text color inherits */}
                 {title}
               </Typography>
             </Toolbar>
           </AppBar>
-          <Box sx={{ p: 2 }}>{children}</Box>
-        </DialogContent>
+          <Box sx={{ flexGrow: 1, overflowY: 'auto', p: 2 }}>{children}</Box> {/* Added p:2 for consistent padding */}
+        </Box>
       ) : (
         <Box
           sx={{
@@ -122,21 +117,15 @@ const CustomDrawer: React.FC<CustomDrawerProps> = ({
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between',
-                
               }}
             >
               {stickyHeader}
-              <IconButton
-                edge="end"
-                color="inherit"
-                onClick={onClose}
-                aria-label="close"
-              >
+              <IconButton edge="end" color="inherit" onClick={onClose} aria-label="close">
                 <CloseIcon />
               </IconButton>
             </Box>
           )}
-          {title && (
+          {!stickyHeader && title && (
             <Box
               sx={{
                 p: 2,
@@ -151,12 +140,7 @@ const CustomDrawer: React.FC<CustomDrawerProps> = ({
               <Typography variant="h6" component="div">
                 {title}
               </Typography>
-              <IconButton
-                edge="end"
-                color="inherit"
-                onClick={onClose}
-                aria-label="close"
-              >
+              <IconButton edge="end" color="inherit" onClick={onClose} aria-label="close">
                 <CloseIcon />
               </IconButton>
             </Box>
@@ -170,12 +154,14 @@ const CustomDrawer: React.FC<CustomDrawerProps> = ({
             {children}
           </Box>
           {footerActionButton && (
-            <DialogActions sx={{
+            <DialogActions
+              sx={{
                 p: 2,
                 bgcolor: theme.palette.background.default,
                 borderTop: `1px solid ${theme.palette.divider}`,
-                justifyContent: `${position === 'left' ? 'flex-end' : 'flex-start' }`,
-              }}>
+                justifyContent: `${position === 'left' || position === 'bottom' ? 'flex-end' : 'flex-start'}`, // Adjust alignment based on position
+              }}
+            >
               <GlobalActionButton globalActions={footerActionButton} />
             </DialogActions>
           )}

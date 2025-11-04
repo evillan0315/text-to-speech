@@ -20,6 +20,7 @@
     "@nanostores/react": "^0.7.2",
     "axios": "^1.7.2",
     "clsx": "^2.1.1",
+    "date-fns": "^4.1.0",
     "nanostores": "^0.10.3",
     "path-browserify": "^1.0.1",
     "react": "^18.3.1",

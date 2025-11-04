@@ -27,7 +27,6 @@ import {
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
-import { Link as RouterLink } from 'react-router-dom';
 
 import type { TtsRequestDto } from '../types/tts';
 import { useAuth } from '../hooks/useAuth';
@@ -82,21 +81,21 @@ const VOICE_NAME_OPTIONS: string[] = [
 
 const textFieldSx = {
   '& .MuiOutlinedInput-root': {
-    '& fieldset': { borderColor: 'primary.light'},
+    '& fieldset': { borderColor: 'primary.light' },
     '&:hover fieldset': { borderColor: 'primary.main' },
     '&.Mui-focused fieldset': { borderColor: 'primary.dark' },
   },
   '& .MuiInputLabel-root': { color: 'text.secondary' },
-  '& .MuiInputBase-input': { color: 'text.primary'  },
+  '& .MuiInputBase-input': { color: 'text.primary' },
 };
 
 const speakerTextFieldSx = {
   '& .MuiOutlinedInput-root': {
-    '& fieldset': { borderColor: 'secondary.light'},
-    '&:hover fieldset': { borderColor: 'secondary.main'  },
+    '& fieldset': { borderColor: 'secondary.light' },
+    '&:hover fieldset': { borderColor: 'secondary.main' },
     '&.Mui-focused fieldset': { borderColor: 'secondary.dark' },
   },
-  '& .MuiInputLabel-root': { color: 'text.dark', },
+  '& .MuiInputLabel-root': { color: 'text.dark' },
   '& .MuiInputBase-input': { color: 'text.primary' },
 };
 
@@ -152,24 +151,15 @@ export const TtsGeneratorPage: React.FC = () => {
   };
 
   return (
-    <Box className="p-6 max-w-4xl mx-auto">
+    <Box className="p-6 max-w-7xl mx-auto">
       <Typography variant="h4" component="h1" sx={headerSx}>
         Gemini Text-to-Speech Generator
       </Typography>
 
       {!isLoggedIn && (
-        <Alert
-          severity="warning"
-          sx={{ mb: 3 }}
-          className="flex items-center justify-between"
-        >
-          You are not logged in. Please{' '}
-          <RouterLink to="/login" style={{ textDecoration: 'none' }}>
-            <Button variant="contained" color="primary" size="small">
-              Login
-            </Button>
-          </RouterLink>{' '}
-          to generate speech.
+        <Alert severity="warning" sx={{ mb: 3 }} className="flex items-center justify-between">
+          You are not logged in. Please log in to generate speech.
+          {/* Removed direct RouterLink to login, as Layout provides a global login button */}
         </Alert>
       )}
 
@@ -216,58 +206,60 @@ export const TtsGeneratorPage: React.FC = () => {
         <Typography variant="h6" sx={{ mt: 2, mb: 1, color: 'text.primary' }}>
           Speakers
         </Typography>
-        <Paper elevation={3} sx={{backgroundColor:'background.default', pt:1}}>
-        <List dense>
-          {speakers.map((speakerData, index) => (
-            <ListItem key={speakerData.id} className="flex items-center gap-x-2 mb-2"> { /* Changed space-x-2 to gap-x-2 */}
-              <TextField
-                label={`Speaker ${index + 1} Name`}
-                value={speakerData.speaker}
-                onChange={(e) => updateSpeaker(speakerData.id, 'speaker', e.target.value)}
-                variant="outlined"
-                size="small"
-                disabled={loading || !isLoggedIn}
-                className="flex-1"
-                sx={speakerTextFieldSx}
-              />
-              <Autocomplete
-                freeSolo
-                options={VOICE_NAME_OPTIONS}
-                value={speakerData.voiceName}
-                onChange={(_event, newValue) => {
-                  updateSpeaker(speakerData.id, 'voiceName', newValue || '');
-                }}
-                onInputChange={(_event, newInputValue) => {
-                  updateSpeaker(speakerData.id, 'voiceName', newInputValue || '');
-                }}
-                disabled={loading || !isLoggedIn}
-                size="small"
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    label={`Voice Name`}
-                    variant="outlined"
-                    fullWidth
-                    className="flex-1"
-                    sx={speakerTextFieldSx}
-                  />
-                )}
-                className="flex-1"
-              />
-              {speakers.length > 1 && (
-                <IconButton
-                  onClick={() => removeSpeaker(speakerData.id)}
-                  color="error"
+        <Paper elevation={3} sx={{ backgroundColor: 'background.default', pt: 1 }}>
+          <List dense>
+            {speakers.map((speakerData, index) => (
+              <ListItem key={speakerData.id} className="flex items-center gap-x-2 mb-2">
+                {' '}
+                {/* Changed space-x-2 to gap-x-2 */}
+                <TextField
+                  label={`Speaker ${index + 1} Name`}
+                  value={speakerData.speaker}
+                  onChange={(e) => updateSpeaker(speakerData.id, 'speaker', e.target.value)}
+                  variant="outlined"
+                  size="small"
                   disabled={loading || !isLoggedIn}
-                  aria-label="remove speaker"
-                >
-                  <DeleteIcon />
-                </IconButton>
-              )}
-            </ListItem>
-          ))}
-        </List>
-          </Paper>
+                  className="flex-1"
+                  sx={speakerTextFieldSx}
+                />
+                <Autocomplete
+                  freeSolo
+                  options={VOICE_NAME_OPTIONS}
+                  value={speakerData.voiceName}
+                  onChange={(_event, newValue) => {
+                    updateSpeaker(speakerData.id, 'voiceName', newValue || '');
+                  }}
+                  onInputChange={(_event, newInputValue) => {
+                    updateSpeaker(speakerData.id, 'voiceName', newInputValue || '');
+                  }}
+                  disabled={loading || !isLoggedIn}
+                  size="small"
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      label={`Voice Name`}
+                      variant="outlined"
+                      fullWidth
+                      className="flex-1"
+                      sx={speakerTextFieldSx}
+                    />
+                  )}
+                  className="flex-1"
+                />
+                {speakers.length > 1 && (
+                  <IconButton
+                    onClick={() => removeSpeaker(speakerData.id)}
+                    color="error"
+                    disabled={loading || !isLoggedIn}
+                    aria-label="remove speaker"
+                  >
+                    <DeleteIcon />
+                  </IconButton>
+                )}
+              </ListItem>
+            ))}
+          </List>
+        </Paper>
         <Button
           onClick={addSpeaker}
           startIcon={<AddIcon />}
