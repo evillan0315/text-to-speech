@@ -6,10 +6,7 @@ export default defineConfig(({ mode }) => {
     const env = loadEnv(mode, process.cwd());
     return {
         // Ensure plugins are correctly flattened if they return arrays or for type inference issues
-        plugins: [
-            react(),
-            tailwindcss()
-        ].flat().filter(Boolean),
+        plugins: [react(), tailwindcss()].flat().filter(Boolean),
         resolve: {
             alias: {
                 '@': path.resolve(__dirname, 'src'),
@@ -33,16 +30,14 @@ export default defineConfig(({ mode }) => {
             cors: {
                 origin: ['*'],
                 methods: ['GET', 'POST', 'OPTIONS', 'DELETE', 'PATCH', 'PUT'],
-                allowedHeaders: ['Content-Type', 'Authorization'], credentials: true,
+                allowedHeaders: ['Content-Type', 'Authorization'],
+                credentials: true,
             },
-            allowedHosts: [
-                'app.local',
-                'localhost'
-            ],
+            allowedHosts: ['app.local', 'localhost'],
         },
         define: {
             'process.env.NODE_ENV': JSON.stringify(mode),
-            // These define statements are only relevant if the frontend code directly uses them. 
+            // These define statements are only relevant if the frontend code directly uses them.
             // Current services use relative '/api' paths handled by proxy/rewrites.
             'import.meta.env.GITHUB_CALLBACK_URL': JSON.stringify(env.GITHUB_CALLBACK_URL),
             'import.meta.env.GOOGLE_CALLBACK_URL': JSON.stringify(env.GOOGLE_CALLBACK_URL),

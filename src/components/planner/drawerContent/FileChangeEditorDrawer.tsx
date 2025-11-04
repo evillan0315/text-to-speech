@@ -158,7 +158,7 @@ const FileChangeEditorDrawer: React.FC<FileChangeEditorDrawerProps> = ({
             variant="outlined"
             required
             InputProps={{ style: { fontFamily: 'monospace' } }}
-            sx={{ flexGrow: 1, '.MuiInputBase-root': { height: '100%', alignItems: 'flex-start' } }}
+            sx={{ flexGrow: 1, '.MuiInputBase-root': { height: '100%', alignItems: 'flex-start' }, '.MuiInputBase-root .MuiInputBase-input': { height: '100% !important', alignItems: 'flex-start' } }}
           />
         )}
       </Box>

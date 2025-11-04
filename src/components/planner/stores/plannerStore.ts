@@ -2,8 +2,9 @@ import { atom } from 'nanostores';
 import type { IPlan, IFileChange } from '../types';
 import {
   INSTRUCTION as PLANNER_AI_INSTRUCTION,
-  INSTRUCTION_SCHEMA_OUTPUT as PLANNER_EXPECTED_OUTPUT_FORMAT,
-} from '../constants/instructions';
+  INSTRUCTION_SCHEMA_OUTPUT as PLANNER_EXPECTED_OUTPUT_FORMAT
+} from '@/components/planner/constants/instructions';
+
 import { projectRootDirectoryStore } from '@/stores/fileTreeStore';
 import { persistentAtom } from '@/utils/persistentAtom';
 
