@@ -105,3 +105,4 @@ export interface IApplyPlanResult {
   newHead?: string; // Git commit hash after applying changes
   results?: any[]; // Detailed results of each change application (e.g., file: 'x', ok: true)
 }
+

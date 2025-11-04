@@ -58,20 +58,27 @@ export const plannerService = {
     }
   },
 
-  // Future: Add applyChunk if needed
-  // async applyChunk(planId: string, chunkIndex: number): Promise<any> {
-  //   try {
-  //     const response = await axios.post(
-  //       `${API_BASE_URL}/api/plan/${planId}/apply-chunk/${chunkIndex}`,
-  //       {},
-  //       { headers: getAuthHeaders() },
-  //     );
-  //     return response.data;
-  //   } catch (error) {
-  //     if (axios.isAxiosError(error) && error.response) {
-  //       throw new Error(error.response.data.message || 'Failed to apply chunk.');
-  //     }
-  //     throw new Error('An unexpected error occurred during chunk application.');
-  //   }
-  // },
+  /**
+   * Applies a single file change from a plan.
+   * Assumes backend has an endpoint to apply a change by its index.
+   * @param planId The ID of the plan.
+   * @param changeIndex The index of the specific change within the plan's changes array.
+   * @param projectRoot Optional project root to override the server's default.
+   * @returns A promise that resolves to an IApplyPlanResult.
+   */
+  async applyFileChange(planId: string, changeIndex: number, projectRoot?: string): Promise<IApplyPlanResult> {
+    try {
+      const response = await axios.post<{ result: IApplyPlanResult }>(
+        `${API_BASE_URL}/plan/${planId}/apply-change-by-index`,
+        { changeIndex, projectRoot },
+        { headers: getAuthHeaders() },
+      );
+      return response.data.result;
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response) {
+        throw new Error(error.response.data.message || 'Failed to apply single file change.');
+      }
+      throw new Error('An unexpected error occurred during single file change application.');
+    }
+  },
 };
