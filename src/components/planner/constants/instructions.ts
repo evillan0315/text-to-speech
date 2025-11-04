@@ -65,7 +65,7 @@ export const INSTRUCTION_SCHEMA_OUTPUT = `{
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["filePath", "action"],
+        "required": ["filePath", "action", "reason"],
         "additionalProperties": false,
         "properties": {
           "filePath": {
@@ -83,7 +83,7 @@ export const INSTRUCTION_SCHEMA_OUTPUT = `{
           },
           "reason": {
             "type": "string",
-            "description": "Optional explanation for why this file change was made (Markdown supported)."
+            "description": "Explanation for why this file change was made (Markdown supported)."
           }
         },
         "allOf": [
