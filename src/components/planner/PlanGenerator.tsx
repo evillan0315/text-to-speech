@@ -44,9 +44,9 @@ import SchemaIcon from '@mui/icons-material/Schema';
 import CloseIcon from '@mui/icons-material/Close';
 import CheckIcon from '@mui/icons-material/Check';
 import ListAltIcon from '@mui/icons-material/ListAlt';
-import BugReportIcon from '@mui/icons-material/BugReport'; // New import for debug icon
-import UploadFileIcon from '@mui/icons-material/UploadFile'; // New: Upload File Icon
-import ClearIcon from '@mui/icons-material/Clear'; // New: Clear Icon for uploaded file
+import BugReportIcon from '@mui/icons-material/BugReport';
+import UploadFileIcon from '@mui/icons-material/UploadFile';
+import ClearIcon from '@mui/icons-material/Clear';
 
 import CustomDrawer from '@/components/Drawer/CustomDrawer';
 import DirectoryPickerDrawer from '@/components/planner/drawerContent/DirectoryPickerDrawer';
@@ -105,7 +105,7 @@ const PlanGenerator: React.FC = () => {
     fileMimeType,
   } = useStore(plannerStore);
   const globalProjectRoot = useStore(projectRootDirectoryStore);
-  const navigate = useNavigate();
+  const navigate = useNavigate(); // Initialize useNavigate
   const theme = useTheme();
 
   const [isProjectRootPickerDialogOpen, setIsProjectRootPickerDialogOpen] = useState(false);
@@ -280,6 +280,7 @@ const PlanGenerator: React.FC = () => {
       const response = await plannerService.generatePlan(llmInput);
       setPlan(response.planId, response.plan);
       setCurrentPlanId(response.planId);
+      navigate(`/planner-generator/${response.planId}`); // Navigate to the generated plan's URL
     } catch (err: any) {
       console.log(err, 'err');
       setError(err.message || 'Failed to generate plan.');
