@@ -25,7 +25,8 @@ import {
   updateCurrentPlanMetadata,
   updateFileChange,
   setCurrentPlanId,
-  loadPlanFromId, // New import
+  setAdditionalInstructions,
+  setExpectedOutputFormat,
 } from './stores/plannerStore';
 import { plannerService } from './api/plannerService';
 import PlanDisplay from './PlanDisplay';
@@ -38,21 +39,17 @@ import DescriptionIcon from '@mui/icons-material/Description';
 import SchemaIcon from '@mui/icons-material/Schema';
 import CloseIcon from '@mui/icons-material/Close';
 import CheckIcon from '@mui/icons-material/Check';
-import ListAltIcon from '@mui/icons-material/ListAlt';
+import ListAltIcon from '@mui/icons-material/ListAlt'; // New import for the list icon
 
 import CustomDrawer from '@/components/Drawer/CustomDrawer';
 import DirectoryPickerDrawer from '@/components/planner/drawerContent/DirectoryPickerDrawer';
 import ScanPathsDrawer from '@/components/planner/drawerContent/ScanPathsDrawer';
 import InstructionEditorDrawer from '@/components/planner/drawerContent/InstructionEditorDrawer';
 import PlanMetadataEditorDrawer from '@/components/planner/drawerContent/PlanMetadataEditorDrawer';
-import FileChangeEditorDrawer from '@/components/planner/drawerContent/FileChangeEditorDrawer';
-import PlannerList from '@/components/planner/PlannerList';
+import FileChangeEditorDrawer from '@/components/planner/drawerContent/FileChangeEditorDrawer'; // New import
+import PlannerList from '@/components/planner/PlannerList'; // New import for PlannerList drawer content
 import { projectRootDirectoryStore } from '@/stores/fileTreeStore';
 import Loading from '@/components/Loading';
-
-interface PlanGeneratorProps {
-  initialPlanId?: string | null; // New prop to receive planId from URL
-}
 
 const styles = {
   card: {
@@ -79,18 +76,8 @@ const styles = {
   },
 };
 
-const PlanGenerator: React.FC<PlanGeneratorProps> = ({ initialPlanId }) => {
-  const {
-    userPrompt,
-    plan,
-    isLoading,
-    error,
-    projectRoot,
-    scanPathsInput,
-    additionalInstructions,
-    expectedOutputFormat,
-    currentPlanId, // Also get currentPlanId from store for comparison
-  } = useStore(plannerStore);
+const PlanGenerator: React.FC = () => {
+  const { userPrompt, plan, isLoading, error, projectRoot, scanPathsInput, additionalInstructions, expectedOutputFormat, currentPlanId } = useStore(plannerStore);
   const globalProjectRoot = useStore(projectRootDirectoryStore);
 
   const [isProjectRootPickerDialogOpen, setIsProjectRootPickerDialogOpen] = useState(false);
@@ -98,10 +85,10 @@ const PlanGenerator: React.FC<PlanGeneratorProps> = ({ initialPlanId }) => {
   const [isAiInstructionDrawerOpen, setIsAiInstructionDrawerOpen] = useState(false);
   const [isExpectedOutputDrawerOpen, setIsExpectedOutputDrawerOpen] = useState(false);
   const [isPlanMetadataEditorOpen, setIsPlanMetadataEditorOpen] = useState(false);
-  const [isFileChangeEditorOpen, setIsFileChangeEditorOpen] = useState(false);
-  const [editingFileChange, setEditingFileChange] = useState<IFileChange | null>(null);
-  const [editingFileChangeIndex, setEditingFileChangeIndex] = useState<number | null>(null);
-  const [isPlannerListDrawerOpen, setIsPlannerListDrawerOpen] = useState(false);
+  const [isFileChangeEditorOpen, setIsFileChangeEditorOpen] = useState(false); // New state for FileChangeEditorDrawer
+  const [editingFileChange, setEditingFileChange] = useState<IFileChange | null>(null); // State for the file change being edited
+  const [editingFileChangeIndex, setEditingFileChangeIndex] = useState<number | null>(null); // State for the index of the file change being edited
+  const [isPlannerListDrawerOpen, setIsPlannerListDrawerOpen] = useState(false); // New state for PlannerList drawer
   const [snackbarOpen, setSnackbarOpen] = useState(false);
 
   // Local state for the project root input field within the DirectoryPickerDrawer
@@ -115,14 +102,15 @@ const PlanGenerator: React.FC<PlanGeneratorProps> = ({ initialPlanId }) => {
   );
 
   // Effect to ensure plannerStore's projectRoot is in sync with globalProjectRoot
+  // and also to update tempDrawerProjectRootInput when plannerStore.projectRoot changes
   useEffect(() => {
     if (globalProjectRoot && projectRoot !== globalProjectRoot) {
       setProjectRoot(globalProjectRoot);
     } else if (!projectRoot && globalProjectRoot) {
-      // If plannerStore's projectRoot is empty but global isn't
       setProjectRoot(globalProjectRoot);
     }
-    // If no globalProjectRoot and plannerStore's projectRoot is still empty, button will be disabled, which is correct.
+    // Always update tempDrawerProjectRootInput to reflect the current projectRoot from store
+    setTempDrawerProjectRootInput(projectRoot || '');
   }, [globalProjectRoot, projectRoot, setProjectRoot]);
 
   // Sync localScanPaths with plannerStore's scanPathsInput when the drawer is opened or parent changes it
@@ -145,6 +133,17 @@ const PlanGenerator: React.FC<PlanGeneratorProps> = ({ initialPlanId }) => {
     }
   }, [isScanPathsDialogOpen, scanPathsInput]);
 
+  // Effect to populate generator fields when a plan is loaded
+  useEffect(() => {
+    if (plan && currentPlanId === plan.id) {
+      setUserPrompt(plan.llmInput?.userPrompt || '');
+      setProjectRoot(plan.llmInput?.projectRoot || globalProjectRoot || ''); // Prefer plan's root, fallback to global, then empty
+      setScanPathsInput(plan.llmInput?.scanPaths?.join(', ') || 'src, public, package.json, README.md, .env');
+      setAdditionalInstructions(plan.llmInput?.additionalInstructions || '');
+      setExpectedOutputFormat(plan.llmInput?.expectedOutputFormat || '');
+    }
+  }, [plan, currentPlanId, globalProjectRoot]); // Depend on plan and currentPlanId
+
   // Effect to open snackbar when an error occurs
   useEffect(() => {
     if (error) {
@@ -153,20 +152,6 @@ const PlanGenerator: React.FC<PlanGeneratorProps> = ({ initialPlanId }) => {
       setSnackbarOpen(false);
     }
   }, [error]);
-
-  // Effect to load plan if initialPlanId changes or is set
-  useEffect(() => {
-    if (initialPlanId && initialPlanId !== currentPlanId && !isLoading) {
-      console.log(`Loading plan from URL: ${initialPlanId}`);
-      loadPlanFromId(initialPlanId);
-    } else if (!initialPlanId && currentPlanId) {
-      // If URL param is removed but a plan is loaded, clear it.
-      // This might happen if user navigates away from ?planId= and then back to /planner-generator
-      // without a specific plan.
-      console.log('URL param removed, clearing current plan.');
-      resetPlannerState();
-    }
-  }, [initialPlanId, currentPlanId, isLoading]); // currentPlanId added to deps to ensure re-check after store updates
 
   const currentScanPathsArray = useMemo(
     () =>
@@ -192,7 +177,7 @@ const PlanGenerator: React.FC<PlanGeneratorProps> = ({ initialPlanId }) => {
         return;
       }
       setProjectRoot(selectedPath);
-      projectRootDirectoryStore.set(selectedPath);
+      projectRootDirectoryStore.set(selectedPath); // Update global store
       setError('');
       setPlan(null, null);
       // setIsLoading(false); // No longer needed here as setPlan handles isLoading: false
@@ -458,7 +443,7 @@ const PlanGenerator: React.FC<PlanGeneratorProps> = ({ initialPlanId }) => {
           <PlanDisplay
             plan={plan}
             onEditPlanMetadata={() => setIsPlanMetadataEditorOpen(true)}
-            onEditFileChange={handleEditFileChangeRequest}
+            onEditFileChange={handleEditFileChangeRequest} // Pass the new handler
           />
         </Box>
       ) : (
@@ -479,7 +464,7 @@ const PlanGenerator: React.FC<PlanGeneratorProps> = ({ initialPlanId }) => {
         footerActionButton={directoryPickerDrawerActions}
       >
         <DirectoryPickerDrawer
-          onSelect={(path) => {
+          onSelect={() => {
             /* This onSelect is now primarily handled by the footer actions. */
           }}
           onClose={() => setIsProjectRootPickerDialogOpen(false)}
@@ -531,7 +516,7 @@ const PlanGenerator: React.FC<PlanGeneratorProps> = ({ initialPlanId }) => {
         />
       )}
 
-      {editingFileChange && (
+      {editingFileChange && ( // Only render if a change is being edited
         <FileChangeEditorDrawer
           open={isFileChangeEditorOpen}
           onClose={() => setIsFileChangeEditorOpen(false)}
@@ -540,11 +525,12 @@ const PlanGenerator: React.FC<PlanGeneratorProps> = ({ initialPlanId }) => {
         />
       )}
 
+      {/* New: CustomDrawer for PlannerList */}
       <CustomDrawer
         open={isPlannerListDrawerOpen}
         onClose={() => setIsPlannerListDrawerOpen(false)}
         position="right"
-        size="large"
+        size="large" // Adjusted size for better viewing of the list
         title="All AI Plans"
         hasBackdrop={true}
         footerActionButton={plannerListDrawerActions}

@@ -6,8 +6,7 @@ import {
 } from '@/components/planner/constants/instructions';
 
 import { projectRootDirectoryStore } from '@/stores/fileTreeStore';
-import { persistentAtom } from '@/utils/persistentAtom';
-import { plannerService } from '../api/plannerService'; // New import for plannerService
+import { plannerService } from '../api/plannerService'; // Import plannerService
 
 // Define a reasonable default project root path if none is set
 // This path is specific to the user's environment, based on the project structure.
@@ -21,7 +20,7 @@ if (projectRootDirectoryStore.get() === null || projectRootDirectoryStore.get() 
 
 interface PlannerState {
   userPrompt: string;
-  currentPlanId: string | null;
+  currentPlanId: string | null; // Moved here and managed directly
   plan: IPlan | null;
   isLoading: boolean;
   error: string | null;
@@ -47,11 +46,9 @@ export const plannerStore = atom<PlannerState>({
   expectedOutputFormat: PLANNER_EXPECTED_OUTPUT_FORMAT, // Default from constants
 });
 
-export const currentPlanIdPersistent = persistentAtom<string | null>('currentPlanId', null);
-
+// Action to set the current plan ID
 export const setCurrentPlanId = (planId: string | null) => {
   plannerStore.set({ ...plannerStore.get(), currentPlanId: planId });
-  currentPlanIdPersistent.set(planId);
 };
 
 export const setUserPrompt = (prompt: string) => {
@@ -66,7 +63,6 @@ export const setPlan = (planId: string | null, plan: IPlan | null) => {
     isLoading: false,
     error: null,
   });
-  currentPlanIdPersistent.set(planId);
 };
 
 export const setIsLoading = (loading: boolean) => {
@@ -101,37 +97,21 @@ export const setExpectedOutputFormat = (format: string) => {
 };
 
 /**
- * Fetches a plan by ID from the backend and updates the store.
+ * Fetches a plan by its ID from the backend and updates the store.
  * @param planId The ID of the plan to load.
  */
-export const loadPlanFromId = async (planId: string) => {
-  plannerStore.set({
-    ...plannerStore.get(),
-    isLoading: true,
-    error: null,
-    currentPlanId: planId, // Optimistically set current plan ID
-  });
+export const loadPlanById = async (planId: string) => {
+  setIsLoading(true);
+  setError(null);
   try {
-    const { plan } = await plannerService.getPlan(planId);
-    plannerStore.set({
-      ...plannerStore.get(),
-      plan: plan,
-      userPrompt: plan.llmInput?.userPrompt || plannerStore.get().userPrompt, // Optionally set user prompt from loaded plan
-      isLoading: false,
-      error: null,
-    });
-    // Persist the loaded plan ID
-    currentPlanIdPersistent.set(planId);
+    const response = await plannerService.getPlan(planId);
+    // The getPlan service returns { plan: IPlan }, so extract the plan object.
+    setPlan(planId, response.plan);
   } catch (err: any) {
-    console.error(`Failed to load plan ${planId}:`, err);
-    plannerStore.set({
-      ...plannerStore.get(),
-      isLoading: false,
-      error: err.message || `Failed to load plan ${planId}.`,
-      currentPlanId: null, // Clear current plan ID if load fails
-      plan: null, // Clear plan if load fails
-    });
-    currentPlanIdPersistent.set(null);
+    setError(err.message || `Failed to load plan ${planId}.`);
+    setPlan(null, null); // Clear plan on error
+  } finally {
+    // setIsLoading(false) is handled by setPlan or setError
   }
 };
 
@@ -201,5 +181,4 @@ export const resetPlannerState = () => {
     additionalInstructions: PLANNER_AI_INSTRUCTION,
     expectedOutputFormat: PLANNER_EXPECTED_OUTPUT_FORMAT,
   });
-  currentPlanIdPersistent.set(null); // Also reset the persistent plan ID
 };
