@@ -19,8 +19,8 @@ For a deep dive into the application's architecture and design principles, pleas
 *   **Multi-Speaker Configuration:** Users can dynamically add, remove, and configure speaker profiles, assigning a unique speaker name (for AI prompting) and a specific voice name (e.g., 'Kore', 'Puck').
 *   **Language Selection:** Ability to specify the language code for speech output (defaults to 'en-US').
 *   **Integrated Audio Playback:** Generated `.wav` audio files are played directly in the browser for immediate feedback.
-*   **AI Code Planning & Generation:** Define project context, specify scan paths, provide detailed instructions (system prompt), and define the expected JSON output format to generate structured code modification plans (add, modify, delete, repair, analyze files).
-*   **Granular Plan Application:** Apply entire generated plans or individual file changes to your local project directory, automating code modifications.
+*   **AI Code Planning & Generation:** Define project context through user prompts, specify scan paths for relevant files, provide detailed AI instructions (system prompt), and define the expected JSON output format to generate structured code modification plans (add, modify, delete, repair, analyze files).
+*   **Granular Plan Application:** Review detailed plans including file additions, modifications, deletions, and refactors, then apply entire generated plans or individual file changes to your local project directory, automating code modifications.
 *   **User Feedback:** Provides clear visual cues for loading states, along with comprehensive error handling and messaging.
 *   **Theming:** Light/Dark mode toggle for personalized viewing.
 
@@ -69,7 +69,7 @@ VITE_FRONTEND_PORT=3003
 VITE_BASE_DIR=/media/eddie/Data/projects/nestJS/nest-modules/project-board-server/apps/text-to-speech
 # ^^^ IMPORTANT: VITE_BASE_DIR must point to the ABSOLUTE path of this 'text-to-speech' project root
 #                directory on your local filesystem. This is CRUCIAL for the AI Code Planner
-#                features to correctly scan project files and apply changes.
+#                features to correctly scan project files and apply changes via the backend.
 VITE_PREVIEW_APP_URL=http://localhost:3002
 ```
 
@@ -144,6 +144,7 @@ text-to-speech/
 │   │   ├── Drawer/             # Custom Drawer component
 │   │   │   └── CustomDrawer.tsx
 │   │   ├── Layout.tsx          # Main application layout with navigation
+│   │   ├── Loading.tsx         # Generic loading indicator
 │   │   ├── planner/            # AI Code Planner specific components and logic
 │   │   │   ├── api/            # Planner API services
 │   │   │   │   └── plannerService.ts
@@ -152,6 +153,7 @@ text-to-speech/
 │   │   │   ├── drawerContent/  # Drawer content for planner settings
 │   │   │   │   ├── DirectoryPickerDrawer.tsx
 │   │   │   │   ├── InstructionEditorDrawer.tsx
+│   │   │   │   ├── PlanMetadataEditorDrawer.tsx # Editor for plan's high-level metadata
 │   │   │   │   └── ScanPathsDrawer.tsx
 │   │   │   ├── stores/         # Nanostore for planner state
 │   │   │   │   └── plannerStore.ts
@@ -230,21 +232,22 @@ This frontend interacts with the following backend endpoints (assuming `VITE_APP
 ### AI Code Planner Endpoints
 -   `POST /api/plan`: Generates a new code modification plan based on an LLM input prompt and project context (requires authentication).
     -   **Description:** Sends a user prompt, project context (root, scan paths, instructions), and expected output format to the backend to generate a detailed plan of file changes.
-    -   **Request Body (JSON):** (Example, actual structure is more detailed)
+    -   **Request Body (JSON):** (Example, actual structure aligns with `ILlmInput` in `src/components/planner/types.ts`)
         ```json
         {
           "userPrompt": "Refactor the authentication logic to use a new service.",
           "projectRoot": "/path/to/project",
           "scanPaths": ["src/api", "src/stores"],
-          "additionalInstructions": "Focus on clean architecture.",
+          "additionalInstructions": "Focus on clean architecture, use nanostores for state.",
           "expectedOutputFormat": "JSON",
-          "requestType": "LLM_GENERATION"
+          "requestType": "LLM_GENERATION",
+          "output": "JSON"
         }
         ```
-    -   **Response:** A JSON object containing the `planId` and the generated `plan` details.
+    -   **Response:** A JSON object containing the `planId` and the generated `plan` details (conforms to `IGeneratePlanResponse` in `src/components/planner/types.ts`).
 -   `GET /api/plan/:planId`: Fetches the details of a specific AI-generated plan (requires authentication).
     -   **Description:** Retrieves a previously generated plan by its ID.
-    -   **Response:** A JSON object containing the `plan` details.
+    -   **Response:** A JSON object containing the `plan` details (conforms to `{ plan: IPlan }`).
 -   `POST /api/plan/apply`: Applies a specified AI-generated plan (all changes) to the local filesystem (requires authentication).
     -   **Description:** Executes the file modification instructions from a given plan (identified by `planId`) against the local project files.
     -   **Request Body (JSON):**
@@ -254,9 +257,9 @@ This frontend interacts with the following backend endpoints (assuming `VITE_APP
           "projectRoot": "/path/to/project" // Optional, falls back to server-side configured root
         }
         ```
-    -   **Response:** A JSON object indicating success or failure, with details of the application process.
--   `POST /api/plan/:planId/apply-change-by-index`: Applies a specific file change from a given plan to the local filesystem (requires authentication).
-    -   **Description:** Executes a single file modification instruction from a plan, identified by its index, against the local project files.
+    -   **Response:** A JSON object indicating success or failure, with details of the application process (conforms to `IApplyPlanResult`).
+-   `POST /api/plan/:planId/apply-chunk/:changeIndex`: Applies a specific file change from a given plan to the local filesystem (requires authentication).
+    -   **Description:** Executes a single file modification instruction from a plan, identified by its index within the plan's `changes` array, against the local project files.
     -   **Request Body (JSON):**
         ```json
         {
@@ -264,7 +267,7 @@ This frontend interacts with the following backend endpoints (assuming `VITE_APP
           "projectRoot": "/path/to/project" // Optional, falls back to server-side configured root
         }
         ```
-    -   **Response:** A JSON object indicating success or failure, with details of the application process.
+    -   **Response:** A JSON object indicating success or failure, with details of the application process (conforms to `IApplyPlanResult`).
 
 ## Customization
 
