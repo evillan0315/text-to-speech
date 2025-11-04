@@ -230,14 +230,6 @@ const PlanGenerator: React.FC = () => {
 
   return (
     <Box className='flex flex-col h-full overflow-hidden p-4 sm:p-6 lg:p-8'>
-      {isLoading && (
-        <Box sx={styles.loadingOverlay}>
-          <CircularProgress color='primary' size={60} />
-          <Typography variant='h6' color='primary.contrastText' sx={{ mt: 2 }}>
-            Generating Plan...
-          </Typography>
-        </Box>
-      )}
       <Typography variant='h4' component='h1' gutterBottom className='text-primary-light font-bold mb-6'>
         AI Plan Generator
       </Typography>
