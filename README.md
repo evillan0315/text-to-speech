@@ -6,7 +6,7 @@ This is a modern React/Vite frontend application designed to interact with a Nod
 
 The **Text-to-Speech** feature empowers users to input text, configure multiple speakers with specific voice profiles, generate high-quality speech audio, and play it directly within the browser.
 
-The **AI Code Planner** provides an innovative way to articulate desired code changes in natural language, receive a structured plan, and apply those changes directly to your local project. It supports operations like adding, modifying, deleting, and repairing files.
+The **AI Code Planner** provides an innovative way to articulate desired code changes in natural language, receive a structured plan, and apply those changes directly to your local project. It supports operations like adding, modifying, deleting, and repairing files, and allows for editing plan metadata and individual file change details before application.
 
 The application emphasizes a clean, intuitive user experience with robust authentication and error handling across both modules.
 
@@ -16,10 +16,11 @@ For a deep dive into the application's architecture and design principles, pleas
 
 *   **Authentication:** Seamless integration with JWT-based authentication, supporting Google OAuth2 and GitHub OAuth2 via the backend server.
 *   **Dynamic Text-to-Speech Generation:** Flexible text area for inputting content to be synthesized with options for language code.
-*   **Multi-Speaker Configuration (TTS):** Dynamically add, remove, and configure speaker profiles, assigning a unique speaker name (for AI prompting) and a specific voice name (e.g., 'Kore', 'Puck').
+*   **Multi-Speaker Configuration (TTS):** Dynamically add, remove, and configure speaker profiles, assigning a unique speaker name (for AI prompting) and a specific voice name (e.g., 'kore', 'puck').
 *   **Integrated Audio Playback (TTS):** Generated `.wav` audio files are played directly in the browser for immediate feedback.
-*   **AI Code Planning & Generation:** Define project context through user prompts, specify scan paths for relevant files, provide detailed AI instructions (system prompt), and define the expected JSON output format to generate structured code modification plans (add, modify, delete, repair, analyze files).
-*   **Granular Plan Application:** Review detailed plans including file additions, modifications, deletions, and refactors, then apply entire generated plans or individual file changes to your local project directory, automating code modifications.
+*   **AI Code Planning & Generation:** Define project context through user prompts, specify scan paths for relevant files, provide detailed AI instructions (system prompt), and define the expected JSON output format to generate structured code modification plans (add, modify, delete, repair, analyze files, install, run).
+*   **Granular Plan Review & Editing:** Review detailed plans including overall metadata (title, summary, thought process, documentation, git instructions) and individual file changes. Edit any aspect of the plan or its file changes (path, action, reason, new content) directly in the UI before application.
+*   **Granular Plan Application:** Apply entire generated plans or individual file changes to your local project directory, automating code modifications with clear status feedback.
 *   **User Feedback:** Provides clear visual cues for loading states, along with comprehensive error handling and messaging.
 *   **Theming:** Light/Dark mode toggle for personalized viewing.
 
@@ -70,13 +71,17 @@ VITE_BASE_DIR=/media/eddie/Data/projects/nestJS/nest-modules/project-board-serve
 #                directory on your local filesystem. This value is used by the frontend's
 #                AI Code Planner as its initial project root. It is crucial for the AI Planner
 #                features to correctly scan project files and apply changes via the backend.
-#                Ensure this path is valid for your system.
+#                Ensure this path is valid for your system and includes the full path to the
+#                'text-to-speech' directory itself, not its parent.
+#                Example: If your 'text-to-speech' folder is at /Users/youruser/dev/project-board-server/apps/text-to-speech,
+#                then VITE_BASE_DIR should be that exact absolute path.
+
 VITE_PREVIEW_APP_URL=http://localhost:3002
 ```
 
 -   `VITE_APP_API_BASE_URL`: The base URL of your backend API. Ensure this matches the URL where your `project-board-server` is running.
 -   `VITE_FRONTEND_PORT`: The port your frontend application runs on during development (e.g., `3003`). This is used for OAuth callback URLs.
--   `VITE_BASE_DIR`: **Crucial for the AI Code Planner.** This environment variable now serves as the default `projectRoot` in the frontend's AI Planner (see `src/components/planner/stores/plannerStore.ts`). It should point to the absolute path of the `text-to-speech` project root directory on your local filesystem. The AI backend uses the `projectRoot` specified in the frontend request to locate and apply file changes.
+-   `VITE_BASE_DIR`: **Crucial for the AI Code Planner.** This environment variable now serves as the default `projectRoot` in the frontend's AI Planner (see `src/components/planner/stores/plannerStore.ts`). It should point to the **absolute path** of the `text-to-speech` project root directory on your local filesystem. The AI backend uses the `projectRoot` specified in the frontend request to locate and apply file changes. **Misconfiguring this will prevent the AI Code Planner from working correctly.**
 -   `VITE_PREVIEW_APP_URL`: The URL for previewing the application, if applicable.
 
 #### Backend OAuth Configuration
@@ -153,7 +158,7 @@ text-to-speech/
 │   │   │   │   └── instructions.ts
 │   │   │   ├── drawerContent/  # Drawer content for planner settings
 │   │   │   │   ├── DirectoryPickerDrawer.tsx
-│   │   │   │   ├── FileChangeEditorDrawer.tsx
+│   │   │   │   ├── FileChangeEditorDrawer.tsx # Drawer for editing individual file change details
 │   │   │   │   ├── InstructionEditorDrawer.tsx
 │   │   │   │   ├── PlanMetadataEditorDrawer.tsx # Editor for plan's high-level metadata
 │   │   │   │   └── ScanPathsDrawer.tsx
@@ -262,7 +267,7 @@ This frontend interacts with the following backend endpoints (assuming `VITE_APP
     -   **Response:** A JSON object indicating success or failure, with details of the application process (conforms to `IApplyPlanResult`).
 -   `POST /api/plan/:planId/apply-chunk/:changeIndex`: Applies a specific file change from a given plan to the local filesystem (requires authentication).
     -   **Description:** Executes a single file modification instruction from a plan, identified by its index within the plan's `changes` array, against the local project files.
-    -   **Request Body (JSON):便于
+    -   **Request Body (JSON):**
         ```json
         {
           "changeIndex": 0, // The 0-based index of the change within the plan's 'changes' array
