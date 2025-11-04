@@ -1,16 +1,13 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Box } from '@mui/material';
 import PlanGenerator from '@/components/planner/PlanGenerator';
-import { resetPlannerState } from '@/components/planner/stores/plannerStore';
 
 export const PlannerPage: React.FC = () => {
-  // Reset planner state when the component mounts or unmounts
-  useEffect(() => {
-    resetPlannerState(); // Clear any previous plan state when entering the page
-    return () => {
-      resetPlannerState(); // Clear state when leaving the page
-    };
-  }, []);
+  // Removed the useEffect that called resetPlannerState on mount/unmount.
+  // Planner state (like projectRoot, scanPaths, instructions) should persist
+  // throughout the user's session until explicitly cleared by the user (e.g., via 'Clear Plan' button)
+  // or browser refresh. The plannerStore now correctly manages its initial state from defaults
+  // or persistent storage (for projectRoot).
 
   return (
     <Box className="h-full w-full overflow-hidden">
