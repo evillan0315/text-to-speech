@@ -1,3 +1,4 @@
+
 # Google Gemini TTS & AI Code Planner Frontend
 
 ## Project Overview
@@ -127,6 +128,7 @@ For more in-depth information, refer to the following documentation files:
 *   [**Developer Guide**](docs/DEVELOPER_GUIDE.md): Detailed setup, coding standards, and project architecture for contributors.
 *   [**Overview and Architecture**](docs/OVERVIEW_ARCHITECTURE.md): A comprehensive explanation of the system's design and architecture.
 *   [**Deployment Guide**](docs/DEPLOYMENT.md): Instructions for deploying the application to various environments.
+*   [**Project Roadmap**](docs/ROADMAP.md): Future vision and planned features for the project.
 
 ## Project Structure
 
