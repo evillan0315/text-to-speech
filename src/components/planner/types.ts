@@ -4,24 +4,60 @@
  */
 
 // Replicate backend enums as string unions to avoid direct Prisma dependency
-export type FileAction =
-  'ADD' | 'MODIFY' | 'DELETE' | 'REPAIR' | 'ANALYZE' | 'INSTALL' | 'RUN';
+export type FileAction = 'ADD' | 'MODIFY' | 'DELETE' | 'REPAIR' | 'ANALYZE' | 'INSTALL' | 'RUN';
 
 export type RequestType =
-  'TEXT_ONLY' | 'TEXT_WITH_IMAGE' | 'TEXT_WITH_FILE' | 'LLM_GENERATION' |
-  'LLM_CODE_ANALYSIS' | 'LLM_CODE_OPTIMIZATION' | 'LLM_CODE_REPAIR' |
-  'LLM_CODE_DOCUMENTATION' | 'LLM_ERROR_REPORTING' | 'LIVE_API' |
-  'RESUME_GENERATION' | 'RESUME_OPTIMIZATION' | 'RESUME_ENHANCEMENT' |
-  'VIDEO_GENERATION' | 'IMAGE_GENERATION' | 'AUDIO_GENERATION' |
-  'TEXT_TO_SPEECH' | 'SPEECH_TO_TEXT' | 'VOICE_COMMAND' |
-  'AUDIO_TRANSCRIPTION' | 'ERROR_ANALYSIS' | 'REFACTOR' |
-  'IMAGE_CAPTIONING' | 'SCREENSHOT_ANALYSIS' | 'WEB_SCRAPE_ANALYSIS' |
-  'OTHER' | 'PLAYWRIGHT_TASK_ANALYSIS';
+  | 'TEXT_ONLY'
+  | 'TEXT_WITH_IMAGE'
+  | 'TEXT_WITH_FILE'
+  | 'LLM_GENERATION'
+  | 'LLM_CODE_ANALYSIS'
+  | 'LLM_CODE_OPTIMIZATION'
+  | 'LLM_CODE_REPAIR'
+  | 'LLM_CODE_DOCUMENTATION'
+  | 'LLM_ERROR_REPORTING'
+  | 'LIVE_API'
+  | 'RESUME_GENERATION'
+  | 'RESUME_OPTIMIZATION'
+  | 'RESUME_ENHANCEMENT'
+  | 'VIDEO_GENERATION'
+  | 'IMAGE_GENERATION'
+  | 'AUDIO_GENERATION'
+  | 'TEXT_TO_SPEECH'
+  | 'SPEECH_TO_TEXT'
+  | 'VOICE_COMMAND'
+  | 'AUDIO_TRANSCRIPTION'
+  | 'ERROR_ANALYSIS'
+  | 'REFACTOR'
+  | 'IMAGE_CAPTIONING'
+  | 'SCREENSHOT_ANALYSIS'
+  | 'WEB_SCRAPE_ANALYSIS'
+  | 'OTHER'
+  | 'PLAYWRIGHT_TASK_ANALYSIS';
 
 export type LlmOutputFormat =
-  'JSON' | 'TEXT' | 'MARKDOWN' | 'YAML' | 'JAVASCRIPT' | 'TYPESCRIPT' |
-  'PYTHON' | 'GO' | 'JAVA' | 'CPP' | 'C' | 'CSHARP' | 'PHP' | 'RUBY' |
-  'RUST' | 'HTML' | 'CSS' | 'SQL' | 'XML' | 'SHELL' | 'DIFF' | 'PRISMA_SCHEMA';
+  | 'JSON'
+  | 'TEXT'
+  | 'MARKDOWN'
+  | 'YAML'
+  | 'JAVASCRIPT'
+  | 'TYPESCRIPT'
+  | 'PYTHON'
+  | 'GO'
+  | 'JAVA'
+  | 'CPP'
+  | 'C'
+  | 'CSHARP'
+  | 'PHP'
+  | 'RUBY'
+  | 'RUST'
+  | 'HTML'
+  | 'CSS'
+  | 'SQL'
+  | 'XML'
+  | 'SHELL'
+  | 'DIFF'
+  | 'PRISMA_SCHEMA';
 
 // Frontend DTOs and Interfaces
 
@@ -105,4 +141,3 @@ export interface IApplyPlanResult {
   newHead?: string; // Git commit hash after applying changes
   results?: any[]; // Detailed results of each change application (e.g., file: 'x', ok: true)
 }
-

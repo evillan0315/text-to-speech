@@ -20,18 +20,26 @@ const iconSx = {
 
 export const PlannerLandingPage: React.FC = () => {
   return (
-    <Box className='flex flex-col items-center justify-center p-6 max-w-3xl mx-auto min-h-[calc(100vh-128px)]'>
+    <Box className="flex flex-col items-center justify-center p-6 max-w-3xl mx-auto min-h-[calc(100vh-128px)]">
       <Paper sx={paperSx}>
         <Stack direction="column" alignItems="center" spacing={3}>
           <AddRoadIcon sx={iconSx} />
-          <Typography variant='h4' component='h1' gutterBottom className='font-bold text-secondary-main'>
+          <Typography
+            variant="h4"
+            component="h1"
+            gutterBottom
+            className="font-bold text-secondary-main"
+          >
             AI Code Planner
           </Typography>
-          <Typography variant='body1' className='text-text-secondary mb-4 max-w-xl'>
-            Empower your development workflow with intelligent code planning. Describe your desired code changes in natural language, and let our AI generate a structured plan of file modifications.
+          <Typography variant="body1" className="text-text-secondary mb-4 max-w-xl">
+            Empower your development workflow with intelligent code planning. Describe your desired
+            code changes in natural language, and let our AI generate a structured plan of file
+            modifications.
           </Typography>
-          <Typography variant='body2' className='text-text-secondary mb-6'>
-            Review detailed plans including file additions, modifications, deletions, and refactors, then apply them directly to your local project with confidence.
+          <Typography variant="body2" className="text-text-secondary mb-6">
+            Review detailed plans including file additions, modifications, deletions, and refactors,
+            then apply them directly to your local project with confidence.
           </Typography>
           <Button
             component={RouterLink}
@@ -39,7 +47,7 @@ export const PlannerLandingPage: React.FC = () => {
             variant="contained"
             color="secondary"
             size="large"
-            className='py-3 px-8 text-lg font-bold'
+            className="py-3 px-8 text-lg font-bold"
           >
             Start Planning Code
           </Button>

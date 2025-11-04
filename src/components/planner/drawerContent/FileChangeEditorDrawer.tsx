@@ -1,10 +1,20 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { TextField, Typography, Box, Select, MenuItem, FormControl, InputLabel, useTheme, Tooltip } from '@mui/material';
+import {
+  TextField,
+  Typography,
+  Box,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
+  useTheme,
+  Tooltip,
+} from '@mui/material';
 import CustomDrawer from '@/components/Drawer/CustomDrawer';
 import type { GlobalAction } from '@/types/action';
 import ClearIcon from '@mui/icons-material/Clear';
 import SaveIcon from '@mui/icons-material/Save';
-import { FileAction, IFileChange } from '@/components/planner/types';
+import type { FileAction, IFileChange } from '@/components/planner/types';
 
 interface FileChangeEditorDrawerProps {
   open: boolean;
@@ -42,7 +52,9 @@ const FileChangeEditorDrawer: React.FC<FileChangeEditorDrawerProps> = ({
       action: action,
       reason: reason.trim() || undefined,
       // newContent is only included if action requires it
-      ...(action === 'ADD' || action === 'MODIFY' || action === 'REPAIR' ? { newContent: newContent } : {}),
+      ...(action === 'ADD' || action === 'MODIFY' || action === 'REPAIR'
+        ? { newContent: newContent }
+        : {}),
       // Diff is not editable directly by the user
       diff: initialFileChange.diff, // Preserve existing diff if any
     };
@@ -59,15 +71,22 @@ const FileChangeEditorDrawer: React.FC<FileChangeEditorDrawerProps> = ({
   }, [initialFileChange, onClose]);
 
   const drawerActions: GlobalAction[] = [
-    { label: 'Cancel', action: handleCancel, icon: <ClearIcon />, color: 'inherit', variant: 'outlined' },
+    {
+      label: 'Cancel',
+      action: handleCancel,
+      icon: <ClearIcon />,
+      color: 'inherit',
+      variant: 'outlined',
+    },
     {
       label: 'Save',
       action: handleSave,
       icon: <SaveIcon />,
       color: 'primary',
       variant: 'contained',
-      disabled: !filePath.trim() ||
-                ((action === 'ADD' || action === 'MODIFY' || action === 'REPAIR') && !newContent.trim()),
+      disabled:
+        !filePath.trim() ||
+        ((action === 'ADD' || action === 'MODIFY' || action === 'REPAIR') && !newContent.trim()),
     },
   ];
 
@@ -87,7 +106,8 @@ const FileChangeEditorDrawer: React.FC<FileChangeEditorDrawerProps> = ({
     >
       <Box sx={{ p: 2, height: '100%', display: 'flex', flexDirection: 'column', gap: 2 }}>
         <Typography variant="body2" color="text.secondary">
-          Modify the details of this file change. These edits are only applied to the current plan in the UI.
+          Modify the details of this file change. These edits are only applied to the current plan
+          in the UI.
         </Typography>
         <Tooltip title="File path of the change. Not editable at the moment.">
           <TextField
@@ -103,7 +123,11 @@ const FileChangeEditorDrawer: React.FC<FileChangeEditorDrawerProps> = ({
         </Tooltip>
         <FormControl fullWidth size="small" required>
           <InputLabel>Action</InputLabel>
-          <Select value={action} label="Action" onChange={(e) => setAction(e.target.value as FileAction)}>
+          <Select
+            value={action}
+            label="Action"
+            onChange={(e) => setAction(e.target.value as FileAction)}
+          >
             {['ADD', 'MODIFY', 'DELETE', 'REPAIR', 'ANALYZE', 'INSTALL', 'RUN'].map((opt) => (
               <MenuItem key={opt} value={opt}>
                 {opt}
@@ -143,7 +167,7 @@ const FileChangeEditorDrawer: React.FC<FileChangeEditorDrawerProps> = ({
 };
 
 // Helper to truncate file paths for display, same as in ScanPathsDrawer
-const truncate = (filePath: string, maxLength: number = 30): string => {
+const truncate = (filePath: string, maxLength = 30): string => {
   if (!filePath) return '';
   const parts = filePath.split(/[\\/]/); // Split by / or \\ // Double quotes escaped
   const fileName = parts[parts.length - 1];

@@ -49,7 +49,14 @@ const PlanMetadataEditorDrawer: React.FC<PlanMetadataEditorDrawerProps> = ({
       setDocumentation(initialDocumentation || '');
       setGitInstructions(initialGitInstructions ? initialGitInstructions.join('\n') : '');
     }
-  }, [open, initialTitle, initialSummary, initialThoughtProcess, initialDocumentation, initialGitInstructions]);
+  }, [
+    open,
+    initialTitle,
+    initialSummary,
+    initialThoughtProcess,
+    initialDocumentation,
+    initialGitInstructions,
+  ]);
 
   const handleSave = useCallback(() => {
     onSave({
@@ -57,7 +64,12 @@ const PlanMetadataEditorDrawer: React.FC<PlanMetadataEditorDrawerProps> = ({
       summary: summary.trim() || undefined,
       thoughtProcess: thoughtProcess.trim() || undefined,
       documentation: documentation.trim() || undefined,
-      gitInstructions: gitInstructions.trim() ? gitInstructions.split('\n').map(line => line.trim()).filter(Boolean) : undefined,
+      gitInstructions: gitInstructions.trim()
+        ? gitInstructions
+            .split('\n')
+            .map((line) => line.trim())
+            .filter(Boolean)
+        : undefined,
     });
     onClose();
   }, [title, summary, thoughtProcess, documentation, gitInstructions, onSave, onClose]);
@@ -70,10 +82,23 @@ const PlanMetadataEditorDrawer: React.FC<PlanMetadataEditorDrawerProps> = ({
     setDocumentation(initialDocumentation || '');
     setGitInstructions(initialGitInstructions ? initialGitInstructions.join('\n') : '');
     onClose();
-  }, [initialTitle, initialSummary, initialThoughtProcess, initialDocumentation, initialGitInstructions, onClose]);
+  }, [
+    initialTitle,
+    initialSummary,
+    initialThoughtProcess,
+    initialDocumentation,
+    initialGitInstructions,
+    onClose,
+  ]);
 
   const drawerActions: GlobalAction[] = [
-    { label: 'Cancel', action: handleCancel, icon: <ClearIcon />, color: 'inherit', variant: 'outlined' },
+    {
+      label: 'Cancel',
+      action: handleCancel,
+      icon: <ClearIcon />,
+      color: 'inherit',
+      variant: 'outlined',
+    },
     {
       label: 'Save',
       action: handleSave,

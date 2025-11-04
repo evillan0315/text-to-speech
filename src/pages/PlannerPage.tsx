@@ -13,7 +13,7 @@ export const PlannerPage: React.FC = () => {
   }, []);
 
   return (
-    <Box className='h-full w-full overflow-hidden'>
+    <Box className="h-full w-full overflow-hidden">
       <PlanGenerator />
     </Box>
   );

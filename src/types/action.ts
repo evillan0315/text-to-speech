@@ -1,4 +1,4 @@
-import { ButtonProps } from '@mui/material'; // Import ButtonProps to infer types
+import type { ButtonProps } from '@mui/material'; // Import ButtonProps to infer types
 
 // Define ButtonColor and ButtonVariant based on Material UI's ButtonProps
 export type ButtonColor = ButtonProps['color'];

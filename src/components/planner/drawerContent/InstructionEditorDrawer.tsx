@@ -1,7 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { TextField, Typography, Box } from '@mui/material';
 import { useStore } from '@nanostores/react';
-import { plannerStore, setAdditionalInstructions, setExpectedOutputFormat } from '@/components/planner/stores/plannerStore';
+import {
+  plannerStore,
+  setAdditionalInstructions,
+  setExpectedOutputFormat,
+} from '@/components/planner/stores/plannerStore';
 import CustomDrawer from '@/components/Drawer/CustomDrawer';
 import type { GlobalAction } from '@/types/action';
 import ClearIcon from '@mui/icons-material/Clear';
@@ -53,8 +57,20 @@ const InstructionEditorDrawer: React.FC<InstructionEditorDrawerProps> = ({
   const drawerTitle = type === 'ai' ? 'Edit AI Instructions' : 'Edit Expected Output Format';
 
   const drawerActions: GlobalAction[] = [
-    { label: 'Cancel', action: handleCancel, icon: <ClearIcon />, color: 'inherit', variant: 'outlined' },
-    { label: 'Save', action: handleSave, icon: <SaveIcon />, color: 'primary', variant: 'contained' },
+    {
+      label: 'Cancel',
+      action: handleCancel,
+      icon: <ClearIcon />,
+      color: 'inherit',
+      variant: 'outlined',
+    },
+    {
+      label: 'Save',
+      action: handleSave,
+      icon: <SaveIcon />,
+      color: 'primary',
+      variant: 'contained',
+    },
   ];
 
   return (
@@ -70,9 +86,8 @@ const InstructionEditorDrawer: React.FC<InstructionEditorDrawerProps> = ({
       <Box sx={{ p: 2, height: '100%', display: 'flex', flexDirection: 'column' }}>
         <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
           {type === 'ai'
-            ? "Define the overall instructions for the AI. This is Markdown-compatible and acts as the system prompt."
-            : "Provide the desired output format and structure, typically a JSON schema or an example of a valid response."
-          }
+            ? 'Define the overall instructions for the AI. This is Markdown-compatible and acts as the system prompt.'
+            : 'Provide the desired output format and structure, typically a JSON schema or an example of a valid response.'}
         </Typography>
         <TextField
           multiline

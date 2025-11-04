@@ -1,4 +1,5 @@
-import React, { ReactNode } from 'react';
+import type { ReactNode } from 'react';
+import React from 'react';
 import {
   Drawer,
   Box,
@@ -8,7 +9,7 @@ import {
   DialogContent,
   AppBar,
   Toolbar,
-  DialogActions
+  DialogActions,
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import { useStore } from '@nanostores/react';
@@ -42,7 +43,7 @@ const CustomDrawer: React.FC<CustomDrawerProps> = ({
   position,
   size = 'medium',
   hasBackdrop = false,
-  closeOnEscape = true, // eslint-disable-line @typescript-eslint/no-unused-vars
+  closeOnEscape = true,
   stickyHeader,
   footerActionButton,
   children,
@@ -68,7 +69,7 @@ const CustomDrawer: React.FC<CustomDrawerProps> = ({
     borderBottom: `${position === 'top' ? '1px solid' : ''}`,
     borderColor: theme.palette.divider,
   };
-  
+
   // const backdrop = hasBackdrop ? true : false; // Backdrop controlled by hasBackdrop prop
   // const closeOnKey = closeOnEscape ? undefined : 'escapeKeyDown'; // Not directly used in Drawer component props
 
@@ -85,12 +86,7 @@ const CustomDrawer: React.FC<CustomDrawerProps> = ({
         <DialogContent sx={{ p: 0, '&:first-of-type': { pt: 0 } }}>
           <AppBar sx={{ position: 'relative' }}>
             <Toolbar>
-              <IconButton
-                edge="start"
-                color="inherit"
-                onClick={onClose}
-                aria-label="close"
-              >
+              <IconButton edge="start" color="inherit" onClick={onClose} aria-label="close">
                 <CloseIcon />
               </IconButton>
               <Typography sx={{ ml: 2, flex: 1 }} variant="h6" component="div">
@@ -117,16 +113,10 @@ const CustomDrawer: React.FC<CustomDrawerProps> = ({
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between',
-                
               }}
             >
               {stickyHeader}
-              <IconButton
-                edge="end"
-                color="inherit"
-                onClick={onClose}
-                aria-label="close"
-              >
+              <IconButton edge="end" color="inherit" onClick={onClose} aria-label="close">
                 <CloseIcon />
               </IconButton>
             </Box>
@@ -146,12 +136,7 @@ const CustomDrawer: React.FC<CustomDrawerProps> = ({
               <Typography variant="h6" component="div">
                 {title}
               </Typography>
-              <IconButton
-                edge="end"
-                color="inherit"
-                onClick={onClose}
-                aria-label="close"
-              >
+              <IconButton edge="end" color="inherit" onClick={onClose} aria-label="close">
                 <CloseIcon />
               </IconButton>
             </Box>
@@ -165,12 +150,14 @@ const CustomDrawer: React.FC<CustomDrawerProps> = ({
             {children}
           </Box>
           {footerActionButton && (
-            <DialogActions sx={{
+            <DialogActions
+              sx={{
                 p: 2,
                 bgcolor: theme.palette.background.default,
                 borderTop: `1px solid ${theme.palette.divider}`,
-                justifyContent: `${position === 'left' ? 'flex-end' : 'flex-start' }`,
-              }}>
+                justifyContent: `${position === 'left' ? 'flex-end' : 'flex-start'}`,
+              }}
+            >
               <GlobalActionButton globalActions={footerActionButton} />
             </DialogActions>
           )}

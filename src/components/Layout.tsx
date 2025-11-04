@@ -27,7 +27,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
             <RouterLink to="/" style={{ textDecoration: 'none', color: 'inherit' }}>
               <Stack direction="row" alignItems="center" spacing={1}>
-                <RecordVoiceOverIcon sx={{ fontSize: 30 }} /> { /* Adjusted size for navbar */}
+                <RecordVoiceOverIcon sx={{ fontSize: 30 }} /> {/* Adjusted size for navbar */}
                 <Typography variant="h6" component="div" sx={{ color: 'inherit' }}>
                   Gemini AI Suite
                 </Typography>
@@ -36,12 +36,23 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
 
             {/* New: Navigation links to feature landing pages */}
             <Box sx={{ display: 'flex', alignItems: 'center', ml: 4 }}>
-              <Button component={RouterLink} to="/tts" color="inherit" sx={{ mr: 1 }}
-                startIcon={<RecordVoiceOverIcon fontSize="small" />} size="small">
+              <Button
+                component={RouterLink}
+                to="/tts"
+                color="inherit"
+                sx={{ mr: 1 }}
+                startIcon={<RecordVoiceOverIcon fontSize="small" />}
+                size="small"
+              >
                 TTS
               </Button>
-              <Button component={RouterLink} to="/planner" color="inherit"
-                startIcon={<AddRoadIcon fontSize="small" />} size="small">
+              <Button
+                component={RouterLink}
+                to="/planner"
+                color="inherit"
+                startIcon={<AddRoadIcon fontSize="small" />}
+                size="small"
+              >
                 AI Planner
               </Button>
             </Box>

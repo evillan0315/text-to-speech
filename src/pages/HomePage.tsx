@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Typography, Button, Card, CardContent, Stack } from '@mui/material';
+import { Box, Typography, Button, Card, CardContent } from '@mui/material';
 import { Link as RouterLink } from 'react-router-dom';
 import RecordVoiceOverIcon from '@mui/icons-material/RecordVoiceOver';
 import AddRoadIcon from '@mui/icons-material/AddRoad';
@@ -21,24 +21,40 @@ const cardSx = {
 
 export const HomePage: React.FC = () => {
   return (
-    <Box className='flex flex-col items-center justify-center p-6 min-h-[calc(100vh-128px)]'>
-      <Typography variant='h3' component='h1' gutterBottom className='font-bold text-primary-main text-center mb-8'>
+    <Box className="flex flex-col items-center justify-center p-6 min-h-[calc(100vh-128px)]">
+      <Typography
+        variant="h3"
+        component="h1"
+        gutterBottom
+        className="font-bold text-primary-main text-center mb-8"
+      >
         Welcome to Gemini AI Tools
       </Typography>
 
-      <Typography variant='h6' component='p' className='text-text-secondary text-center mb-10 max-w-2xl'>
-        Explore powerful AI capabilities for Text-to-Speech generation and intelligent code planning and modification.
+      <Typography
+        variant="h6"
+        component="p"
+        className="text-text-secondary text-center mb-10 max-w-2xl"
+      >
+        Explore powerful AI capabilities for Text-to-Speech generation and intelligent code planning
+        and modification.
       </Typography>
 
-      <Box className='grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-4xl'>
+      <Box className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-4xl">
         <Card sx={cardSx}>
-          <CardContent className='flex flex-col items-center text-center'>
+          <CardContent className="flex flex-col items-center text-center">
             <RecordVoiceOverIcon sx={{ fontSize: 60, mb: 2, color: 'primary.dark' }} />
-            <Typography variant='h5' component='h2' gutterBottom className='font-semibold text-text-primary'>
+            <Typography
+              variant="h5"
+              component="h2"
+              gutterBottom
+              className="font-semibold text-text-primary"
+            >
               Text-to-Speech Generator
             </Typography>
-            <Typography variant='body1' className='text-text-secondary mb-4'>
-              Transform text into natural-sounding speech with multiple voices and languages using Google Gemini's advanced TTS technology.
+            <Typography variant="body1" className="text-text-secondary mb-4">
+              Transform text into natural-sounding speech with multiple voices and languages using
+              Google Gemini's advanced TTS technology.
             </Typography>
             <Button
               component={RouterLink}
@@ -46,7 +62,7 @@ export const HomePage: React.FC = () => {
               variant="contained"
               color="primary"
               size="large"
-              className='mt-auto py-3 px-6 text-lg font-bold'
+              className="mt-auto py-3 px-6 text-lg font-bold"
             >
               Learn More & Generate TTS
             </Button>
@@ -54,13 +70,19 @@ export const HomePage: React.FC = () => {
         </Card>
 
         <Card sx={cardSx}>
-          <CardContent className='flex flex-col items-center text-center'>
+          <CardContent className="flex flex-col items-center text-center">
             <AddRoadIcon sx={{ fontSize: 60, mb: 2, color: 'secondary.dark' }} />
-            <Typography variant='h5' component='h2' gutterBottom className='font-semibold text-text-primary'>
+            <Typography
+              variant="h5"
+              component="h2"
+              gutterBottom
+              className="font-semibold text-text-primary"
+            >
               AI Code Planner
             </Typography>
-            <Typography variant='body1' className='text-text-secondary mb-4'>
-              Articulate desired code changes in natural language, receive a structured plan, and apply modifications directly to your local project.
+            <Typography variant="body1" className="text-text-secondary mb-4">
+              Articulate desired code changes in natural language, receive a structured plan, and
+              apply modifications directly to your local project.
             </Typography>
             <Button
               component={RouterLink}
@@ -68,7 +90,7 @@ export const HomePage: React.FC = () => {
               variant="contained"
               color="secondary"
               size="large"
-              className='mt-auto py-3 px-6 text-lg font-bold'
+              className="mt-auto py-3 px-6 text-lg font-bold"
             >
               Learn More & Plan Code
             </Button>

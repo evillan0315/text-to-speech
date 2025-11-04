@@ -12,11 +12,9 @@ const getAuthHeaders = () => {
 export const plannerService = {
   async generatePlan(llmInput: ILlmInput): Promise<IGeneratePlanResponse> {
     try {
-      const response = await axios.post<IGeneratePlanResponse>(
-        `${API_BASE_URL}/plan`,
-        llmInput,
-        { headers: getAuthHeaders() },
-      );
+      const response = await axios.post<IGeneratePlanResponse>(`${API_BASE_URL}/plan`, llmInput, {
+        headers: getAuthHeaders(),
+      });
       return response.data;
     } catch (error) {
       if (axios.isAxiosError(error) && error.response) {
@@ -26,12 +24,12 @@ export const plannerService = {
     }
   },
 
-  async getPlan(planId: string): Promise<{ plan: IPlan }> { // Updated return type
+  async getPlan(planId: string): Promise<{ plan: IPlan }> {
+    // Updated return type
     try {
-      const response = await axios.get<{ plan: IPlan }>(
-        `${API_BASE_URL}/plan/${planId}`,
-        { headers: getAuthHeaders() },
-      );
+      const response = await axios.get<{ plan: IPlan }>(`${API_BASE_URL}/plan/${planId}`, {
+        headers: getAuthHeaders(),
+      });
       return response.data;
     } catch (error) {
       if (axios.isAxiosError(error) && error.response) {
@@ -41,7 +39,8 @@ export const plannerService = {
     }
   },
 
-  async applyPlan(plan: IPlan, projectRoot?: string): Promise<IApplyPlanResult> { // Updated parameter type
+  async applyPlan(plan: IPlan, projectRoot?: string): Promise<IApplyPlanResult> {
+    // Updated parameter type
     try {
       // Backend expects { planId: string, projectRoot?: string } in ApplyExistingPlanRequestDto
       const response = await axios.post<{ result: IApplyPlanResult }>(
@@ -66,7 +65,11 @@ export const plannerService = {
    * @param projectRoot Optional project root to override the server's default.
    * @returns A promise that resolves to an IApplyPlanResult.
    */
-  async applyFileChange(planId: string, changeIndex: number, projectRoot?: string): Promise<IApplyPlanResult> {
+  async applyFileChange(
+    planId: string,
+    changeIndex: number,
+    projectRoot?: string,
+  ): Promise<IApplyPlanResult> {
     try {
       const response = await axios.post<{ result: IApplyPlanResult }>(
         `${API_BASE_URL}/plan/${planId}/apply-chunk/${changeIndex}`,

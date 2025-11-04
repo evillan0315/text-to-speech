@@ -8,13 +8,7 @@ import {
   Skeleton,
 } from '@mui/material';
 
-type LoadingType =
-  | 'circular'
-  | 'linear'
-  | 'dots'
-  | 'lines'
-  | 'gradient'
-  | 'skeleton';
+type LoadingType = 'circular' | 'linear' | 'dots' | 'lines' | 'gradient' | 'skeleton';
 
 interface LoadingProps {
   type?: LoadingType;
@@ -183,7 +177,6 @@ const Loading: React.FC<LoadingProps> = ({
       }}
       className={className}
     >
-     
       <style dangerouslySetInnerHTML={{ __html: customLoaderStyles }} />
 
       {renderLoader()}

@@ -2,12 +2,7 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useStore } from '@nanostores/react';
 
 import {
-  List,
-  ListItem,
-  ListItemIcon,
-  ListItemText,
   Box,
-  CircularProgress,
   Alert,
   IconButton,
   Typography,
@@ -45,14 +40,17 @@ const DirectoryPickerDrawer: React.FC<DirectoryPickerDrawerProps> = ({
   const projectRoot = useStore(projectRootDirectoryStore);
 
   // Internal handler to update path states and notify parent
-  const handlePathUpdateInternal = useCallback((newPath: string) => {
-    setCurrentBrowsingPath(newPath);
-    setTempPathInput(newPath);
-    if (onPathUpdate) {
-      onPathUpdate(newPath);
-    }
-    setError(null); // Clear any path errors on update
-  }, [onPathUpdate]);
+  const handlePathUpdateInternal = useCallback(
+    (newPath: string) => {
+      setCurrentBrowsingPath(newPath);
+      setTempPathInput(newPath);
+      if (onPathUpdate) {
+        onPathUpdate(newPath);
+      }
+      setError(null); // Clear any path errors on update
+    },
+    [onPathUpdate],
+  );
 
   useEffect(() => {
     // Initialize with effective initial path
@@ -93,9 +91,7 @@ const DirectoryPickerDrawer: React.FC<DirectoryPickerDrawerProps> = ({
     [handlePathUpdateInternal],
   );
 
-  const handleTempPathInputChange = (
-    e: React.ChangeEvent<HTMLInputElement>,
-  ) => {
+  const handleTempPathInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newPath = e.target.value;
     setTempPathInput(newPath);
     if (onPathUpdate) {
@@ -119,15 +115,13 @@ const DirectoryPickerDrawer: React.FC<DirectoryPickerDrawerProps> = ({
     const rootPatterns = ['/', /^[a-zA-Z]:(\/|\\)$/];
 
     const isCurrentPathRoot = rootPatterns.some((pattern) =>
-      typeof pattern === 'string'
-        ? normalizedPath === pattern
-        : pattern.test(normalizedPath),
+      typeof pattern === 'string' ? normalizedPath === pattern : pattern.test(normalizedPath),
     );
 
     if (isCurrentPathRoot) return false; // Cannot go up from a root
 
     if (allowExternalPaths) return true; // Can always go up unless it's a root itself
-    
+
     // If not allowing external paths, can only go up within projectRoot
     return normalizedPath.startsWith(normalizedProjectRoot);
   }, [currentBrowsingPath, allowExternalPaths, projectRoot]);

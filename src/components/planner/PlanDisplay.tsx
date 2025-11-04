@@ -21,9 +21,8 @@ import {
 import { useStore } from '@nanostores/react';
 import { plannerStore, setApplyStatus } from './stores/plannerStore';
 import { plannerService } from './api/plannerService';
-import { IPlan } from './types'; // Updated import
+import type { IPlan } from './types'; // Updated import
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
-import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
 import CloseIcon from '@mui/icons-material/Close'; // Import CloseIcon for Snackbar
 import EditIcon from '@mui/icons-material/Edit'; // Import EditIcon
@@ -90,12 +89,14 @@ const styles = {
 
 const PlanDisplay: React.FC<PlanDisplayProps> = ({ plan, onEditPlanMetadata }) => {
   const { applyStatus, applyError, projectRoot } = useStore(plannerStore);
-  const [individualChangeStatus, setIndividualChangeStatus] = useState<Map<number, { status: ChangeApplyStatus; error: string | null }>>(
-    new Map()
-  );
+  const [individualChangeStatus, setIndividualChangeStatus] = useState<
+    Map<number, { status: ChangeApplyStatus; error: string | null }>
+  >(new Map());
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
-  const [snackbarSeverity, setSnackbarSeverity] = useState<'success' | 'error' | 'info' | 'warning'>('info');
+  const [snackbarSeverity, setSnackbarSeverity] = useState<
+    'success' | 'error' | 'info' | 'warning'
+  >('info');
 
   useEffect(() => {
     if (applyStatus === 'success') {
@@ -147,39 +148,45 @@ const PlanDisplay: React.FC<PlanDisplayProps> = ({ plan, onEditPlanMetadata }) =
   const handleApplySingleChange = async (changeIndex: number) => {
     if (!plan || !plan.id) {
       setIndividualChangeStatus((prev) =>
-        new Map(prev).set(changeIndex, { status: 'failure', error: 'No plan available.' })
+        new Map(prev).set(changeIndex, { status: 'failure', error: 'No plan available.' }),
       );
       return;
     }
 
     setIndividualChangeStatus((prev) =>
-      new Map(prev).set(changeIndex, { status: 'applying', error: null })
+      new Map(prev).set(changeIndex, { status: 'applying', error: null }),
     );
 
     try {
       const result = await plannerService.applyFileChange(plan.id, changeIndex, projectRoot);
       if (result.ok) {
         setIndividualChangeStatus((prev) =>
-          new Map(prev).set(changeIndex, { status: 'success', error: null })
+          new Map(prev).set(changeIndex, { status: 'success', error: null }),
         );
       } else {
         setIndividualChangeStatus((prev) =>
-          new Map(prev).set(changeIndex, { status: 'failure', error: result.error || 'Failed to apply change.' })
+          new Map(prev).set(changeIndex, {
+            status: 'failure',
+            error: result.error || 'Failed to apply change.',
+          }),
         );
       }
     } catch (err: any) {
       setIndividualChangeStatus((prev) =>
-        new Map(prev).set(changeIndex, { status: 'failure', error: err.message || 'An unexpected error occurred.' })
+        new Map(prev).set(changeIndex, {
+          status: 'failure',
+          error: err.message || 'An unexpected error occurred.',
+        }),
       );
     }
   };
 
   return (
-    <Box className='space-y-6' sx={{ position: 'relative' }}>
+    <Box className="space-y-6" sx={{ position: 'relative' }}>
       {applyStatus === 'applying' && (
         <Box sx={styles.loadingOverlay}>
-          <CircularProgress color='primary' size={60} />
-          <Typography variant='h6' color='primary.contrastText' sx={{ mt: 2 }}>
+          <CircularProgress color="primary" size={60} />
+          <Typography variant="h6" color="primary.contrastText" sx={{ mt: 2 }}>
             Applying Plan...
           </Typography>
         </Box>
@@ -187,28 +194,30 @@ const PlanDisplay: React.FC<PlanDisplayProps> = ({ plan, onEditPlanMetadata }) =
 
       <Card sx={styles.card}>
         <CardContent>
-          <Typography variant='h5' component='h2' gutterBottom sx={styles.sectionTitle}>
+          <Typography variant="h5" component="h2" gutterBottom sx={styles.sectionTitle}>
             {plan.title}
             <Tooltip title="Edit Plan Metadata">
               <IconButton
                 onClick={onEditPlanMetadata}
-                size='small'
-                color='primary'
+                size="small"
+                color="primary"
                 aria-label="edit plan metadata"
               >
-                <EditIcon fontSize='small' />
+                <EditIcon fontSize="small" />
               </IconButton>
             </Tooltip>
           </Typography>
           {plan.summary && (
-            <Typography variant='body1' paragraph color='text.secondary'>
+            <Typography variant="body1" paragraph color="text.secondary">
               {plan.summary}
             </Typography>
           )}
           {plan.thoughtProcess && (
             <Box mb={2}>
-              <Typography variant='h6' sx={styles.sectionTitle}>Thought Process</Typography>
-              <Typography variant='body2' color='text.secondary' sx={styles.codeBlock}>
+              <Typography variant="h6" sx={styles.sectionTitle}>
+                Thought Process
+              </Typography>
+              <Typography variant="body2" color="text.secondary" sx={styles.codeBlock}>
                 {plan.thoughtProcess}
               </Typography>
             </Box>
@@ -219,8 +228,10 @@ const PlanDisplay: React.FC<PlanDisplayProps> = ({ plan, onEditPlanMetadata }) =
       {plan.documentation && (
         <Card sx={styles.card}>
           <CardContent>
-            <Typography variant='h6' sx={styles.sectionTitle}>Documentation</Typography>
-            <Typography variant='body2' color='text.secondary' sx={styles.codeBlock}>
+            <Typography variant="h6" sx={styles.sectionTitle}>
+              Documentation
+            </Typography>
+            <Typography variant="body2" color="text.secondary" sx={styles.codeBlock}>
               {plan.documentation}
             </Typography>
           </CardContent>
@@ -229,10 +240,12 @@ const PlanDisplay: React.FC<PlanDisplayProps> = ({ plan, onEditPlanMetadata }) =
 
       <Card sx={styles.card}>
         <CardContent>
-          <Typography variant='h6' sx={styles.sectionTitle}>File Changes ({plan.changes.length})</Typography>
+          <Typography variant="h6" sx={styles.sectionTitle}>
+            File Changes ({plan.changes.length})
+          </Typography>
           {plan.changes.length > 0 ? (
-            <TableContainer sx={styles.tableContainer} className='max-h-[400px]'>
-              <Table stickyHeader size='small'>
+            <TableContainer sx={styles.tableContainer} className="max-h-[400px]">
+              <Table stickyHeader size="small">
                 <TableHead>
                   <TableRow>
                     <TableCell sx={styles.tableHeadCell}>File Path</TableCell>
@@ -251,36 +264,35 @@ const PlanDisplay: React.FC<PlanDisplayProps> = ({ plan, onEditPlanMetadata }) =
                         <TableCell>
                           <Chip
                             label={change.action}
-                            color=
-                              {
-                                change.action === 'ADD'
-                                  ? 'success'
-                                  : change.action === 'MODIFY'
+                            color={
+                              change.action === 'ADD'
+                                ? 'success'
+                                : change.action === 'MODIFY'
                                   ? 'info'
                                   : change.action === 'DELETE'
-                                  ? 'error'
-                                  : 'default'
-                              }
-                            size='small'
+                                    ? 'error'
+                                    : 'default'
+                            }
+                            size="small"
                           />
                         </TableCell>
                         <TableCell>{change.reason || '-'}</TableCell>
                         <TableCell sx={{ minWidth: '120px' }}>
                           {status === 'applying' ? (
-                            <CircularProgress size={20} color='inherit' />
+                            <CircularProgress size={20} color="inherit" />
                           ) : status === 'success' ? (
-                            <Tooltip title='Applied successfully'>
-                              <CheckCircleOutlineIcon color='success' />
+                            <Tooltip title="Applied successfully">
+                              <CheckCircleOutlineIcon color="success" />
                             </Tooltip>
                           ) : (
-                            <Tooltip title='Apply this change'>
+                            <Tooltip title="Apply this change">
                               <IconButton
                                 onClick={() => handleApplySingleChange(index)}
-                                size='small'
-                                color='primary'
+                                size="small"
+                                color="primary"
                                 aria-label={`apply change ${index}`}
                               >
-                                <RocketLaunchIcon fontSize='small' />
+                                <RocketLaunchIcon fontSize="small" />
                               </IconButton>
                             </Tooltip>
                           )}
@@ -292,7 +304,9 @@ const PlanDisplay: React.FC<PlanDisplayProps> = ({ plan, onEditPlanMetadata }) =
               </Table>
             </TableContainer>
           ) : (
-            <Typography variant='body2' color='text.secondary'>No file changes proposed.</Typography>
+            <Typography variant="body2" color="text.secondary">
+              No file changes proposed.
+            </Typography>
           )}
         </CardContent>
       </Card>
@@ -300,10 +314,12 @@ const PlanDisplay: React.FC<PlanDisplayProps> = ({ plan, onEditPlanMetadata }) =
       {plan.gitInstructions && plan.gitInstructions.length > 0 && (
         <Card sx={styles.card}>
           <CardContent>
-            <Typography variant='h6' sx={styles.sectionTitle}>Git Instructions</Typography>
+            <Typography variant="h6" sx={styles.sectionTitle}>
+              Git Instructions
+            </Typography>
             <Box sx={styles.codeBlock}>
               {plan.gitInstructions.map((instruction, index) => (
-                <Typography key={index} variant='body2' color='text.secondary'>
+                <Typography key={index} variant="body2" color="text.secondary">
                   {instruction}
                 </Typography>
               ))}
@@ -312,13 +328,13 @@ const PlanDisplay: React.FC<PlanDisplayProps> = ({ plan, onEditPlanMetadata }) =
         </Card>
       )}
 
-      <Box className='flex justify-end p-4'>
+      <Box className="flex justify-end p-4">
         <Button
-          variant='contained'
-          color='primary'
+          variant="contained"
+          color="primary"
           onClick={handleApplyPlan}
           disabled={applyStatus === 'applying'}
-          startIcon={applyStatus === 'applying' && <CircularProgress size={20} color='inherit' />}
+          startIcon={applyStatus === 'applying' && <CircularProgress size={20} color="inherit" />}
         >
           {applyStatus === 'applying' ? 'Applying Plan...' : 'Apply Plan'}
         </Button>

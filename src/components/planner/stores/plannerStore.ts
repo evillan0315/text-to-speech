@@ -8,7 +8,8 @@ import { projectRootDirectoryStore } from '@/stores/fileTreeStore';
 
 // Define a reasonable default project root path if none is set
 // This path is specific to the user's environment, based on the project structure.
-const DEFAULT_PROJECT_ROOT = '/media/eddie/Data/projects/nestJS/nest-modules/project-board-server/apps/text-to-speech';
+const DEFAULT_PROJECT_ROOT =
+  '/media/eddie/Data/projects/nestJS/nest-modules/project-board-server/apps/text-to-speech';
 
 // Initialize projectRootDirectoryStore with a default if it's empty
 // This ensures that projectRootDirectoryStore.get() will always return a string or DEFAULT_PROJECT_ROOT
@@ -49,7 +50,13 @@ export const setUserPrompt = (prompt: string) => {
 };
 
 export const setPlan = (planId: string | null, plan: IPlan | null) => {
-  plannerStore.set({ ...plannerStore.get(), currentPlanId: planId, plan: plan, isLoading: false, error: null });
+  plannerStore.set({
+    ...plannerStore.get(),
+    currentPlanId: planId,
+    plan: plan,
+    isLoading: false,
+    error: null,
+  });
 };
 
 export const setIsLoading = (loading: boolean) => {
@@ -60,7 +67,10 @@ export const setError = (error: string | null) => {
   plannerStore.set({ ...plannerStore.get(), error: error, isLoading: false });
 };
 
-export const setApplyStatus = (status: PlannerState['applyStatus'], error: string | null = null) => {
+export const setApplyStatus = (
+  status: PlannerState['applyStatus'],
+  error: string | null = null,
+) => {
   plannerStore.set({ ...plannerStore.get(), applyStatus: status, applyError: error });
 };
 
@@ -84,15 +94,13 @@ export const setExpectedOutputFormat = (format: string) => {
  * Updates specific metadata fields of the currently active plan.
  * @param updatedMetadata An object containing the fields to update.
  */
-export const updateCurrentPlanMetadata = (
-  updatedMetadata: {
-    title?: string;
-    summary?: string;
-    thoughtProcess?: string;
-    documentation?: string;
-    gitInstructions?: string[];
-  }
-) => {
+export const updateCurrentPlanMetadata = (updatedMetadata: {
+  title?: string;
+  summary?: string;
+  thoughtProcess?: string;
+  documentation?: string;
+  gitInstructions?: string[];
+}) => {
   const current = plannerStore.get();
   if (current.plan && current.currentPlanId === current.plan.id) {
     plannerStore.set({

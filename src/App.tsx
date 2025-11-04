@@ -33,9 +33,12 @@ function App() {
         <Routes>
           <Route path="/" element={<HomePage />} /> {/* New: Homepage as root */}
           <Route path="/tts" element={<TtsLandingPage />} /> {/* New: TTS Landing Page */}
-          <Route path="/tts-generator" element={<TtsGeneratorPage />} /> {/* Modified: Actual TTS Generator */}
-          <Route path="/planner" element={<PlannerLandingPage />} /> {/* New: Planner Landing Page */}
-          <Route path="/planner-generator" element={<PlannerPage />} /> {/* Modified: Actual Planner Page */}
+          <Route path="/tts-generator" element={<TtsGeneratorPage />} />{' '}
+          {/* Modified: Actual TTS Generator */}
+          <Route path="/planner" element={<PlannerLandingPage />} />{' '}
+          {/* New: Planner Landing Page */}
+          <Route path="/planner-generator" element={<PlannerPage />} />{' '}
+          {/* Modified: Actual Planner Page */}
           <Route path="/login" element={<LoginPage />} />
           <Route
             path="/auth/callback"

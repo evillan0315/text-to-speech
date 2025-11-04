@@ -1,5 +1,17 @@
 import React, { useState, useCallback, useEffect, useMemo } from 'react';
-import { Box, Typography, TextField, Button, CircularProgress, Alert, Card, CardContent, Tooltip, IconButton, Snackbar } from '@mui/material';
+import {
+  Box,
+  Typography,
+  TextField,
+  Button,
+  CircularProgress,
+  Alert,
+  Card,
+  CardContent,
+  Tooltip,
+  IconButton,
+  Snackbar,
+} from '@mui/material';
 import { useStore } from '@nanostores/react';
 import {
   plannerStore,
@@ -10,8 +22,6 @@ import {
   resetPlannerState,
   setProjectRoot,
   setScanPathsInput,
-  setAdditionalInstructions,
-  setExpectedOutputFormat,
   updateCurrentPlanMetadata,
 } from './stores/plannerStore';
 import { plannerService } from './api/plannerService';
@@ -58,7 +68,16 @@ const styles = {
 };
 
 const PlanGenerator: React.FC = () => {
-  const { userPrompt, plan, isLoading, error, projectRoot, scanPathsInput, additionalInstructions, expectedOutputFormat } = useStore(plannerStore);
+  const {
+    userPrompt,
+    plan,
+    isLoading,
+    error,
+    projectRoot,
+    scanPathsInput,
+    additionalInstructions,
+    expectedOutputFormat,
+  } = useStore(plannerStore);
   const globalProjectRoot = useStore(projectRootDirectoryStore);
 
   const [isProjectRootPickerDialogOpen, setIsProjectRootPickerDialogOpen] = useState(false);
@@ -71,13 +90,19 @@ const PlanGenerator: React.FC = () => {
   // Local state for the project root input field within the DirectoryPickerDrawer
   const [tempDrawerProjectRootInput, setTempDrawerProjectRootInput] = useState(projectRoot || '');
   // Local state for scan paths within the drawer before confirming
-  const [localScanPaths, setLocalScanPaths] = useState<string[]>(scanPathsInput.split(',').map(s => s.trim()).filter(Boolean));
+  const [localScanPaths, setLocalScanPaths] = useState<string[]>(
+    scanPathsInput
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean),
+  );
 
   // Effect to ensure plannerStore's projectRoot is in sync with globalProjectRoot
   useEffect(() => {
     if (globalProjectRoot && projectRoot !== globalProjectRoot) {
       setProjectRoot(globalProjectRoot);
-    } else if (!projectRoot && globalProjectRoot) { // If plannerStore's projectRoot is empty but global isn't
+    } else if (!projectRoot && globalProjectRoot) {
+      // If plannerStore's projectRoot is empty but global isn't
       setProjectRoot(globalProjectRoot);
     }
     // If no globalProjectRoot and plannerStore's projectRoot is still empty, button will be disabled, which is correct.
@@ -86,10 +111,20 @@ const PlanGenerator: React.FC = () => {
   // Sync localScanPaths with plannerStore's scanPathsInput when the drawer is opened or parent changes it
   useEffect(() => {
     if (isScanPathsDialogOpen) {
-      setLocalScanPaths(scanPathsInput.split(',').map(s => s.trim()).filter(Boolean));
+      setLocalScanPaths(
+        scanPathsInput
+          .split(',')
+          .map((s) => s.trim())
+          .filter(Boolean),
+      );
     } else {
       // Reset local state when drawer closes to reflect true store state if parent updated it
-      setLocalScanPaths(scanPathsInput.split(',').map(s => s.trim()).filter(Boolean));
+      setLocalScanPaths(
+        scanPathsInput
+          .split(',')
+          .map((s) => s.trim())
+          .filter(Boolean),
+      );
     }
   }, [isScanPathsDialogOpen, scanPathsInput]);
 
@@ -114,34 +149,28 @@ const PlanGenerator: React.FC = () => {
   const scanPathAutocompleteOptions = useMemo(() => {
     // In a real scenario, this would be populated from a file tree service.
     // For now, these are just suggestions.
-    return Array.from(
-      new Set([
-        'src',
-        'public',
-        'package.json',
-        'README.md',
-        '.env',
-      ]),
-    ).sort();
+    return Array.from(new Set(['src', 'public', 'package.json', 'README.md', '.env'])).sort();
   }, []);
 
   // Removed getRelevantFiles as frontend does not possess file content. Backend will handle scanning.
 
-  const handleLoadProject = useCallback((selectedPath: string) => {
-    if (!selectedPath.trim()) {
-      setError('Please provide a project root path.');
-      return;
-    }
-    setProjectRoot(selectedPath);
-    projectRootDirectoryStore.set(selectedPath); // Update global store
-    setError('');
-    setPlan(null, null);
-    setIsLoading(false);
-  }, [setProjectRoot, setError, setPlan, setIsLoading]);
+  const handleLoadProject = useCallback(
+    (selectedPath: string) => {
+      if (!selectedPath.trim()) {
+        setError('Please provide a project root path.');
+        return;
+      }
+      setProjectRoot(selectedPath);
+      projectRootDirectoryStore.set(selectedPath); // Update global store
+      setError('');
+      setPlan(null, null);
+      setIsLoading(false);
+    },
+    [setProjectRoot, setError, setPlan, setIsLoading],
+  );
 
   const updateScanPaths = useCallback(
-    (paths: string[]) =>
-      setScanPathsInput([...new Set(paths)].sort().join(', ')),
+    (paths: string[]) => setScanPathsInput([...new Set(paths)].sort().join(', ')),
     [],
   );
 
@@ -245,32 +274,38 @@ const PlanGenerator: React.FC = () => {
   };
 
   return (
-    <Box className='flex flex-col h-full overflow-hidden p-4 sm:p-6 lg:p-8'>
-      <Typography variant='h4' component='h1' gutterBottom className='text-primary-light font-bold mb-6'>
+    <Box className="flex flex-col h-full overflow-hidden p-4 sm:p-6 lg:p-8">
+      <Typography
+        variant="h4"
+        component="h1"
+        gutterBottom
+        className="text-primary-light font-bold mb-6"
+      >
         AI Plan Generator
       </Typography>
 
-      <Card sx={styles.card} className='mb-6 flex-shrink-0'>
+      <Card sx={styles.card} className="mb-6 flex-shrink-0">
         <CardContent sx={styles.formSection}>
-          <Typography variant='h6' gutterBottom className='text-text-primary'>Generate a New Plan</Typography>
+          <Typography variant="h6" gutterBottom className="text-text-primary">
+            Generate a New Plan
+          </Typography>
           <TextField
-            label='Enter your prompt for the AI'
+            label="Enter your prompt for the AI"
             multiline
             rows={6}
             fullWidth
             value={userPrompt}
             onChange={(e) => setUserPrompt(e.target.value)}
-            variant='outlined'
+            variant="outlined"
             disabled={isLoading}
             sx={{ mb: 2 }}
           />
 
-          <Box className='flex justify-between items-center mt-2 flex-wrap gap-2'>
-
-            <Box className='flex flex-wrap gap-2'>
+          <Box className="flex justify-between items-center mt-2 flex-wrap gap-2">
+            <Box className="flex flex-wrap gap-2">
               <Tooltip title="Select Project Root Directory">
                 <IconButton
-                  color='primary'
+                  color="primary"
                   onClick={() => {
                     setTempDrawerProjectRootInput(projectRoot);
                     setIsProjectRootPickerDialogOpen(true);
@@ -283,7 +318,7 @@ const PlanGenerator: React.FC = () => {
               </Tooltip>
               <Tooltip title="Manage AI Scan Paths">
                 <IconButton
-                  color='primary'
+                  color="primary"
                   onClick={() => setIsScanPathsDialogOpen(true)}
                   aria-label="manage ai scan paths"
                   disabled={isLoading}
@@ -293,10 +328,10 @@ const PlanGenerator: React.FC = () => {
               </Tooltip>
             </Box>
 
-            <Box className='flex flex-wrap gap-2'>
+            <Box className="flex flex-wrap gap-2">
               <Tooltip title="Edit AI Instructions (System Prompt)">
                 <IconButton
-                  color='primary'
+                  color="primary"
                   onClick={() => setIsAiInstructionDrawerOpen(true)}
                   aria-label="edit ai instructions"
                   disabled={isLoading}
@@ -306,7 +341,7 @@ const PlanGenerator: React.FC = () => {
               </Tooltip>
               <Tooltip title="Edit Expected Output Format (JSON Schema)">
                 <IconButton
-                  color='primary'
+                  color="primary"
                   onClick={() => setIsExpectedOutputDrawerOpen(true)}
                   aria-label="edit expected output format"
                   disabled={isLoading}
@@ -317,38 +352,35 @@ const PlanGenerator: React.FC = () => {
             </Box>
           </Box>
 
-          <Box className='flex justify-end gap-2 mt-4'>
+          <Box className="flex justify-end gap-2 mt-4">
             <Button
-              variant='outlined'
-              color='secondary'
+              variant="outlined"
+              color="secondary"
               onClick={handleClearPlan}
               disabled={isLoading && !plan}
             >
               Clear Plan
             </Button>
             <Button
-              variant='contained'
-              color='primary'
+              variant="contained"
+              color="primary"
               onClick={handleGeneratePlan}
               disabled={isLoading || !userPrompt.trim() || !projectRoot.trim()}
-              startIcon={isLoading && <CircularProgress size={20} color='inherit' />}
+              startIcon={isLoading && <CircularProgress size={20} color="inherit" />}
               sx={styles.generateButton}
             >
               {isLoading ? 'Generating Plan...' : 'Generate Plan'}
             </Button>
           </Box>
-
-   
         </CardContent>
       </Card>
 
       {plan && (
-        <Box className='flex-grow overflow-y-auto pt-4'>
+        <Box className="flex-grow overflow-y-auto pt-4">
           <PlanDisplay plan={plan} onEditPlanMetadata={() => setIsPlanMetadataEditorOpen(true)} />
         </Box>
       )}
 
-  
       <CustomDrawer
         open={isProjectRootPickerDialogOpen}
         onClose={() => setIsProjectRootPickerDialogOpen(false)}
@@ -359,7 +391,9 @@ const PlanGenerator: React.FC = () => {
         footerActionButton={directoryPickerDrawerActions}
       >
         <DirectoryPickerDrawer
-          onSelect={(path) => { /* This onSelect is now primarily handled by the footer actions. */ }}
+          onSelect={(path) => {
+            /* This onSelect is now primarily handled by the footer actions. */
+          }}
           onClose={() => setIsProjectRootPickerDialogOpen(false)}
           initialPath={tempDrawerProjectRootInput || '/'}
           allowExternalPaths

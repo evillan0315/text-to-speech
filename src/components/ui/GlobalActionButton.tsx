@@ -1,14 +1,15 @@
 import React from 'react';
 import { Box, Button, Tooltip, IconButton } from '@mui/material';
 
-import { GlobalAction } from '@/types/action'; // Corrected import path for GlobalAction
+import type { GlobalAction } from '@/types/action'; // Corrected import path for GlobalAction
 
 interface GlobalActionButtonProps {
   globalActions: GlobalAction[];
   iconOnly?: boolean; // New prop for icon-only mode
 }
 
-function GlobalActionButton({ globalActions, iconOnly = false }: GlobalActionButtonProps) { // Default iconOnly to false
+function GlobalActionButton({ globalActions, iconOnly = false }: GlobalActionButtonProps) {
+  // Default iconOnly to false
   const boxSx = {
     display: 'flex',
     gap: 1,
@@ -25,9 +26,9 @@ function GlobalActionButton({ globalActions, iconOnly = false }: GlobalActionBut
               <IconButton
                 onClick={action.action}
                 color={action.color || 'primary'}
-                size="small" 
+                size="small"
                 disabled={action.disabled}
-               >
+              >
                 {action.icon ? action.icon : null}
               </IconButton>
             </Tooltip>

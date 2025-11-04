@@ -21,7 +21,7 @@ import SearchIcon from '@mui/icons-material/Search';
  * @param maxLength The maximum length before truncation (default: 30).
  * @returns The truncated path with '...' if necessary.
  */
-const truncate = (filePath: string, maxLength: number = 30): string => {
+const truncate = (filePath: string, maxLength = 30): string => {
   if (!filePath) return '';
   const parts = filePath.split(/[\\/]/); // Split by / or \\ // Double quotes escaped
   const fileName = parts[parts.length - 1];
@@ -70,14 +70,17 @@ const ScanPathsDrawer: React.FC<ScanPathsDrawerProps> = ({
     return availablePaths.filter((p) => p.toLowerCase().includes(lower));
   }, [availablePaths, searchTerm]);
 
-  const addPath = useCallback((pathToAdd: string) => {
-    if (!pathToAdd) return;
-    setLocalSelectedPaths((prev) => {
-      const newPaths = Array.from(new Set([...prev, pathToAdd]));
-      onLocalPathsChange(newPaths); // Notify parent immediately of internal changes
-      return newPaths;
-    });
-  }, [onLocalPathsChange]);
+  const addPath = useCallback(
+    (pathToAdd: string) => {
+      if (!pathToAdd) return;
+      setLocalSelectedPaths((prev) => {
+        const newPaths = Array.from(new Set([...prev, pathToAdd]));
+        onLocalPathsChange(newPaths); // Notify parent immediately of internal changes
+        return newPaths;
+      });
+    },
+    [onLocalPathsChange],
+  );
 
   const handleAddManualPath = useCallback(() => {
     const trimmed = manualPathInput.trim();
@@ -86,13 +89,16 @@ const ScanPathsDrawer: React.FC<ScanPathsDrawerProps> = ({
     setManualPathInput('');
   }, [manualPathInput, addPath]);
 
-  const handleRemovePath = useCallback((pathToRemove: string) => {
-    setLocalSelectedPaths((prev) => {
-      const newPaths = prev.filter((p) => p !== pathToRemove);
-      onLocalPathsChange(newPaths); // Notify parent immediately of internal changes
-      return newPaths;
-    });
-  }, [onLocalPathsChange]);
+  const handleRemovePath = useCallback(
+    (pathToRemove: string) => {
+      setLocalSelectedPaths((prev) => {
+        const newPaths = prev.filter((p) => p !== pathToRemove);
+        onLocalPathsChange(newPaths); // Notify parent immediately of internal changes
+        return newPaths;
+      });
+    },
+    [onLocalPathsChange],
+  );
 
   return (
     <Box
@@ -120,8 +126,8 @@ const ScanPathsDrawer: React.FC<ScanPathsDrawerProps> = ({
           ),
         }}
         sx={{
-              backgroundColor: theme.palette.background.default,
-            }}
+          backgroundColor: theme.palette.background.default,
+        }}
       />
 
       {/* Manual input for external paths */}
@@ -180,20 +186,24 @@ const ScanPathsDrawer: React.FC<ScanPathsDrawerProps> = ({
       )}
 
       {/* Selected paths */}
-      <Typography variant="subtitle2" sx={{ mt: 1 }}>Currently Selected for Scan:</Typography>
+      <Typography variant="subtitle2" sx={{ mt: 1 }}>
+        Currently Selected for Scan:
+      </Typography>
       <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, height: 'auto' }}>
         {localSelectedPaths.length === 0 ? (
-          <Typography variant="body2" color="text.secondary">No paths selected.</Typography>
+          <Typography variant="body2" color="text.secondary">
+            No paths selected.
+          </Typography>
         ) : (
           localSelectedPaths.map((pathItem) => (
             <Tooltip title={pathItem} key={pathItem}>
-            <Chip
-              label={truncate(pathItem)}
-              onDelete={() => handleRemovePath(pathItem)}
-              size="small"
-              color="primary"
-            />
-               </Tooltip>
+              <Chip
+                label={truncate(pathItem)}
+                onDelete={() => handleRemovePath(pathItem)}
+                size="small"
+                color="primary"
+              />
+            </Tooltip>
           ))
         )}
       </Box>

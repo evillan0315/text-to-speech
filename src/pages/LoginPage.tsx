@@ -58,12 +58,7 @@ export const LoginPage: React.FC = () => {
   return (
     <Box className="flex flex-col items-center justify-center p-6 max-w-md mx-auto min-h-[calc(100vh-128px)]">
       {/* Logo Section */}
-      <Stack
-        direction="row"
-        alignItems="center"
-        spacing={1}
-        sx={{ mb: 4, color: 'primary.main' }}
-      >
+      <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 4, color: 'primary.main' }}>
         <RecordVoiceOverIcon sx={{ fontSize: 60 }} />
         <Typography variant="h3" component="div" className="font-extrabold">
           Gemini TTS
