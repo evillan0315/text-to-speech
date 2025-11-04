@@ -322,7 +322,7 @@ const PlanGenerator: React.FC = () => {
             </Button>
           </Box>
 
-          {/* Error display is now handled by Snackbar */}
+   
         </CardContent>
       </Card>
 
@@ -332,7 +332,7 @@ const PlanGenerator: React.FC = () => {
         </Box>
       )}
 
-      {/* Drawers for settings */}
+  
       <CustomDrawer
         open={isProjectRootPickerDialogOpen}
         onClose={() => setIsProjectRootPickerDialogOpen(false)}
