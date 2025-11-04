@@ -183,7 +183,7 @@ const Loading: React.FC<LoadingProps> = ({
       }}
       className={className}
     >
-      {/* Injecting style for keyframes locally */}
+     
       <style dangerouslySetInnerHTML={{ __html: customLoaderStyles }} />
 
       {renderLoader()}
