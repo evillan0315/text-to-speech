@@ -24,7 +24,7 @@ import {
   setScanPathsInput,
   updateCurrentPlanMetadata,
   updateFileChange,
-  setCurrentPlanId
+  setCurrentPlanId,
 } from './stores/plannerStore';
 import { plannerService } from './api/plannerService';
 import PlanDisplay from './PlanDisplay';
@@ -37,16 +37,18 @@ import DescriptionIcon from '@mui/icons-material/Description';
 import SchemaIcon from '@mui/icons-material/Schema';
 import CloseIcon from '@mui/icons-material/Close';
 import CheckIcon from '@mui/icons-material/Check';
-import ListAltIcon from '@mui/icons-material/ListAlt'; // New import for PlannerList drawer
+import ListAltIcon from '@mui/icons-material/ListAlt'; // New import for the list icon
+
 import CustomDrawer from '@/components/Drawer/CustomDrawer';
 import DirectoryPickerDrawer from '@/components/planner/drawerContent/DirectoryPickerDrawer';
 import ScanPathsDrawer from '@/components/planner/drawerContent/ScanPathsDrawer';
 import InstructionEditorDrawer from '@/components/planner/drawerContent/InstructionEditorDrawer';
 import PlanMetadataEditorDrawer from '@/components/planner/drawerContent/PlanMetadataEditorDrawer';
-import FileChangeEditorDrawer from '@/components/planner/drawerContent/FileChangeEditorDrawer';
-import PlannerList from './PlannerList'; // New import for PlannerList component
+import FileChangeEditorDrawer from '@/components/planner/drawerContent/FileChangeEditorDrawer'; // New import
+import PlannerList from '@/components/planner/PlannerList'; // New import for PlannerList drawer content
 import { projectRootDirectoryStore } from '@/stores/fileTreeStore';
 import Loading from '@/components/Loading';
+import { useSearchParams } from 'react-router-dom'; // Import useSearchParams
 
 const styles = {
   card: {
@@ -83,6 +85,7 @@ const PlanGenerator: React.FC = () => {
     scanPathsInput,
     additionalInstructions,
     expectedOutputFormat,
+    currentPlanId: storeCurrentPlanId, // Renamed to avoid conflict with local var
   } = useStore(plannerStore);
   const globalProjectRoot = useStore(projectRootDirectoryStore);
 
@@ -91,11 +94,13 @@ const PlanGenerator: React.FC = () => {
   const [isAiInstructionDrawerOpen, setIsAiInstructionDrawerOpen] = useState(false);
   const [isExpectedOutputDrawerOpen, setIsExpectedOutputDrawerOpen] = useState(false);
   const [isPlanMetadataEditorOpen, setIsPlanMetadataEditorOpen] = useState(false);
-  const [isFileChangeEditorOpen, setIsFileChangeEditorOpen] = useState(false);
+  const [isFileChangeEditorOpen, setIsFileChangeEditorOpen] = useState(false); // New state for FileChangeEditorDrawer
+  const [editingFileChange, setEditingFileChange] = useState<IFileChange | null>(null); // State for the file change being edited
+  const [editingFileChangeIndex, setEditingFileChangeIndex] = useState<number | null>(null); // State for the index of the file change being edited
   const [isPlannerListDrawerOpen, setIsPlannerListDrawerOpen] = useState(false); // New state for PlannerList drawer
-  const [editingFileChange, setEditingFileChange] = useState<IFileChange | null>(null);
-  const [editingFileChangeIndex, setEditingFileChangeIndex] = useState<number | null>(null);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
+
+  const [searchParams] = useSearchParams(); // Hook to get URL search parameters
 
   // Local state for the project root input field within the DirectoryPickerDrawer
   const [tempDrawerProjectRootInput, setTempDrawerProjectRootInput] = useState(projectRoot || '');
@@ -147,6 +152,36 @@ const PlanGenerator: React.FC = () => {
     }
   }, [error]);
 
+  // Effect to load plan from URL parameter
+  useEffect(() => {
+    const planIdFromUrl = searchParams.get('planId');
+
+    if (planIdFromUrl && planIdFromUrl !== storeCurrentPlanId) {
+      // Only fetch if a planId is present in URL and it's different from the current one in store
+      const fetchPlanFromUrl = async () => {
+        setIsLoading(true);
+        setError(null);
+        try {
+          const response = await plannerService.getPlan(planIdFromUrl);
+          setPlan(response.plan.id, response.plan);
+          setCurrentPlanId(response.plan.id);
+          // Close the PlannerList drawer if it's open, as a plan has been selected/loaded
+          if (isPlannerListDrawerOpen) {
+            setIsPlannerListDrawerOpen(false);
+          }
+        } catch (err: any) {
+          console.error('Failed to load plan from URL:', err);
+          setError(err.message || 'Failed to load plan from URL.');
+          setPlan(null, null);
+          setCurrentPlanId(null);
+        } finally {
+          // setIsLoading(false); // setPlan already handles setting isLoading to false
+        }
+      };
+      fetchPlanFromUrl();
+    }
+  }, [searchParams, storeCurrentPlanId, isPlannerListDrawerOpen, setIsLoading, setError, setPlan, setCurrentPlanId]);
+
   const currentScanPathsArray = useMemo(
     () =>
       scanPathsInput
@@ -174,9 +209,10 @@ const PlanGenerator: React.FC = () => {
       projectRootDirectoryStore.set(selectedPath); // Update global store
       setError('');
       setPlan(null, null);
+      setCurrentPlanId(null); // Clear current plan ID when changing project root
       // setIsLoading(false); // No longer needed here as setPlan handles isLoading: false
     },
-    [setProjectRoot, setError, setPlan],
+    [setProjectRoot, setError, setPlan, setCurrentPlanId],
   );
 
   const updateScanPaths = useCallback(
@@ -206,7 +242,8 @@ const PlanGenerator: React.FC = () => {
     } catch (err: any) {
       console.log(err, 'err');
       setError(err.message || 'Failed to generate plan.');
-      setPlan(null, null); // Clear plan on error
+      setPlan(null, null);
+      setCurrentPlanId(null); // Clear plan ID on error
     } finally {
       // setIsLoading(false); // Removed: setPlan and setError already handle setting isLoading to false.
     }
@@ -299,7 +336,7 @@ const PlanGenerator: React.FC = () => {
 
   // Action buttons for the PlannerListDrawer
   const plannerListDrawerActions: GlobalAction[] = [
-    { // Only a close button for now, as PlannerList handles navigation internally
+    {
       label: 'Close',
       action: () => setIsPlannerListDrawerOpen(false),
       icon: <CloseIcon />,
@@ -369,11 +406,11 @@ const PlanGenerator: React.FC = () => {
                   <AddRoadIcon />
                 </IconButton>
               </Tooltip>
-              <Tooltip title="View Existing Plans">
+              <Tooltip title="View All Saved Plans">
                 <IconButton
                   color="primary"
                   onClick={() => setIsPlannerListDrawerOpen(true)}
-                  aria-label="view existing plans"
+                  aria-label="view all saved plans"
                   disabled={isLoading}
                 >
                   <ListAltIcon />
@@ -437,7 +474,7 @@ const PlanGenerator: React.FC = () => {
           <PlanDisplay
             plan={plan}
             onEditPlanMetadata={() => setIsPlanMetadataEditorOpen(true)}
-            onEditFileChange={handleEditFileChangeRequest}
+            onEditFileChange={handleEditFileChangeRequest} // Pass the new handler
           />
         </Box>
       ) : (
@@ -510,7 +547,7 @@ const PlanGenerator: React.FC = () => {
         />
       )}
 
-      {editingFileChange && (
+      {editingFileChange && ( // Only render if a change is being edited
         <FileChangeEditorDrawer
           open={isFileChangeEditorOpen}
           onClose={() => setIsFileChangeEditorOpen(false)}
@@ -519,13 +556,13 @@ const PlanGenerator: React.FC = () => {
         />
       )}
 
-      {/* New CustomDrawer for PlannerList */}
+      {/* New: CustomDrawer for PlannerList */}
       <CustomDrawer
         open={isPlannerListDrawerOpen}
         onClose={() => setIsPlannerListDrawerOpen(false)}
         position="right"
-        size="large" // Adjusted size to 'large' to better display the table
-        title="Existing AI Plans"
+        size="large" // Adjusted size for better viewing of the list
+        title="All AI Plans"
         hasBackdrop={true}
         footerActionButton={plannerListDrawerActions}
       >
