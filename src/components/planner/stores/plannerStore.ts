@@ -8,13 +8,12 @@ import { projectRootDirectoryStore } from '@/stores/fileTreeStore';
 
 // Define a reasonable default project root path if none is set
 // This path is specific to the user's environment, based on the project structure.
-const DEFAULT_PROJECT_ROOT =
-  '/media/eddie/Data/projects/nestJS/nest-modules/project-board-server/apps/text-to-speech';
+const DEFAULT_PROJECT_ROOT_FROM_ENV = import.meta.env.VITE_BASE_DIR; // Get default from environment
 
 // Initialize projectRootDirectoryStore with a default if it's empty
-// This ensures that projectRootDirectoryStore.get() will always return a string or DEFAULT_PROJECT_ROOT
+// This ensures that projectRootDirectoryStore.get() will always return a string or DEFAULT_PROJECT_ROOT_FROM_ENV
 if (projectRootDirectoryStore.get() === null || projectRootDirectoryStore.get() === '') {
-  projectRootDirectoryStore.set(DEFAULT_PROJECT_ROOT);
+  projectRootDirectoryStore.set(DEFAULT_PROJECT_ROOT_FROM_ENV);
 }
 
 interface PlannerState {
@@ -39,7 +38,7 @@ export const plannerStore = atom<PlannerState>({
   error: null,
   applyStatus: 'idle',
   applyError: null,
-  projectRoot: projectRootDirectoryStore.get() ?? DEFAULT_PROJECT_ROOT, // Ensure a default string value
+  projectRoot: projectRootDirectoryStore.get() ?? DEFAULT_PROJECT_ROOT_FROM_ENV, // Ensure a default string value
   scanPathsInput: 'src, public, package.json, README.md, .env', // Provide sensible defaults for scan paths
   additionalInstructions: PLANNER_AI_INSTRUCTION, // Default from constants
   expectedOutputFormat: PLANNER_EXPECTED_OUTPUT_FORMAT, // Default from constants
@@ -125,7 +124,7 @@ export const resetPlannerState = () => {
     error: null,
     applyStatus: 'idle',
     applyError: null,
-    projectRoot: projectRootDirectoryStore.get() ?? DEFAULT_PROJECT_ROOT,
+    projectRoot: projectRootDirectoryStore.get() ?? DEFAULT_PROJECT_ROOT_FROM_ENV,
     scanPathsInput: 'src, public, package.json, README.md, .env', // Reset to default scan paths as well
     additionalInstructions: PLANNER_AI_INSTRUCTION,
     expectedOutputFormat: PLANNER_EXPECTED_OUTPUT_FORMAT,

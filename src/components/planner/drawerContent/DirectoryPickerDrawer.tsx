@@ -28,7 +28,7 @@ interface DirectoryPickerDrawerProps {
 const DirectoryPickerDrawer: React.FC<DirectoryPickerDrawerProps> = ({
   onSelect,
   onClose,
-  initialPath = '/media/eddie/Data/projects', // Default initial path, adjusted based on typical dev environment
+  initialPath = import.meta.env.VITE_BASE_DIR, // Default initial path from environment variable
   allowExternalPaths = false,
   onPathUpdate, // Destructure new prop
 }) => {
@@ -103,7 +103,8 @@ const DirectoryPickerDrawer: React.FC<DirectoryPickerDrawerProps> = ({
     const trimmedPath = tempPathInput.trim();
     if (trimmedPath) {
       handlePathUpdateInternal(trimmedPath);
-    } else {
+    }
+    else {
       setError('Path cannot be empty.');
     }
   }, [tempPathInput, handlePathUpdateInternal]);

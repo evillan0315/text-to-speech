@@ -3,7 +3,7 @@
 interface ImportMetaEnv {
   readonly VITE_APP_API_BASE_URL: string;
   readonly VITE_FRONTEND_PORT: string;
-  // Removed VITE_APP_JWT_TOKEN as it's no longer used for mocking
+  readonly VITE_BASE_DIR: string; // New: Base directory for the project, used as default for AI Planner
   // more env variables...
 }
 

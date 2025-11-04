@@ -15,10 +15,9 @@ For a deep dive into the application's architecture and design principles, pleas
 ## Features
 
 *   **Authentication:** Seamless integration with JWT-based authentication, supporting Google OAuth2 and GitHub OAuth2 via the backend server.
-*   **Dynamic Text Input:** Flexible text area for inputting content to be synthesized.
-*   **Multi-Speaker Configuration:** Users can dynamically add, remove, and configure speaker profiles, assigning a unique speaker name (for AI prompting) and a specific voice name (e.g., 'Kore', 'Puck').
-*   **Language Selection:** Ability to specify the language code for speech output (defaults to 'en-US').
-*   **Integrated Audio Playback:** Generated `.wav` audio files are played directly in the browser for immediate feedback.
+*   **Dynamic Text-to-Speech Generation:** Flexible text area for inputting content to be synthesized with options for language code.
+*   **Multi-Speaker Configuration (TTS):** Dynamically add, remove, and configure speaker profiles, assigning a unique speaker name (for AI prompting) and a specific voice name (e.g., 'Kore', 'Puck').
+*   **Integrated Audio Playback (TTS):** Generated `.wav` audio files are played directly in the browser for immediate feedback.
 *   **AI Code Planning & Generation:** Define project context through user prompts, specify scan paths for relevant files, provide detailed AI instructions (system prompt), and define the expected JSON output format to generate structured code modification plans (add, modify, delete, repair, analyze files).
 *   **Granular Plan Application:** Review detailed plans including file additions, modifications, deletions, and refactors, then apply entire generated plans or individual file changes to your local project directory, automating code modifications.
 *   **User Feedback:** Provides clear visual cues for loading states, along with comprehensive error handling and messaging.
@@ -67,15 +66,17 @@ Create a `.env` file in the `apps/text-to-speech` directory for local developmen
 VITE_APP_API_BASE_URL=http://localhost:5000/api
 VITE_FRONTEND_PORT=3003
 VITE_BASE_DIR=/media/eddie/Data/projects/nestJS/nest-modules/project-board-server/apps/text-to-speech
-# ^^^ IMPORTANT: VITE_BASE_DIR must point to the ABSOLUTE path of this 'text-to-speech' project root
-#                directory on your local filesystem. This is CRUCIAL for the AI Code Planner
+# ^^^ IMPORTANT: VITE_BASE_DIR is the default ABSOLUTE path of this 'text-to-speech' project root
+#                directory on your local filesystem. This value is used by the frontend's
+#                AI Code Planner as its initial project root. It is crucial for the AI Planner
 #                features to correctly scan project files and apply changes via the backend.
+#                Ensure this path is valid for your system.
 VITE_PREVIEW_APP_URL=http://localhost:3002
 ```
 
 -   `VITE_APP_API_BASE_URL`: The base URL of your backend API. Ensure this matches the URL where your `project-board-server` is running.
 -   `VITE_FRONTEND_PORT`: The port your frontend application runs on during development (e.g., `3003`). This is used for OAuth callback URLs.
--   `VITE_BASE_DIR`: **Crucial for the AI Code Planner.** This must point to the absolute path of the `text-to-speech` project root directory on your local filesystem. The AI backend uses this to locate and apply file changes.
+-   `VITE_BASE_DIR`: **Crucial for the AI Code Planner.** This environment variable now serves as the default `projectRoot` in the frontend's AI Planner (see `src/components/planner/stores/plannerStore.ts`). It should point to the absolute path of the `text-to-speech` project root directory on your local filesystem. The AI backend uses the `projectRoot` specified in the frontend request to locate and apply file changes.
 -   `VITE_PREVIEW_APP_URL`: The URL for previewing the application, if applicable.
 
 #### Backend OAuth Configuration
@@ -152,6 +153,7 @@ text-to-speech/
 │   │   │   │   └── instructions.ts
 │   │   │   ├── drawerContent/  # Drawer content for planner settings
 │   │   │   │   ├── DirectoryPickerDrawer.tsx
+│   │   │   │   ├── FileChangeEditorDrawer.tsx
 │   │   │   │   ├── InstructionEditorDrawer.tsx
 │   │   │   │   ├── PlanMetadataEditorDrawer.tsx # Editor for plan's high-level metadata
 │   │   │   │   └── ScanPathsDrawer.tsx
@@ -260,7 +262,7 @@ This frontend interacts with the following backend endpoints (assuming `VITE_APP
     -   **Response:** A JSON object indicating success or failure, with details of the application process (conforms to `IApplyPlanResult`).
 -   `POST /api/plan/:planId/apply-chunk/:changeIndex`: Applies a specific file change from a given plan to the local filesystem (requires authentication).
     -   **Description:** Executes a single file modification instruction from a plan, identified by its index within the plan's `changes` array, against the local project files.
-    -   **Request Body (JSON):**
+    -   **Request Body (JSON):便于
         ```json
         {
           "changeIndex": 0, // The 0-based index of the change within the plan's 'changes' array
@@ -273,8 +275,9 @@ This frontend interacts with the following backend endpoints (assuming `VITE_APP
 
 -   **Theme:** The Material UI theme can be customized in `src/theme/index.ts`.
 -   **Tailwind CSS:** Modify `tailwind.config.js` for custom classes and design system adaptations.
--   **Voice Names:** The `voiceName` values in the speaker configurations depend on the available voices in your Google Gemini TTS setup. Refer to Google's documentation or your backend implementation for valid voice names.
+-   **Voice Names (TTS):** The `voiceName` values in the speaker configurations depend on the available voices in your Google Gemini TTS setup. Refer to Google's documentation or your backend implementation for valid voice names.
 -   **AI Planner Defaults:** The default AI instructions (system prompt) and expected output JSON schema for the AI Planner can be found and customized in `src/components/planner/constants/instructions.ts`. These values are loaded into the `plannerStore` on initialization.
+-   **AI Planner Default Project Root:** The default local project root for the AI Planner can be configured in your `.env` file via `VITE_BASE_DIR`.
 
 ## Contributing
 
