@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect, useMemo } from 'react';
-import { Box, Typography, TextField, Button, CircularProgress, Alert, Card, CardContent, Tooltip, IconButton } from '@mui/material';
+import { Box, Typography, TextField, Button, CircularProgress, Alert, Card, CardContent, Tooltip, IconButton, Snackbar } from '@mui/material';
 import { useStore } from '@nanostores/react';
 import {
   plannerStore,
@@ -63,6 +63,7 @@ const PlanGenerator: React.FC = () => {
   const [isScanPathsDialogOpen, setIsScanPathsDialogOpen] = useState(false);
   const [isAiInstructionDrawerOpen, setIsAiInstructionDrawerOpen] = useState(false);
   const [isExpectedOutputDrawerOpen, setIsExpectedOutputDrawerOpen] = useState(false);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
 
   // Local state for the project root input field within the DirectoryPickerDrawer
   const [tempDrawerProjectRootInput, setTempDrawerProjectRootInput] = useState(projectRoot || '');
@@ -88,6 +89,15 @@ const PlanGenerator: React.FC = () => {
       setLocalScanPaths(scanPathsInput.split(',').map(s => s.trim()).filter(Boolean));
     }
   }, [isScanPathsDialogOpen, scanPathsInput]);
+
+  // Effect to open snackbar when an error occurs
+  useEffect(() => {
+    if (error) {
+      setSnackbarOpen(true);
+    } else {
+      setSnackbarOpen(false);
+    }
+  }, [error]);
 
   const currentScanPathsArray = useMemo(
     () =>
@@ -210,6 +220,14 @@ const PlanGenerator: React.FC = () => {
     },
   ];
 
+  const handleSnackbarClose = (event?: React.SyntheticEvent | Event, reason?: string) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setSnackbarOpen(false);
+    setError(null); // Clear the error in the store when snackbar closes
+  };
+
   return (
     <Box className='flex flex-col h-full overflow-hidden p-4 sm:p-6 lg:p-8'>
       <Typography variant='h4' component='h1' gutterBottom className='text-primary-light font-bold mb-6'>
@@ -304,11 +322,7 @@ const PlanGenerator: React.FC = () => {
             </Button>
           </Box>
 
-          {error && (
-            <Alert severity='error' sx={{ mt: 2 }}>
-              {error}
-            </Alert>
-          )}
+          {/* Error display is now handled by Snackbar */}
         </CardContent>
       </Card>
 
@@ -365,6 +379,17 @@ const PlanGenerator: React.FC = () => {
         onClose={() => setIsExpectedOutputDrawerOpen(false)}
         type="expected"
       />
+
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={6000}
+        onClose={handleSnackbarClose}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert onClose={handleSnackbarClose} severity="error" sx={{ width: '100%' }}>
+          {error}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };
