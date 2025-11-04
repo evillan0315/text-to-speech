@@ -252,7 +252,7 @@ const PlanGenerator: React.FC = () => {
 
   const handleGeneratePlan = async () => {
     setIsLoading(true);
-    resetPlannerState();
+    //resetPlannerState();
     try {
       const llmInput: ILlmInput = {
         userPrompt,
