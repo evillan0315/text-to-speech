@@ -161,7 +161,8 @@ text-to-speech/
 │   │   │   │   ├── FileChangeEditorDrawer.tsx # Drawer for editing individual file change details
 │   │   │   │   ├── InstructionEditorDrawer.tsx
 │   │   │   │   ├── PlanMetadataEditorDrawer.tsx # Editor for plan's high-level metadata
-│   │   │   │   └── ScanPathsDrawer.tsx
+│   │   │   │   ├── ScanPathsDrawer.tsx
+│   │   │   │   └── PlannerList.tsx # Drawer content for displaying a list of plans
 │   │   │   ├── stores/         # Nanostore for planner state
 │   │   │   │   └── plannerStore.ts
 │   │   │   ├── PlanDisplay.tsx # Component to display generated AI plans
@@ -255,6 +256,9 @@ This frontend interacts with the following backend endpoints (assuming `VITE_APP
 -   `GET /api/plan/:planId`: Fetches the details of a specific AI-generated plan (requires authentication).
     -   **Description:** Retrieves a previously generated plan by its ID.
     -   **Response:** A JSON object containing the `plan` details (conforms to `{ plan: IPlan }`).
+-   `GET /api/planner/paginated?page=:page&pageSize=:pageSize`: Fetches a paginated list of AI plans for the authenticated user.
+    -   **Description:** Retrieves a list of previously generated plans, supporting pagination.
+    -   **Response:** A JSON object containing `items` (an array of `IPlannerListItem`), `total`, `page`, `pageSize`, and `totalPages` (conforms to `IPaginatedPlansResponse` in `src/components/planner/types.ts`).
 -   `POST /api/plan/apply`: Applies a specified AI-generated plan (all changes) to the local filesystem (requires authentication).
     -   **Description:** Executes the file modification instructions from a given plan (identified by `planId`) against the local project files.
     -   **Request Body (JSON):**
