@@ -257,10 +257,6 @@ const PlanDisplay: React.FC<PlanDisplayProps> = ({ plan }) => {
                             <Tooltip title='Applied successfully'>
                               <CheckCircleOutlineIcon color='success' />
                             </Tooltip>
-                          ) : status === 'failure' ? (
-                            <Tooltip title={error || 'Failed to apply'}>
-                              <ErrorOutlineIcon color='error' />
-                            </Tooltip>
                           ) : (
                             <Tooltip title='Apply this change'>
                               <IconButton
