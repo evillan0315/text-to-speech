@@ -165,9 +165,9 @@ const PlanGenerator: React.FC = () => {
       projectRootDirectoryStore.set(selectedPath); // Update global store
       setError('');
       setPlan(null, null);
-      setIsLoading(false);
+      // setIsLoading(false); // No longer needed here as setPlan handles isLoading: false
     },
-    [setProjectRoot, setError, setPlan, setIsLoading],
+    [setProjectRoot, setError, setPlan],
   );
 
   const updateScanPaths = useCallback(
@@ -198,7 +198,7 @@ const PlanGenerator: React.FC = () => {
       setError(err.message || 'Failed to generate plan.');
       setPlan(null, null); // Clear plan on error
     } finally {
-      setIsLoading(false);
+      // setIsLoading(false); // Removed: setPlan and setError already handle setting isLoading to false.
     }
   };
 
