@@ -1,5 +1,5 @@
 import { atom } from 'nanostores';
-import type { IPlan } from '../types';
+import type { IPlan, IFileChange } from '../types';
 import {
   INSTRUCTION as PLANNER_AI_INSTRUCTION,
   INSTRUCTION_SCHEMA_OUTPUT as PLANNER_EXPECTED_OUTPUT_FORMAT,
@@ -112,6 +112,32 @@ export const updateCurrentPlanMetadata = (updatedMetadata: {
     });
   } else {
     console.warn('Attempted to update plan metadata but no current plan or planId mismatch.');
+  }
+};
+
+/**
+ * Updates a specific file change within the currently active plan.
+ * @param planId The ID of the plan to update.
+ * @param changeIndex The index of the file change within the plan's changes array.
+ * @param updatedChange The new IFileChange object to replace the existing one.
+ */
+export const updateFileChange = (planId: string, changeIndex: number, updatedChange: IFileChange) => {
+  const current = plannerStore.get();
+  if (current.plan && current.plan.id === planId && current.plan.changes[changeIndex]) {
+    const newChanges = [...current.plan.changes];
+    newChanges[changeIndex] = updatedChange;
+    plannerStore.set({
+      ...current,
+      plan: {
+        ...current.plan,
+        changes: newChanges,
+        updatedAt: new Date(), // Mark the plan as updated
+      },
+    });
+  } else {
+    console.warn(
+      `Attempted to update file change at index ${changeIndex} for plan ${planId}, but plan or index not found.`,
+    );
   }
 };
 

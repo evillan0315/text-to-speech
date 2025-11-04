@@ -21,15 +21,16 @@ import {
 import { useStore } from '@nanostores/react';
 import { plannerStore, setApplyStatus } from './stores/plannerStore';
 import { plannerService } from './api/plannerService';
-import type { IPlan } from './types'; // Updated import
+import type { IPlan, IFileChange } from './types'; // Updated import to include IFileChange
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
 import CloseIcon from '@mui/icons-material/Close'; // Import CloseIcon for Snackbar
 import EditIcon from '@mui/icons-material/Edit'; // Import EditIcon
 
 interface PlanDisplayProps {
-  plan: IPlan; // Updated prop type
-  onEditPlanMetadata: () => void; // New prop: callback to open the edit drawer
+  plan: IPlan;
+  onEditPlanMetadata: () => void;
+  onEditFileChange: (changeIndex: number, fileChange: IFileChange) => void; // New prop for editing individual file changes
 }
 
 type ChangeApplyStatus = 'idle' | 'applying' | 'success' | 'failure';
@@ -49,7 +50,7 @@ const styles = {
     fontWeight: 'bold',
     display: 'flex',
     alignItems: 'center',
-    gap: 1, // Space between title and icon
+    gap: 1,
   },
   tableContainer: {
     borderRadius: '8px',
@@ -87,7 +88,7 @@ const styles = {
   },
 };
 
-const PlanDisplay: React.FC<PlanDisplayProps> = ({ plan, onEditPlanMetadata }) => {
+const PlanDisplay: React.FC<PlanDisplayProps> = ({ plan, onEditPlanMetadata, onEditFileChange }) => {
   const { applyStatus, applyError, projectRoot } = useStore(plannerStore);
   const [individualChangeStatus, setIndividualChangeStatus] = useState<
     Map<number, { status: ChangeApplyStatus; error: string | null }>
@@ -251,13 +252,13 @@ const PlanDisplay: React.FC<PlanDisplayProps> = ({ plan, onEditPlanMetadata }) =
                     <TableCell sx={styles.tableHeadCell}>File Path</TableCell>
                     <TableCell sx={styles.tableHeadCell}>Action</TableCell>
                     <TableCell sx={styles.tableHeadCell}>Reason</TableCell>
-                    <TableCell sx={styles.tableHeadCell}>Apply</TableCell>
+                    <TableCell sx={styles.tableHeadCell} align="center" width="120px">Actions</TableCell> {/* Changed width to accommodate both icons */}
                   </TableRow>
                 </TableHead>
                 <TableBody>
                   {plan.changes.map((change, index) => {
                     const status = individualChangeStatus.get(index)?.status || 'idle';
-                    const error = individualChangeStatus.get(index)?.error;
+                    // const error = individualChangeStatus.get(index)?.error; // Not currently used here
                     return (
                       <TableRow key={index} hover>
                         <TableCell>{change.filePath}</TableCell>
@@ -277,12 +278,12 @@ const PlanDisplay: React.FC<PlanDisplayProps> = ({ plan, onEditPlanMetadata }) =
                           />
                         </TableCell>
                         <TableCell>{change.reason || '-'}</TableCell>
-                        <TableCell sx={{ minWidth: '120px' }}>
+                        <TableCell sx={{ display: 'flex', gap: 0.5, alignItems: 'center', justifyContent: 'center' }}> {/* Center align content */}
                           {status === 'applying' ? (
                             <CircularProgress size={20} color="inherit" />
                           ) : status === 'success' ? (
                             <Tooltip title="Applied successfully">
-                              <CheckCircleOutlineIcon color="success" />
+                              <CheckCircleOutlineIcon color="success" fontSize="small" />
                             </Tooltip>
                           ) : (
                             <Tooltip title="Apply this change">
@@ -296,6 +297,16 @@ const PlanDisplay: React.FC<PlanDisplayProps> = ({ plan, onEditPlanMetadata }) =
                               </IconButton>
                             </Tooltip>
                           )}
+                          <Tooltip title="Edit this change">
+                            <IconButton
+                              onClick={() => onEditFileChange(index, change)}
+                              size="small"
+                              color="secondary"
+                              aria-label={`edit change ${index}`}
+                            >
+                              <EditIcon fontSize="small" />
+                            </IconButton>
+                          </Tooltip>
                         </TableCell>
                       </TableRow>
                     );

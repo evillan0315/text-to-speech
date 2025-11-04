@@ -23,11 +23,12 @@ import {
   setProjectRoot,
   setScanPathsInput,
   updateCurrentPlanMetadata,
+  updateFileChange,
 } from './stores/plannerStore';
 import { plannerService } from './api/plannerService';
 import PlanDisplay from './PlanDisplay';
 import type { GlobalAction } from '@/types/action';
-import type { ILlmInput } from './types';
+import type { ILlmInput, IFileChange } from './types';
 
 import FolderOpenIcon from '@mui/icons-material/FolderOpen';
 import AddRoadIcon from '@mui/icons-material/AddRoad';
@@ -39,9 +40,10 @@ import CustomDrawer from '@/components/Drawer/CustomDrawer';
 import DirectoryPickerDrawer from '@/components/planner/drawerContent/DirectoryPickerDrawer';
 import ScanPathsDrawer from '@/components/planner/drawerContent/ScanPathsDrawer';
 import InstructionEditorDrawer from '@/components/planner/drawerContent/InstructionEditorDrawer';
-import PlanMetadataEditorDrawer from '@/components/planner/drawerContent/PlanMetadataEditorDrawer'; // New import
+import PlanMetadataEditorDrawer from '@/components/planner/drawerContent/PlanMetadataEditorDrawer';
+import FileChangeEditorDrawer from '@/components/planner/drawerContent/FileChangeEditorDrawer'; // New import
 import { projectRootDirectoryStore } from '@/stores/fileTreeStore';
-import Loading from '@/components/Loading'; // Import the Loading component
+import Loading from '@/components/Loading';
 
 const styles = {
   card: {
@@ -85,7 +87,10 @@ const PlanGenerator: React.FC = () => {
   const [isScanPathsDialogOpen, setIsScanPathsDialogOpen] = useState(false);
   const [isAiInstructionDrawerOpen, setIsAiInstructionDrawerOpen] = useState(false);
   const [isExpectedOutputDrawerOpen, setIsExpectedOutputDrawerOpen] = useState(false);
-  const [isPlanMetadataEditorOpen, setIsPlanMetadataEditorOpen] = useState(false); // New state for plan metadata editor
+  const [isPlanMetadataEditorOpen, setIsPlanMetadataEditorOpen] = useState(false);
+  const [isFileChangeEditorOpen, setIsFileChangeEditorOpen] = useState(false); // New state for FileChangeEditorDrawer
+  const [editingFileChange, setEditingFileChange] = useState<IFileChange | null>(null); // State for the file change being edited
+  const [editingFileChangeIndex, setEditingFileChangeIndex] = useState<number | null>(null); // State for the index of the file change being edited
   const [snackbarOpen, setSnackbarOpen] = useState(false);
 
   // Local state for the project root input field within the DirectoryPickerDrawer
@@ -220,6 +225,27 @@ const PlanGenerator: React.FC = () => {
       updateCurrentPlanMetadata(updatedData);
     },
     [],
+  );
+
+  const handleEditFileChangeRequest = useCallback(
+    (index: number, change: IFileChange) => {
+      setIsFileChangeEditorOpen(true);
+      setEditingFileChange(change);
+      setEditingFileChangeIndex(index);
+    },
+    [],
+  );
+
+  const handleSaveEditedFileChange = useCallback(
+    (updatedChange: IFileChange) => {
+      if (plan && editingFileChangeIndex !== null) {
+        updateFileChange(plan.id, editingFileChangeIndex, updatedChange);
+      }
+      setIsFileChangeEditorOpen(false);
+      setEditingFileChange(null);
+      setEditingFileChangeIndex(null);
+    },
+    [plan, editingFileChangeIndex],
   );
 
   // Action buttons for the DirectoryPickerDrawer
@@ -382,7 +408,11 @@ const PlanGenerator: React.FC = () => {
         </Box>
       ) : plan ? (
         <Box className="flex-grow overflow-y-auto pt-4">
-          <PlanDisplay plan={plan} onEditPlanMetadata={() => setIsPlanMetadataEditorOpen(true)} />
+          <PlanDisplay
+            plan={plan}
+            onEditPlanMetadata={() => setIsPlanMetadataEditorOpen(true)}
+            onEditFileChange={handleEditFileChangeRequest} // Pass the new handler
+          />
         </Box>
       ) : (
         <Box className="flex-grow flex items-center justify-center pt-4">
@@ -451,6 +481,15 @@ const PlanGenerator: React.FC = () => {
           initialDocumentation={plan.documentation}
           initialGitInstructions={plan.gitInstructions}
           onSave={handleSavePlanMetadata}
+        />
+      )}
+
+      {editingFileChange && ( // Only render if a change is being edited
+        <FileChangeEditorDrawer
+          open={isFileChangeEditorOpen}
+          onClose={() => setIsFileChangeEditorOpen(false)}
+          initialFileChange={editingFileChange}
+          onSave={handleSaveEditedFileChange}
         />
       )}
 
