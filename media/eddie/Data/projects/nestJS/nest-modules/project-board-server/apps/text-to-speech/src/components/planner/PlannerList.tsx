@@ -118,7 +118,7 @@ const PlannerList: React.FC<PlannerListProps> = () => {
                     <TableCell>
                       <Link
                         component={RouterLink}
-                        to={`/planner-generator/${plan.id}`}
+                        to={`/planner-generator/${plan.id}`} // Changed to path param
                         color="primary"
                         sx={{ textDecoration: 'none', '&:hover': { textDecoration: 'underline' } }}
                       >

@@ -6,7 +6,6 @@ import {
 } from '@/components/planner/constants/instructions';
 
 import { projectRootDirectoryStore } from '@/stores/fileTreeStore';
-import { plannerService } from '../api/plannerService'; // Import plannerService
 
 // Define a reasonable default project root path if none is set
 // This path is specific to the user's environment, based on the project structure.
@@ -20,7 +19,7 @@ if (projectRootDirectoryStore.get() === null || projectRootDirectoryStore.get() 
 
 interface PlannerState {
   userPrompt: string;
-  currentPlanId: string | null; // Moved here and managed directly
+  currentPlanId: string | null; // Represents the ID of the plan currently active/displayed in the UI
   plan: IPlan | null;
   isLoading: boolean;
   error: string | null;
@@ -45,11 +44,6 @@ export const plannerStore = atom<PlannerState>({
   additionalInstructions: PLANNER_AI_INSTRUCTION, // Default from constants
   expectedOutputFormat: PLANNER_EXPECTED_OUTPUT_FORMAT, // Default from constants
 });
-
-// Action to set the current plan ID
-export const setCurrentPlanId = (planId: string | null) => {
-  plannerStore.set({ ...plannerStore.get(), currentPlanId: planId });
-};
 
 export const setUserPrompt = (prompt: string) => {
   plannerStore.set({ ...plannerStore.get(), userPrompt: prompt });
@@ -94,25 +88,6 @@ export const setAdditionalInstructions = (instructions: string) => {
 
 export const setExpectedOutputFormat = (format: string) => {
   plannerStore.set({ ...plannerStore.get(), expectedOutputFormat: format });
-};
-
-/**
- * Fetches a plan by its ID from the backend and updates the store.
- * @param planId The ID of the plan to load.
- */
-export const loadPlanById = async (planId: string) => {
-  setIsLoading(true);
-  setError(null);
-  try {
-    const response = await plannerService.getPlan(planId);
-    // The getPlan service returns { plan: IPlan }, so extract the plan object.
-    setPlan(planId, response.plan);
-  } catch (err: any) {
-    setError(err.message || `Failed to load plan ${planId}.`);
-    setPlan(null, null); // Clear plan on error
-  } finally {
-    // setIsLoading(false) is handled by setPlan or setError
-  }
 };
 
 /**
