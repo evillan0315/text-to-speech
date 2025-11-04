@@ -1,4 +1,3 @@
-
 # Google Gemini TTS & AI Code Planner Frontend
 
 ## Project Overview
@@ -27,7 +26,7 @@ For a deep dive into the application's architecture and design principles, pleas
 
 ## Technologies Used
 
--   **Frontend**: React, Vite, TypeScript, Material UI v6, Material Icons v6, Tailwind CSS v4, Nanostores, Axios, React Router DOM, path-browserify.
+-   **Frontend**: React v18, Vite, TypeScript, Material UI v6, Material Icons v6, Tailwind CSS v4, Nanostores, Axios, React Router DOM, path-browserify.
 -   **Backend (Interacts with)**: Node.js, NestJS, Google Gemini API.
 
 ## Getting Started
@@ -71,11 +70,13 @@ VITE_BASE_DIR=/media/eddie/Data/projects/nestJS/nest-modules/project-board-serve
 # ^^^ IMPORTANT: VITE_BASE_DIR must point to the ABSOLUTE path of this 'text-to-speech' project root
 #                directory on your local filesystem. This is CRUCIAL for the AI Code Planner
 #                features to correctly scan project files and apply changes.
+VITE_PREVIEW_APP_URL=http://localhost:3002
 ```
 
 -   `VITE_APP_API_BASE_URL`: The base URL of your backend API. Ensure this matches the URL where your `project-board-server` is running.
 -   `VITE_FRONTEND_PORT`: The port your frontend application runs on during development (e.g., `3003`). This is used for OAuth callback URLs.
 -   `VITE_BASE_DIR`: **Crucial for the AI Code Planner.** This must point to the absolute path of the `text-to-speech` project root directory on your local filesystem. The AI backend uses this to locate and apply file changes.
+-   `VITE_PREVIEW_APP_URL`: The URL for previewing the application, if applicable.
 
 #### Backend OAuth Configuration
 
