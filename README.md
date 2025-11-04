@@ -25,6 +25,22 @@ For a deep dive into the application's architecture and design principles, pleas
 *   **User Feedback & Error Details:** Provides clear visual cues for loading states, comprehensive error handling, and a dedicated UI to view detailed error messages from AI generation.
 *   **Theming:** Light/Dark mode toggle for personalized viewing.
 
+## Screenshots
+
+### AI Code Planner
+_Visualizing the AI-driven code planning interface and plan management._
+
+| Planner View 1 | Planner View 2 |
+| :------------- | :------------- |
+| ![AI Code Planner 1](screens/planner01.png) | ![AI Code Planner 2](screens/planner02.png) |
+
+### Text-to-Speech Generator
+_Screenshots showcasing the Google Gemini TTS generation interface._
+
+| TTS View 1 | TTS View 2 |
+| :--------- | :--------- |
+| ![TTS Generator 1](screens/tts-screen-1.png) | ![TTS Generator 2](screens/tts-screen2.png) |
+
 ## Technologies Used
 
 -   **Frontend**: React v18, Vite, TypeScript, Material UI v6, Material Icons v6, Tailwind CSS v4, Nanostores, Axios, React Router DOM, path-browserify.
@@ -167,7 +183,7 @@ text-to-speech/
 │   │   │   │   └── plannerStore.ts
 │   │   │   ├── PlanDisplay.tsx # Component to display generated AI plans
 │   │   │   ├── PlanGenerator.tsx # Main component for AI plan generation
-│   │   │   ├── PlannerList.tsx # Component for displaying a list of plans (used within a drawer)
+│   │   │   └── PlannerList.tsx # Component for displaying a list of plans (used within a drawer)
 │   │   │   └── types.ts        # Type definitions for the planner
 │   │   ├── ThemeToggle.tsx     # Light/Dark theme toggle
 │   │   └── ui/                 # General UI components (e.g., GlobalActionButton)
