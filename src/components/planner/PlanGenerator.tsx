@@ -24,7 +24,9 @@ import {
   setScanPathsInput,
   updateCurrentPlanMetadata,
   updateFileChange,
-  setCurrentPlanId
+  setCurrentPlanId,
+  setAdditionalInstructions,
+  setExpectedOutputFormat,
 } from './stores/plannerStore';
 import { plannerService } from './api/plannerService';
 import PlanDisplay from './PlanDisplay';
@@ -75,16 +77,7 @@ const styles = {
 };
 
 const PlanGenerator: React.FC = () => {
-  const {
-    userPrompt,
-    plan,
-    isLoading,
-    error,
-    projectRoot,
-    scanPathsInput,
-    additionalInstructions,
-    expectedOutputFormat,
-  } = useStore(plannerStore);
+  const { userPrompt, plan, isLoading, error, projectRoot, scanPathsInput, additionalInstructions, expectedOutputFormat, currentPlanId } = useStore(plannerStore);
   const globalProjectRoot = useStore(projectRootDirectoryStore);
 
   const [isProjectRootPickerDialogOpen, setIsProjectRootPickerDialogOpen] = useState(false);
@@ -109,14 +102,15 @@ const PlanGenerator: React.FC = () => {
   );
 
   // Effect to ensure plannerStore's projectRoot is in sync with globalProjectRoot
+  // and also to update tempDrawerProjectRootInput when plannerStore.projectRoot changes
   useEffect(() => {
     if (globalProjectRoot && projectRoot !== globalProjectRoot) {
       setProjectRoot(globalProjectRoot);
     } else if (!projectRoot && globalProjectRoot) {
-      // If plannerStore's projectRoot is empty but global isn't
       setProjectRoot(globalProjectRoot);
     }
-    // If no globalProjectRoot and plannerStore's projectRoot is still empty, button will be disabled, which is correct.
+    // Always update tempDrawerProjectRootInput to reflect the current projectRoot from store
+    setTempDrawerProjectRootInput(projectRoot || '');
   }, [globalProjectRoot, projectRoot, setProjectRoot]);
 
   // Sync localScanPaths with plannerStore's scanPathsInput when the drawer is opened or parent changes it
@@ -138,6 +132,17 @@ const PlanGenerator: React.FC = () => {
       );
     }
   }, [isScanPathsDialogOpen, scanPathsInput]);
+
+  // Effect to populate generator fields when a plan is loaded
+  useEffect(() => {
+    if (plan && currentPlanId === plan.id) {
+      setUserPrompt(plan.llmInput?.userPrompt || '');
+      setProjectRoot(plan.llmInput?.projectRoot || globalProjectRoot || ''); // Prefer plan's root, fallback to global, then empty
+      setScanPathsInput(plan.llmInput?.scanPaths?.join(', ') || 'src, public, package.json, README.md, .env');
+      setAdditionalInstructions(plan.llmInput?.additionalInstructions || '');
+      setExpectedOutputFormat(plan.llmInput?.expectedOutputFormat || '');
+    }
+  }, [plan, currentPlanId, globalProjectRoot]); // Depend on plan and currentPlanId
 
   // Effect to open snackbar when an error occurs
   useEffect(() => {
@@ -459,7 +464,7 @@ const PlanGenerator: React.FC = () => {
         footerActionButton={directoryPickerDrawerActions}
       >
         <DirectoryPickerDrawer
-          onSelect={(path) => {
+          onSelect={() => {
             /* This onSelect is now primarily handled by the footer actions. */
           }}
           onClose={() => setIsProjectRootPickerDialogOpen(false)}
