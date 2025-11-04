@@ -30,6 +30,8 @@ interface PlannerState {
   scanPathsInput: string; // New field for AI scan paths
   additionalInstructions: string; // New field for AI's additional instructions
   expectedOutputFormat: string; // New field for AI's expected output format
+  fileData: string | null; // New: Base64 encoded file content for multimodal input
+  fileMimeType: string | null; // New: MIME type of the uploaded file
 }
 
 export const plannerStore = atom<PlannerState>({
@@ -44,6 +46,8 @@ export const plannerStore = atom<PlannerState>({
   scanPathsInput: 'src, public, package.json, README.md, .env', // Provide sensible defaults for scan paths
   additionalInstructions: PLANNER_AI_INSTRUCTION, // Default from constants
   expectedOutputFormat: PLANNER_EXPECTED_OUTPUT_FORMAT, // Default from constants
+  fileData: null,
+  fileMimeType: null,
 });
 
 // Action to set the current plan ID
@@ -94,6 +98,11 @@ export const setAdditionalInstructions = (instructions: string) => {
 
 export const setExpectedOutputFormat = (format: string) => {
   plannerStore.set({ ...plannerStore.get(), expectedOutputFormat: format });
+};
+
+// New action to set file data and MIME type for multimodal input
+export const setFileDataAndMimeType = (data: string | null, mimeType: string | null) => {
+  plannerStore.set({ ...plannerStore.get(), fileData: data, fileMimeType: mimeType });
 };
 
 /**
@@ -162,7 +171,7 @@ export const updateFileChange = (planId: string, changeIndex: number, updatedCha
     });
   } else {
     console.warn(
-      `Attempted to update file change at index ${changeIndex} for plan ${planId}, but plan or index not found.`,
+      `Attempted to update file change at index ${changeIndex} for plan ${planId}, but plan or index not found.`, 
     );
   }
 };
@@ -180,6 +189,7 @@ export const resetPlannerState = () => {
     scanPathsInput: 'src, public, package.json, README.md, .env', // Reset to default scan paths as well
     additionalInstructions: PLANNER_AI_INSTRUCTION,
     expectedOutputFormat: PLANNER_EXPECTED_OUTPUT_FORMAT,
+    fileData: null, // New: Clear file data
+    fileMimeType: null, // New: Clear file MIME type
   });
 };
-

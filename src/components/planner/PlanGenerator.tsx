@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect, useMemo } from 'react';
+import React, { useState, useCallback, useEffect, useMemo, useRef } from 'react';
 import {
   Box,
   Typography,
@@ -12,6 +12,7 @@ import {
   IconButton,
   Snackbar,
   useTheme,
+  Chip,
 } from '@mui/material';
 import { useStore } from '@nanostores/react';
 import {
@@ -28,6 +29,7 @@ import {
   setCurrentPlanId,
   setAdditionalInstructions,
   setExpectedOutputFormat,
+  setFileDataAndMimeType,
 } from './stores/plannerStore';
 import { plannerService } from './api/plannerService';
 import PlanDisplay from './PlanDisplay';
@@ -43,6 +45,8 @@ import CloseIcon from '@mui/icons-material/Close';
 import CheckIcon from '@mui/icons-material/Check';
 import ListAltIcon from '@mui/icons-material/ListAlt';
 import BugReportIcon from '@mui/icons-material/BugReport'; // New import for debug icon
+import UploadFileIcon from '@mui/icons-material/UploadFile'; // New: Upload File Icon
+import ClearIcon from '@mui/icons-material/Clear'; // New: Clear Icon for uploaded file
 
 import CustomDrawer from '@/components/Drawer/CustomDrawer';
 import DirectoryPickerDrawer from '@/components/planner/drawerContent/DirectoryPickerDrawer';
@@ -87,7 +91,19 @@ const drawerErrorContentSx = {
 };
 
 const PlanGenerator: React.FC = () => {
-  const { userPrompt, plan, isLoading, error, projectRoot, scanPathsInput, additionalInstructions, expectedOutputFormat, currentPlanId } = useStore(plannerStore);
+  const {
+    userPrompt,
+    plan,
+    isLoading,
+    error,
+    projectRoot,
+    scanPathsInput,
+    additionalInstructions,
+    expectedOutputFormat,
+    currentPlanId,
+    fileData,
+    fileMimeType,
+  } = useStore(plannerStore);
   const globalProjectRoot = useStore(projectRootDirectoryStore);
   const navigate = useNavigate();
   const theme = useTheme();
@@ -103,6 +119,9 @@ const PlanGenerator: React.FC = () => {
   const [isPlannerListDrawerOpen, setIsPlannerListDrawerOpen] = useState(false);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [isErrorDetailsDrawerOpen, setIsErrorDetailsDrawerOpen] = useState(false); // New state for error details drawer
+
+  const fileInputRef = useRef<HTMLInputElement>(null); // Ref for hidden file input
+  const [selectedFile, setSelectedFile] = useState<File | null>(null); // State for selected file object
 
   // Local state for the project root input field within the DirectoryPickerDrawer
   const [tempDrawerProjectRootInput, setTempDrawerProjectRootInput] = useState(projectRoot || '');
@@ -156,6 +175,7 @@ const PlanGenerator: React.FC = () => {
       setScanPathsInput(plan.llmInput?.scanPaths?.join(', ') || 'src, public, package.json, README.md, .env');
       setAdditionalInstructions(plan.llmInput?.additionalInstructions || '');
       setExpectedOutputFormat(plan.llmInput?.expectedOutputFormat || '');
+      // No direct setting of fileData/MimeType from plan as it's an ephemeral input for new generation.
     }
   }, [plan, currentPlanId, globalProjectRoot]);
 
@@ -181,6 +201,36 @@ const PlanGenerator: React.FC = () => {
     return Array.from(new Set(['src', 'public', 'package.json', 'README.md', '.env'])).sort();
   }, []);
 
+  const handleFileChange = useCallback(async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      setSelectedFile(file);
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const base64Data = (e.target?.result as string).split(',')[1]; // Get base64 part
+        const mimeType = file.type;
+        setFileDataAndMimeType(base64Data, mimeType);
+      };
+      reader.onerror = () => {
+        setError('Failed to read file.');
+        setSelectedFile(null);
+        setFileDataAndMimeType(null, null);
+      };
+      reader.readAsDataURL(file);
+    } else {
+      setSelectedFile(null);
+      setFileDataAndMimeType(null, null);
+    }
+  }, []);
+
+  const handleClearFile = useCallback(() => {
+    setSelectedFile(null);
+    setFileDataAndMimeType(null, null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ''; // Clear the file input field
+    }
+  }, []);
+
   const handleLoadProject = useCallback(
     (selectedPath: string) => {
       if (!selectedPath.trim()) {
@@ -202,7 +252,7 @@ const PlanGenerator: React.FC = () => {
 
   const handleGeneratePlan = async () => {
     setIsLoading(true);
-
+    resetPlannerState();
     try {
       const llmInput: ILlmInput = {
         userPrompt,
@@ -213,7 +263,19 @@ const PlanGenerator: React.FC = () => {
         scanPaths: currentScanPathsArray,
         requestType: 'LLM_GENERATION',
         output: 'JSON',
+        fileData: fileData || undefined,
+        fileMimeType: fileMimeType || undefined,
       };
+
+      // Adjust requestType based on file presence
+      if (llmInput.fileData && llmInput.fileMimeType) {
+        if (llmInput.fileMimeType.startsWith('image/')) {
+          llmInput.requestType = 'TEXT_WITH_IMAGE';
+        } else {
+          llmInput.requestType = 'TEXT_WITH_FILE';
+        }
+      }
+
       console.log(llmInput, 'llmInput');
       const response = await plannerService.generatePlan(llmInput);
       setPlan(response.planId, response.plan);
@@ -230,6 +292,7 @@ const PlanGenerator: React.FC = () => {
     resetPlannerState();
     setTempDrawerProjectRootInput(projectRootDirectoryStore.get() || '');
     setLocalScanPaths([]);
+    setSelectedFile(null); // Clear selected file on plan clear
     navigate('/planner-generator');
   };
 
@@ -415,6 +478,23 @@ const PlanGenerator: React.FC = () => {
                   <ListAltIcon />
                 </IconButton>
               </Tooltip>
+              <Tooltip title="Upload Image or File for AI Context">
+                <IconButton
+                  color="primary"
+                  onClick={() => fileInputRef.current?.click()}
+                  aria-label="upload file"
+                  disabled={isLoading}
+                >
+                  <UploadFileIcon />
+                </IconButton>
+              </Tooltip>
+              <input
+                type="file"
+                ref={fileInputRef}
+                onChange={handleFileChange}
+                style={{ display: 'none' }}
+                disabled={isLoading}
+              />
             </Box>
 
             <Box className="flex flex-wrap gap-2">
@@ -440,6 +520,18 @@ const PlanGenerator: React.FC = () => {
               </Tooltip>
             </Box>
           </Box>
+
+          {selectedFile && (
+            <Box className="flex items-center gap-2 mt-4">
+              <Chip
+                label={`File: ${selectedFile.name} (${(selectedFile.size / 1024).toFixed(2)} KB)`}
+                color="info"
+                variant="outlined"
+                onDelete={handleClearFile}
+                sx={{ color: theme.palette.text.primary, borderColor: theme.palette.info.main }}
+              />
+            </Box>
+          )}
 
           <Box className="flex justify-end gap-2 mt-4">
             <Button
@@ -610,4 +702,3 @@ const PlanGenerator: React.FC = () => {
 };
 
 export default PlanGenerator;
-
