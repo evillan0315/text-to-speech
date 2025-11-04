@@ -32,6 +32,7 @@ import { plannerService } from './api/plannerService';
 import PlanDisplay from './PlanDisplay';
 import type { GlobalAction } from '@/types/action';
 import type { ILlmInput, IFileChange } from './types';
+import { useNavigate } from 'react-router-dom'; // Import useNavigate
 
 import FolderOpenIcon from '@mui/icons-material/FolderOpen';
 import AddRoadIcon from '@mui/icons-material/AddRoad';
@@ -79,6 +80,7 @@ const styles = {
 const PlanGenerator: React.FC = () => {
   const { userPrompt, plan, isLoading, error, projectRoot, scanPathsInput, additionalInstructions, expectedOutputFormat, currentPlanId } = useStore(plannerStore);
   const globalProjectRoot = useStore(projectRootDirectoryStore);
+  const navigate = useNavigate(); // Initialize useNavigate
 
   const [isProjectRootPickerDialogOpen, setIsProjectRootPickerDialogOpen] = useState(false);
   const [isScanPathsDialogOpen, setIsScanPathsDialogOpen] = useState(false);
@@ -94,7 +96,9 @@ const PlanGenerator: React.FC = () => {
   // Local state for the project root input field within the DirectoryPickerDrawer
   const [tempDrawerProjectRootInput, setTempDrawerProjectRootInput] = useState(projectRoot || '');
   // Local state for scan paths within the drawer before confirming
-  const [localScanPaths, setLocalScanPaths] = useState<string[]>(
+  const [localScanPaths, setLocalScanPaths] = useState<
+    string[]
+  >(
     scanPathsInput
       .split(',')
       .map((s) => s.trim())
@@ -223,6 +227,7 @@ const PlanGenerator: React.FC = () => {
     // Re-initialize temporary drawer state to reflect the reset plannerStore value
     setTempDrawerProjectRootInput(projectRootDirectoryStore.get() || '');
     setLocalScanPaths([]);
+    navigate('/planner-generator'); // Navigate to the planner generator page
   };
 
   const handleSavePlanMetadata = useCallback(
@@ -553,4 +558,3 @@ const PlanGenerator: React.FC = () => {
 };
 
 export default PlanGenerator;
-
