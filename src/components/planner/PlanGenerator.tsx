@@ -37,12 +37,15 @@ import DescriptionIcon from '@mui/icons-material/Description';
 import SchemaIcon from '@mui/icons-material/Schema';
 import CloseIcon from '@mui/icons-material/Close';
 import CheckIcon from '@mui/icons-material/Check';
+import ListAltIcon from '@mui/icons-material/ListAlt'; // New import for the list icon
+
 import CustomDrawer from '@/components/Drawer/CustomDrawer';
 import DirectoryPickerDrawer from '@/components/planner/drawerContent/DirectoryPickerDrawer';
 import ScanPathsDrawer from '@/components/planner/drawerContent/ScanPathsDrawer';
 import InstructionEditorDrawer from '@/components/planner/drawerContent/InstructionEditorDrawer';
 import PlanMetadataEditorDrawer from '@/components/planner/drawerContent/PlanMetadataEditorDrawer';
 import FileChangeEditorDrawer from '@/components/planner/drawerContent/FileChangeEditorDrawer'; // New import
+import PlannerList from '@/components/planner/PlannerList'; // New import for PlannerList drawer content
 import { projectRootDirectoryStore } from '@/stores/fileTreeStore';
 import Loading from '@/components/Loading';
 
@@ -92,6 +95,7 @@ const PlanGenerator: React.FC = () => {
   const [isFileChangeEditorOpen, setIsFileChangeEditorOpen] = useState(false); // New state for FileChangeEditorDrawer
   const [editingFileChange, setEditingFileChange] = useState<IFileChange | null>(null); // State for the file change being edited
   const [editingFileChangeIndex, setEditingFileChangeIndex] = useState<number | null>(null); // State for the index of the file change being edited
+  const [isPlannerListDrawerOpen, setIsPlannerListDrawerOpen] = useState(false); // New state for PlannerList drawer
   const [snackbarOpen, setSnackbarOpen] = useState(false);
 
   // Local state for the project root input field within the DirectoryPickerDrawer
@@ -294,6 +298,17 @@ const PlanGenerator: React.FC = () => {
     },
   ];
 
+  // Action buttons for the PlannerListDrawer
+  const plannerListDrawerActions: GlobalAction[] = [
+    {
+      label: 'Close',
+      action: () => setIsPlannerListDrawerOpen(false),
+      icon: <CloseIcon />,
+      color: 'inherit',
+      variant: 'outlined',
+    },
+  ];
+
   const handleSnackbarClose = (event?: React.SyntheticEvent | Event, reason?: string) => {
     if (reason === 'clickaway') {
       return;
@@ -353,6 +368,16 @@ const PlanGenerator: React.FC = () => {
                   disabled={isLoading}
                 >
                   <AddRoadIcon />
+                </IconButton>
+              </Tooltip>
+              <Tooltip title="View All Saved Plans">
+                <IconButton
+                  color="primary"
+                  onClick={() => setIsPlannerListDrawerOpen(true)}
+                  aria-label="view all saved plans"
+                  disabled={isLoading}
+                >
+                  <ListAltIcon />
                 </IconButton>
               </Tooltip>
             </Box>
@@ -495,6 +520,19 @@ const PlanGenerator: React.FC = () => {
         />
       )}
 
+      {/* New: CustomDrawer for PlannerList */}
+      <CustomDrawer
+        open={isPlannerListDrawerOpen}
+        onClose={() => setIsPlannerListDrawerOpen(false)}
+        position="right"
+        size="large" // Adjusted size for better viewing of the list
+        title="All AI Plans"
+        hasBackdrop={true}
+        footerActionButton={plannerListDrawerActions}
+      >
+        <PlannerList />
+      </CustomDrawer>
+
       <Snackbar
         open={snackbarOpen}
         autoHideDuration={6000}
@@ -510,3 +548,4 @@ const PlanGenerator: React.FC = () => {
 };
 
 export default PlanGenerator;
+

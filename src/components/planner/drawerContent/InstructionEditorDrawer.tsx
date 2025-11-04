@@ -97,7 +97,6 @@ const InstructionEditorDrawer: React.FC<InstructionEditorDrawerProps> = ({
           fullWidth
           size="small"
           autoFocus
-          height="100%"
           variant="outlined"
           sx={{ flexGrow: 1, '.MuiInputBase-root': { height: '100%', alignItems: 'flex-start' }, '.MuiInputBase-root .MuiInputBase-input': { height: '100% !important', alignItems: 'flex-start' } }}
           InputProps={{ style: { fontFamily: 'monospace' } }}

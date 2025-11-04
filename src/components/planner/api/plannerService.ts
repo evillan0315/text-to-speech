@@ -48,7 +48,7 @@ export const plannerService = {
   async getPaginatedPlans(page: number, pageSize: number): Promise<IPaginatedPlansResponse> {
     try {
       const response = await axios.get<IPaginatedPlansResponse>(
-        `${API_BASE_URL}/plan/paginated?page=${page}&pageSize=${pageSize}`,
+        `${API_BASE_URL}/planner/paginated?page=${page}&pageSize=${pageSize}`,
         {
           headers: getAuthHeaders(),
         },
