@@ -25,6 +25,7 @@ import {
   updateCurrentPlanMetadata,
   updateFileChange,
   setCurrentPlanId,
+  loadPlanFromId, // New import
 } from './stores/plannerStore';
 import { plannerService } from './api/plannerService';
 import PlanDisplay from './PlanDisplay';
@@ -37,18 +38,21 @@ import DescriptionIcon from '@mui/icons-material/Description';
 import SchemaIcon from '@mui/icons-material/Schema';
 import CloseIcon from '@mui/icons-material/Close';
 import CheckIcon from '@mui/icons-material/Check';
-import ListAltIcon from '@mui/icons-material/ListAlt'; // New import for the list icon
+import ListAltIcon from '@mui/icons-material/ListAlt';
 
 import CustomDrawer from '@/components/Drawer/CustomDrawer';
 import DirectoryPickerDrawer from '@/components/planner/drawerContent/DirectoryPickerDrawer';
 import ScanPathsDrawer from '@/components/planner/drawerContent/ScanPathsDrawer';
 import InstructionEditorDrawer from '@/components/planner/drawerContent/InstructionEditorDrawer';
 import PlanMetadataEditorDrawer from '@/components/planner/drawerContent/PlanMetadataEditorDrawer';
-import FileChangeEditorDrawer from '@/components/planner/drawerContent/FileChangeEditorDrawer'; // New import
-import PlannerList from '@/components/planner/PlannerList'; // New import for PlannerList drawer content
+import FileChangeEditorDrawer from '@/components/planner/drawerContent/FileChangeEditorDrawer';
+import PlannerList from '@/components/planner/PlannerList';
 import { projectRootDirectoryStore } from '@/stores/fileTreeStore';
 import Loading from '@/components/Loading';
-import { useSearchParams } from 'react-router-dom'; // Import useSearchParams
+
+interface PlanGeneratorProps {
+  initialPlanId?: string | null; // New prop to receive planId from URL
+}
 
 const styles = {
   card: {
@@ -75,7 +79,7 @@ const styles = {
   },
 };
 
-const PlanGenerator: React.FC = () => {
+const PlanGenerator: React.FC<PlanGeneratorProps> = ({ initialPlanId }) => {
   const {
     userPrompt,
     plan,
@@ -85,7 +89,7 @@ const PlanGenerator: React.FC = () => {
     scanPathsInput,
     additionalInstructions,
     expectedOutputFormat,
-    currentPlanId: storeCurrentPlanId, // Renamed to avoid conflict with local var
+    currentPlanId, // Also get currentPlanId from store for comparison
   } = useStore(plannerStore);
   const globalProjectRoot = useStore(projectRootDirectoryStore);
 
@@ -94,13 +98,11 @@ const PlanGenerator: React.FC = () => {
   const [isAiInstructionDrawerOpen, setIsAiInstructionDrawerOpen] = useState(false);
   const [isExpectedOutputDrawerOpen, setIsExpectedOutputDrawerOpen] = useState(false);
   const [isPlanMetadataEditorOpen, setIsPlanMetadataEditorOpen] = useState(false);
-  const [isFileChangeEditorOpen, setIsFileChangeEditorOpen] = useState(false); // New state for FileChangeEditorDrawer
-  const [editingFileChange, setEditingFileChange] = useState<IFileChange | null>(null); // State for the file change being edited
-  const [editingFileChangeIndex, setEditingFileChangeIndex] = useState<number | null>(null); // State for the index of the file change being edited
-  const [isPlannerListDrawerOpen, setIsPlannerListDrawerOpen] = useState(false); // New state for PlannerList drawer
+  const [isFileChangeEditorOpen, setIsFileChangeEditorOpen] = useState(false);
+  const [editingFileChange, setEditingFileChange] = useState<IFileChange | null>(null);
+  const [editingFileChangeIndex, setEditingFileChangeIndex] = useState<number | null>(null);
+  const [isPlannerListDrawerOpen, setIsPlannerListDrawerOpen] = useState(false);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
-
-  const [searchParams] = useSearchParams(); // Hook to get URL search parameters
 
   // Local state for the project root input field within the DirectoryPickerDrawer
   const [tempDrawerProjectRootInput, setTempDrawerProjectRootInput] = useState(projectRoot || '');
@@ -152,35 +154,19 @@ const PlanGenerator: React.FC = () => {
     }
   }, [error]);
 
-  // Effect to load plan from URL parameter
+  // Effect to load plan if initialPlanId changes or is set
   useEffect(() => {
-    const planIdFromUrl = searchParams.get('planId');
-
-    if (planIdFromUrl && planIdFromUrl !== storeCurrentPlanId) {
-      // Only fetch if a planId is present in URL and it's different from the current one in store
-      const fetchPlanFromUrl = async () => {
-        setIsLoading(true);
-        setError(null);
-        try {
-          const response = await plannerService.getPlan(planIdFromUrl);
-          setPlan(response.plan.id, response.plan);
-          setCurrentPlanId(response.plan.id);
-          // Close the PlannerList drawer if it's open, as a plan has been selected/loaded
-          if (isPlannerListDrawerOpen) {
-            setIsPlannerListDrawerOpen(false);
-          }
-        } catch (err: any) {
-          console.error('Failed to load plan from URL:', err);
-          setError(err.message || 'Failed to load plan from URL.');
-          setPlan(null, null);
-          setCurrentPlanId(null);
-        } finally {
-          // setIsLoading(false); // setPlan already handles setting isLoading to false
-        }
-      };
-      fetchPlanFromUrl();
+    if (initialPlanId && initialPlanId !== currentPlanId && !isLoading) {
+      console.log(`Loading plan from URL: ${initialPlanId}`);
+      loadPlanFromId(initialPlanId);
+    } else if (!initialPlanId && currentPlanId) {
+      // If URL param is removed but a plan is loaded, clear it.
+      // This might happen if user navigates away from ?planId= and then back to /planner-generator
+      // without a specific plan.
+      console.log('URL param removed, clearing current plan.');
+      resetPlannerState();
     }
-  }, [searchParams, storeCurrentPlanId, isPlannerListDrawerOpen, setIsLoading, setError, setPlan, setCurrentPlanId]);
+  }, [initialPlanId, currentPlanId, isLoading]); // currentPlanId added to deps to ensure re-check after store updates
 
   const currentScanPathsArray = useMemo(
     () =>
@@ -206,13 +192,12 @@ const PlanGenerator: React.FC = () => {
         return;
       }
       setProjectRoot(selectedPath);
-      projectRootDirectoryStore.set(selectedPath); // Update global store
+      projectRootDirectoryStore.set(selectedPath);
       setError('');
       setPlan(null, null);
-      setCurrentPlanId(null); // Clear current plan ID when changing project root
       // setIsLoading(false); // No longer needed here as setPlan handles isLoading: false
     },
-    [setProjectRoot, setError, setPlan, setCurrentPlanId],
+    [setProjectRoot, setError, setPlan],
   );
 
   const updateScanPaths = useCallback(
@@ -242,8 +227,7 @@ const PlanGenerator: React.FC = () => {
     } catch (err: any) {
       console.log(err, 'err');
       setError(err.message || 'Failed to generate plan.');
-      setPlan(null, null);
-      setCurrentPlanId(null); // Clear plan ID on error
+      setPlan(null, null); // Clear plan on error
     } finally {
       // setIsLoading(false); // Removed: setPlan and setError already handle setting isLoading to false.
     }
@@ -474,7 +458,7 @@ const PlanGenerator: React.FC = () => {
           <PlanDisplay
             plan={plan}
             onEditPlanMetadata={() => setIsPlanMetadataEditorOpen(true)}
-            onEditFileChange={handleEditFileChangeRequest} // Pass the new handler
+            onEditFileChange={handleEditFileChangeRequest}
           />
         </Box>
       ) : (
@@ -547,7 +531,7 @@ const PlanGenerator: React.FC = () => {
         />
       )}
 
-      {editingFileChange && ( // Only render if a change is being edited
+      {editingFileChange && (
         <FileChangeEditorDrawer
           open={isFileChangeEditorOpen}
           onClose={() => setIsFileChangeEditorOpen(false)}
@@ -556,12 +540,11 @@ const PlanGenerator: React.FC = () => {
         />
       )}
 
-      {/* New: CustomDrawer for PlannerList */}
       <CustomDrawer
         open={isPlannerListDrawerOpen}
         onClose={() => setIsPlannerListDrawerOpen(false)}
         position="right"
-        size="large" // Adjusted size for better viewing of the list
+        size="large"
         title="All AI Plans"
         hasBackdrop={true}
         footerActionButton={plannerListDrawerActions}
