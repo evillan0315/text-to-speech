@@ -123,6 +123,30 @@ export interface IPlan {
 }
 
 /**
+ * Represents a simplified plan item for display in a list.
+ * This typically includes fields relevant for showing an overview.
+ */
+export interface IPlannerListItem {
+  id: string;
+  title: string;
+  summary?: string;
+  createdAt: Date;
+  updatedAt?: Date;
+  lastExecutionStatus?: string;
+}
+
+/**
+ * Response structure for a paginated list of plans.
+ */
+export interface IPaginatedPlansResponse {
+  items: IPlannerListItem[];
+  total: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
+}
+
+/**
  * Response structure for generating a new plan from the API.
  */
 export interface IGeneratePlanResponse {

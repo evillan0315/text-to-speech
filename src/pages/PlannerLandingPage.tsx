@@ -2,6 +2,7 @@ import React from 'react';
 import { Box, Typography, Button, Paper, Stack } from '@mui/material';
 import { Link as RouterLink } from 'react-router-dom';
 import AddRoadIcon from '@mui/icons-material/AddRoad';
+import ListAltIcon from '@mui/icons-material/ListAlt'; // New icon for plan list
 
 const paperSx = {
   p: 4,
@@ -41,16 +42,30 @@ export const PlannerLandingPage: React.FC = () => {
             Review detailed plans including file additions, modifications, deletions, and refactors,
             then apply them directly to your local project with confidence.
           </Typography>
-          <Button
-            component={RouterLink}
-            to="/planner-generator"
-            variant="contained"
-            color="secondary"
-            size="large"
-            className="py-3 px-8 text-lg font-bold"
-          >
-            Start Planning Code
-          </Button>
+          <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} sx={{ width: '100%', justifyContent: 'center' }}>
+            <Button
+              component={RouterLink}
+              to="/planner-generator"
+              variant="contained"
+              color="secondary"
+              size="large"
+              className="py-3 px-8 text-lg font-bold"
+              startIcon={<AddRoadIcon />} // Optional: Add icon to button
+            >
+              Start New Plan
+            </Button>
+            <Button
+              component={RouterLink}
+              to="/planner/list"
+              variant="outlined"
+              color="secondary"
+              size="large"
+              className="py-3 px-8 text-lg font-bold"
+              startIcon={<ListAltIcon />} // Optional: Add icon to button
+            >
+              Browse Existing Plans
+            </Button>
+          </Stack>
         </Stack>
       </Paper>
     </Box>

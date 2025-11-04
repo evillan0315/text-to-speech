@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { authStore } from '@/stores/authStore';
-import type { IApplyPlanResult, IGeneratePlanResponse, ILlmInput, IPlan } from '../types'; // Updated imports
+import type { IApplyPlanResult, IGeneratePlanResponse, ILlmInput, IPlan, IPaginatedPlansResponse } from '../types'; // Updated imports
 
 const API_BASE_URL = '/api';
 
@@ -36,6 +36,29 @@ export const plannerService = {
         throw new Error(error.response.data.message || `Failed to fetch plan ${planId}.`);
       }
       throw new Error(`An unexpected error occurred while fetching plan ${planId}.`);
+    }
+  },
+
+  /**
+   * Fetches a paginated list of AI plans.
+   * @param page The page number to retrieve (1-indexed).
+   * @param pageSize The number of items per page.
+   * @returns A promise that resolves to an IPaginatedPlansResponse.
+   */
+  async getPaginatedPlans(page: number, pageSize: number): Promise<IPaginatedPlansResponse> {
+    try {
+      const response = await axios.get<IPaginatedPlansResponse>(
+        `${API_BASE_URL}/plan/paginated?page=${page}&pageSize=${pageSize}`,
+        {
+          headers: getAuthHeaders(),
+        },
+      );
+      return response.data;
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response) {
+        throw new Error(error.response.data.message || 'Failed to fetch paginated plans.');
+      }
+      throw new Error('An unexpected error occurred while fetching plans.');
     }
   },
 
