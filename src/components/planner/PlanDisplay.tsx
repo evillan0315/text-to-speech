@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   Card,
@@ -14,11 +14,10 @@ import {
   Alert,
   Button,
   CircularProgress,
-  Link as MuiLink,
   Tooltip,
   IconButton,
+  Snackbar,
 } from '@mui/material';
-import { Link as RouterLink } from 'react-router-dom';
 import { useStore } from '@nanostores/react';
 import { plannerStore, setApplyStatus } from './stores/plannerStore';
 import { plannerService } from './api/plannerService';
@@ -26,6 +25,7 @@ import { IPlan } from './types'; // Updated import
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
+import CloseIcon from '@mui/icons-material/Close'; // Import CloseIcon for Snackbar
 
 interface PlanDisplayProps {
   plan: IPlan; // Updated prop type
@@ -88,6 +88,32 @@ const PlanDisplay: React.FC<PlanDisplayProps> = ({ plan }) => {
   const [individualChangeStatus, setIndividualChangeStatus] = useState<Map<number, { status: ChangeApplyStatus; error: string | null }>>(
     new Map()
   );
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [snackbarSeverity, setSnackbarSeverity] = useState<'success' | 'error' | 'info' | 'warning'>('info');
+
+  useEffect(() => {
+    if (applyStatus === 'success') {
+      setSnackbarMessage('Plan applied successfully! Please check your project directory.');
+      setSnackbarSeverity('success');
+      setSnackbarOpen(true);
+    } else if (applyStatus === 'failure') {
+      setSnackbarMessage(`Error applying plan: ${applyError}`);
+      setSnackbarSeverity('error');
+      setSnackbarOpen(true);
+    }
+    // Reset snackbar state when applyStatus goes back to idle/applying
+    else if (applyStatus === 'idle' || applyStatus === 'applying') {
+      setSnackbarOpen(false);
+    }
+  }, [applyStatus, applyError]);
+
+  const handleSnackbarClose = (_event?: React.SyntheticEvent | Event, reason?: string) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setSnackbarOpen(false);
+  };
 
   const handleApplyPlan = async () => {
     if (!plan || !plan.id) {
@@ -287,12 +313,30 @@ const PlanDisplay: React.FC<PlanDisplayProps> = ({ plan }) => {
         </Button>
       </Box>
 
-      {applyStatus === 'success' && (
-        <Alert severity='success' className='mt-4'>Plan applied successfully! Please check your project directory.</Alert>
-      )}
-      {applyStatus === 'failure' && (
-        <Alert severity='error' className='mt-4'>Error applying plan: {applyError}</Alert>
-      )}
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={6000}
+        onClose={handleSnackbarClose}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert
+          onClose={handleSnackbarClose}
+          severity={snackbarSeverity}
+          sx={{ width: '100%' }}
+          action={
+            <IconButton
+              aria-label="close"
+              color="inherit"
+              size="small"
+              onClick={handleSnackbarClose}
+            >
+              <CloseIcon fontSize="small" />
+            </IconButton>
+          }
+        >
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };
