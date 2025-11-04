@@ -10,6 +10,7 @@ import { LoginPage } from './pages/LoginPage';
 import { HomePage } from './pages/HomePage'; // New: Import HomePage
 import { TtsLandingPage } from './pages/TtsLandingPage'; // New: Import TtsLandingPage
 import { PlannerLandingPage } from './pages/PlannerLandingPage'; // New: Import PlannerLandingPage
+import PlannerList from './components/planner/PlannerList'; // New: Import PlannerList
 import { themeAtom } from './stores/themeStore';
 import { useStore } from '@nanostores/react';
 import { useMemo } from 'react';
@@ -37,7 +38,7 @@ function App() {
           {/* Modified: Actual TTS Generator */}
           <Route path="/planner" element={<PlannerLandingPage />} />{' '}
           {/* New: Planner Landing Page */}
-          {/* Removed: <Route path="/planner/list" element={<PlannerList />} /> */}
+          <Route path="/planner/list" element={<PlannerList />} /> {/* New: Planner List Page */}
           <Route path="/planner-generator" element={<PlannerPage />} />
           <Route path="/planner-generator/:planId" element={<PlannerPage />} />
           {/* Modified: Actual Planner Page */}
