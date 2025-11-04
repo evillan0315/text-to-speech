@@ -195,9 +195,11 @@ const PlanGenerator: React.FC = () => {
   );
 
   const handleGeneratePlan = async () => {
+    resetPlannerState();
     setIsLoading(true);
-    setError(null); // Clear any previous errors
-
+    //
+    //setError(null); // Clear any previous errors
+    //setPlan(null);
     try {
       const llmInput: ILlmInput = {
         userPrompt,
@@ -215,10 +217,10 @@ const PlanGenerator: React.FC = () => {
       setCurrentPlanId(response.planId);
     } catch (err: any) {
       console.log(err, 'err');
-      setError(err.message || 'Failed to generate plan.');
-      setPlan(null, null); // Clear plan on error
+      //setError(err.message || 'Failed to generate plan.');
+      //setPlan(null, null); // Clear plan on error
     } finally {
-      // setIsLoading(false); // Removed: setPlan and setError already handle setting isLoading to false.
+      setIsLoading(false); // Removed: setPlan and setError already handle setting isLoading to false.
     }
   };
 
