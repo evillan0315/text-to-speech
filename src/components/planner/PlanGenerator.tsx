@@ -41,6 +41,7 @@ import ScanPathsDrawer from '@/components/planner/drawerContent/ScanPathsDrawer'
 import InstructionEditorDrawer from '@/components/planner/drawerContent/InstructionEditorDrawer';
 import PlanMetadataEditorDrawer from '@/components/planner/drawerContent/PlanMetadataEditorDrawer'; // New import
 import { projectRootDirectoryStore } from '@/stores/fileTreeStore';
+import Loading from '@/components/Loading'; // Import the Loading component
 
 const styles = {
   card: {
@@ -375,9 +376,19 @@ const PlanGenerator: React.FC = () => {
         </CardContent>
       </Card>
 
-      {plan && (
+      {isLoading ? (
+        <Box className="flex-grow flex items-center justify-center">
+          <Loading type="circular" message="Generating Plan..." />
+        </Box>
+      ) : plan ? (
         <Box className="flex-grow overflow-y-auto pt-4">
           <PlanDisplay plan={plan} onEditPlanMetadata={() => setIsPlanMetadataEditorOpen(true)} />
+        </Box>
+      ) : (
+        <Box className="flex-grow flex items-center justify-center pt-4">
+          <Typography variant="h6" color="text.secondary">
+            Enter a prompt and click "Generate Plan" to begin.
+          </Typography>
         </Box>
       )}
 
