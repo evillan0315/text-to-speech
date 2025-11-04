@@ -31,7 +31,7 @@ export const PlannerPage: React.FC = () => {
   }, [planId, storedPlanId, plan]); // Add 'plan' to dependency array to react to plan object changes
 
   return (
-    <Box className="h-full w-full overflow-hidden">
+    <Box className="h-full w-full max-w-7xl mx-auto overflow-hidden">
       <PlanGenerator />
     </Box>
   );

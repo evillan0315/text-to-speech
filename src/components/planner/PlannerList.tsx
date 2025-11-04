@@ -73,7 +73,7 @@ const PlannerList: React.FC<PlannerListProps> = () => {
   };
 
   return (
-    <Box className="p-4 sm:p-6 lg:p-8 flex flex-col h-full"> 
+    <Box className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto flex flex-col h-full"> 
       <Typography variant="h4" component="h1" gutterBottom className="font-bold text-primary-main mb-6"> 
         Existing AI Plans
       </Typography>

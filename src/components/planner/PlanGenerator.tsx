@@ -640,7 +640,7 @@ const PlanGenerator: React.FC = () => {
         open={isPlannerListDrawerOpen}
         onClose={() => setIsPlannerListDrawerOpen(false)}
         position="right"
-        size="large"
+        size="medium"
         title="All AI Plans"
         hasBackdrop={true}
         footerActionButton={plannerListDrawerActions}

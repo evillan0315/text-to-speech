@@ -151,7 +151,7 @@ export const TtsGeneratorPage: React.FC = () => {
   };
 
   return (
-    <Box className="p-6 max-w-4xl mx-auto">
+    <Box className="p-6 max-w-7xl mx-auto">
       <Typography variant="h4" component="h1" sx={headerSx}>
         Gemini Text-to-Speech Generator
       </Typography>
