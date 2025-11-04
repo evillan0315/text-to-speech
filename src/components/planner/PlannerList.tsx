@@ -73,7 +73,7 @@ const PlannerList: React.FC<PlannerListProps> = () => {
   };
 
   return (
-    <Box className="p-4 sm:p-6 lg:p-8 flex flex-col h-full">
+    <Box className="p-4 sm:p-6 lg:p-8 flex flex-col overflow-hidden">
       <Typography variant="h4" component="h1" gutterBottom className="font-bold text-primary-main mb-6">
         Existing AI Plans
       </Typography>
@@ -100,7 +100,7 @@ const PlannerList: React.FC<PlannerListProps> = () => {
       }
 
       {!loading && !error && plans.length > 0 && (
-        <Paper className="flex-grow" sx={{ width: '100%', overflow: 'hidden', mb: 3 }}>
+        <Paper className="flex-grow h-full" sx={{ width: '100%',  mb: 3 }}>
           <TableContainer>
             <Table stickyHeader aria-label="planner list table">
               <TableHead>

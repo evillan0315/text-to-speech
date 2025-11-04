@@ -39,7 +39,8 @@ function App() {
           <Route path="/planner" element={<PlannerLandingPage />} />{' '}
           {/* New: Planner Landing Page */}
           <Route path="/planner/list" element={<PlannerList />} /> {/* New: Planner List Page */}
-          <Route path="/planner-generator" element={<PlannerPage />} />{' '}
+          <Route path="/planner-generator" element={<PlannerPage />} />
+          <Route path="/planner-generator/:planId" element={<PlannerPage />} />
           {/* Modified: Actual Planner Page */}
           <Route path="/login" element={<LoginPage />} />
           <Route
