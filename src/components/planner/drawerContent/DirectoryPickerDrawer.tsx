@@ -42,10 +42,11 @@ const DirectoryPickerDrawer: React.FC<DirectoryPickerDrawerProps> = ({
   // Internal handler to update path states and notify parent
   const handlePathUpdateInternal = useCallback(
     (newPath: string) => {
-      setCurrentBrowsingPath(newPath);
-      setTempPathInput(newPath);
+      const normalizedPath = path.normalize(newPath.replace(/\\/g, '/'));
+      setCurrentBrowsingPath(normalizedPath);
+      setTempPathInput(normalizedPath);
       if (onPathUpdate) {
-        onPathUpdate(newPath);
+        onPathUpdate(normalizedPath);
       }
       setError(null); // Clear any path errors on update
     },
@@ -53,7 +54,7 @@ const DirectoryPickerDrawer: React.FC<DirectoryPickerDrawerProps> = ({
   );
 
   useEffect(() => {
-    // Initialize with effective initial path
+    // Initialize with effective initial path from props, or store, or default
     const effectiveInitialPath = initialPath || projectRoot || '/';
     handlePathUpdateInternal(effectiveInitialPath);
   }, [initialPath, projectRoot, handlePathUpdateInternal]);
@@ -103,8 +104,7 @@ const DirectoryPickerDrawer: React.FC<DirectoryPickerDrawerProps> = ({
     const trimmedPath = tempPathInput.trim();
     if (trimmedPath) {
       handlePathUpdateInternal(trimmedPath);
-    }
-    else {
+    } else {
       setError('Path cannot be empty.');
     }
   }, [tempPathInput, handlePathUpdateInternal]);

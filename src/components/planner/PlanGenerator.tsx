@@ -126,21 +126,13 @@ const PlanGenerator: React.FC = () => {
   // Local state for the project root input field within the DirectoryPickerDrawer
   const [tempDrawerProjectRootInput, setTempDrawerProjectRootInput] = useState(projectRoot || '');
   // Local state for scan paths within the drawer before confirming
-  const [localScanPaths, setLocalScanPaths] = useState<
-    string[]
-  >(
-    scanPathsInput
-      .split(',')
-      .map((s) => s.trim())
-      .filter(Boolean),
-  );
+  const [localScanPaths, setLocalScanPaths] = useState<string[]>([]); // Initialize as empty array
 
   // Effect to ensure plannerStore's projectRoot is in sync with globalProjectRoot
   // and also to update tempDrawerProjectRootInput when plannerStore.projectRoot changes
   useEffect(() => {
+    // Only update if globalProjectRoot is valid and different from current plannerStore.projectRoot
     if (globalProjectRoot && projectRoot !== globalProjectRoot) {
-      setProjectRoot(globalProjectRoot);
-    } else if (!projectRoot && globalProjectRoot) {
       setProjectRoot(globalProjectRoot);
     }
     // Always update tempDrawerProjectRootInput to reflect the current projectRoot from store
@@ -149,35 +141,25 @@ const PlanGenerator: React.FC = () => {
 
   // Sync localScanPaths with plannerStore's scanPathsInput when the drawer is opened or parent changes it
   useEffect(() => {
-    if (isScanPathsDialogOpen) {
-      setLocalScanPaths(
-        scanPathsInput
-          .split(',')
-          .map((s) => s.trim())
-          .filter(Boolean),
-      );
-    } else {
-      // Reset local state when drawer closes to reflect true store state if parent updated it
-      setLocalScanPaths(
-        scanPathsInput
-          .split(',')
-          .map((s) => s.trim())
-          .filter(Boolean),
-      );
-    }
-  }, [isScanPathsDialogOpen, scanPathsInput]);
+    const currentPaths = scanPathsInput
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean);
+    setLocalScanPaths(currentPaths);
+  }, [scanPathsInput]);
 
   // Effect to populate generator fields when a plan is loaded
   useEffect(() => {
     if (plan && currentPlanId === plan.id) {
       setUserPrompt(plan.llmInput?.userPrompt || '');
-      setProjectRoot(plan.llmInput?.projectRoot || globalProjectRoot || '');
+      // Prioritize plan's projectRoot, then global, then current store value
+      setProjectRoot(plan.llmInput?.projectRoot || globalProjectRoot || projectRoot || '');
       setScanPathsInput(plan.llmInput?.scanPaths?.join(', ') || 'src, public, package.json, README.md, .env');
       setAdditionalInstructions(plan.llmInput?.additionalInstructions || '');
       setExpectedOutputFormat(plan.llmInput?.expectedOutputFormat || '');
       // No direct setting of fileData/MimeType from plan as it's an ephemeral input for new generation.
     }
-  }, [plan, currentPlanId, globalProjectRoot]);
+  }, [plan, currentPlanId, globalProjectRoot, projectRoot]);
 
   // Effect to open snackbar when an error occurs in the store
   useEffect(() => {
@@ -207,7 +189,8 @@ const PlanGenerator: React.FC = () => {
       setSelectedFile(file);
       const reader = new FileReader();
       reader.onload = (e) => {
-        const base64Data = (e.target?.result as string).split(',')[1]; // Get base64 part
+        // Ensure result is a string before splitting. Data URL format is 'data:[<MIME-type>][;charset=<encoding>][;base64],<data>'
+        const base64Data = (e.target?.result as string)?.split(',')[1]; 
         const mimeType = file.type;
         setFileDataAndMimeType(base64Data, mimeType);
       };
@@ -240,19 +223,19 @@ const PlanGenerator: React.FC = () => {
       setProjectRoot(selectedPath);
       projectRootDirectoryStore.set(selectedPath);
       setError('');
-      setPlan(null, null);
+      setPlan(null, null); // Clear existing plan on new project root selection
     },
     [setProjectRoot, setError, setPlan],
   );
 
   const updateScanPaths = useCallback(
     (paths: string[]) => setScanPathsInput([...new Set(paths)].sort().join(', ')),
-    [],
+    [setScanPathsInput],
   );
 
   const handleGeneratePlan = async () => {
     setIsLoading(true);
-    //resetPlannerState();
+    //resetPlannerState(); // Decide if full reset is desired before generation
     try {
       const llmInput: ILlmInput = {
         userPrompt,
@@ -282,7 +265,7 @@ const PlanGenerator: React.FC = () => {
       setCurrentPlanId(response.planId);
       navigate(`/planner-generator/${response.planId}`); // Navigate to the generated plan's URL
     } catch (err: any) {
-      console.log(err, 'err');
+      console.error(err, 'Plan generation error');
       setError(err.message || 'Failed to generate plan.');
     } finally {
       // setIsLoading(false) is handled by setPlan or setError
@@ -292,7 +275,12 @@ const PlanGenerator: React.FC = () => {
   const handleClearPlan = () => {
     resetPlannerState();
     setTempDrawerProjectRootInput(projectRootDirectoryStore.get() || '');
-    setLocalScanPaths([]);
+    setLocalScanPaths(
+      (plannerStore.get().scanPathsInput)
+        .split(',')
+        .map((s) => s.trim())
+        .filter(Boolean),
+    );
     setSelectedFile(null); // Clear selected file on plan clear
     navigate('/planner-generator');
   };
@@ -591,9 +579,9 @@ const PlanGenerator: React.FC = () => {
             /* This onSelect is now primarily handled by the footer actions. */
           }}
           onClose={() => setIsProjectRootPickerDialogOpen(false)}
-          initialPath={tempDrawerProjectRootInput || '/'}
+          initialPath={tempDrawerProjectRootInput || '/'} // Pass local state
           allowExternalPaths
-          onPathUpdate={setTempDrawerProjectRootInput}
+          onPathUpdate={setTempDrawerProjectRootInput} // Callback to update local state
         />
       </CustomDrawer>
 
@@ -607,10 +595,10 @@ const PlanGenerator: React.FC = () => {
         footerActionButton={scanPathsDrawerActions}
       >
         <ScanPathsDrawer
-          currentScanPaths={currentScanPathsArray}
+          currentScanPaths={localScanPaths} // Pass local state to be managed by the drawer
           availablePaths={scanPathAutocompleteOptions}
           allowExternalPaths
-          onLocalPathsChange={setLocalScanPaths}
+          onLocalPathsChange={setLocalScanPaths} // Callback to update local state
         />
       </CustomDrawer>
 

@@ -14,6 +14,7 @@ import {
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import SearchIcon from '@mui/icons-material/Search';
+import CloseIcon from '@mui/icons-material/Close'; // Import CloseIcon for chips
 
 /**
  * Truncates a file path for display purposes.
@@ -60,8 +61,12 @@ const ScanPathsDrawer: React.FC<ScanPathsDrawerProps> = ({
 
   // Sync internal state with prop `currentScanPaths` when component mounts or prop changes
   useEffect(() => {
-    setLocalSelectedPaths(currentScanPaths);
-  }, [currentScanPaths]);
+    // Only update if the incoming prop is different to avoid unnecessary re-renders
+    // and ensure local state is mutable.
+    if (JSON.stringify(localSelectedPaths) !== JSON.stringify(currentScanPaths)) {
+      setLocalSelectedPaths(currentScanPaths);
+    }
+  }, [currentScanPaths]); // Depend on currentScanPaths only
 
   // Filter available paths based on search term
   const filteredOptions = useMemo(() => {
@@ -72,14 +77,14 @@ const ScanPathsDrawer: React.FC<ScanPathsDrawerProps> = ({
 
   const addPath = useCallback(
     (pathToAdd: string) => {
-      if (!pathToAdd) return;
+      if (!pathToAdd || localSelectedPaths.includes(pathToAdd)) return;
       setLocalSelectedPaths((prev) => {
-        const newPaths = Array.from(new Set([...prev, pathToAdd]));
+        const newPaths = Array.from(new Set([...prev, pathToAdd])).sort(); // Sort for consistency
         onLocalPathsChange(newPaths); // Notify parent immediately of internal changes
         return newPaths;
       });
     },
-    [onLocalPathsChange],
+    [localSelectedPaths, onLocalPathsChange],
   );
 
   const handleAddManualPath = useCallback(() => {
@@ -115,7 +120,7 @@ const ScanPathsDrawer: React.FC<ScanPathsDrawerProps> = ({
       <TextField
         fullWidth
         size="small"
-        placeholder="Search paths..."
+        placeholder="Search suggested paths..."
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
         InputProps={{
@@ -136,7 +141,7 @@ const ScanPathsDrawer: React.FC<ScanPathsDrawerProps> = ({
           <TextField
             fullWidth
             size="small"
-            placeholder="Enter external path..."
+            placeholder="Enter custom path..."
             value={manualPathInput}
             onChange={(e) => setManualPathInput(e.target.value)}
             onKeyPress={(e) => e.key === 'Enter' && handleAddManualPath()}
@@ -158,18 +163,18 @@ const ScanPathsDrawer: React.FC<ScanPathsDrawerProps> = ({
         </Box>
       )}
 
-      {/* Available paths */}
-      {filteredOptions.length > 0 && (
-        <>
+      {/* Available paths - displayed as selectable buttons */}
+      {filteredOptions.length > 0 && ( // Only show if there are options or if search term is active
+        <Box sx={{ flexGrow: 1, overflowY: 'auto' }}>
           <Typography variant="subtitle2">Suggested Paths:</Typography>
           <List
             dense
             sx={{
-              height: '100%',
-              overflowY: 'auto',
               border: `1px solid ${theme.palette.divider}`,
               backgroundColor: theme.palette.background.default,
               borderRadius: 1,
+              maxHeight: '150px', // Limit height for available paths
+              overflowY: 'auto',
             }}
           >
             {filteredOptions.map((option) => (
@@ -177,22 +182,23 @@ const ScanPathsDrawer: React.FC<ScanPathsDrawerProps> = ({
                 key={option}
                 selected={localSelectedPaths.includes(option)}
                 onClick={() => addPath(option)}
+                sx={{ pl: 1, pr: 1, bgcolor: localSelectedPaths.includes(option) ? theme.palette.action.selected : 'inherit' }}
               >
                 <ListItemText primary={option} />
               </ListItemButton>
             ))}
           </List>
-        </>
+        </Box>
       )}
 
-      {/* Selected paths */}
+      {/* Selected paths - displayed as chips */}
       <Typography variant="subtitle2" sx={{ mt: 1 }}>
         Currently Selected for Scan:
       </Typography>
-      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, height: 'auto' }}>
+      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, maxHeight: '200px', overflowY: 'auto', p: 1, border: `1px solid ${theme.palette.divider}`, borderRadius: 1 }}>
         {localSelectedPaths.length === 0 ? (
           <Typography variant="body2" color="text.secondary">
-            No paths selected.
+            No paths selected. Add from suggestions or manually.
           </Typography>
         ) : (
           localSelectedPaths.map((pathItem) => (
@@ -202,6 +208,7 @@ const ScanPathsDrawer: React.FC<ScanPathsDrawerProps> = ({
                 onDelete={() => handleRemovePath(pathItem)}
                 size="small"
                 color="primary"
+                deleteIcon={<CloseIcon fontSize="small" />}
               />
             </Tooltip>
           ))

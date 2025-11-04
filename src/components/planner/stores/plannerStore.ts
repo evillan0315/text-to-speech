@@ -12,9 +12,9 @@ import { plannerService } from '../api/plannerService'; // Import plannerService
 // This path is specific to the user's environment, based on the project structure.
 const DEFAULT_PROJECT_ROOT_FROM_ENV = import.meta.env.VITE_BASE_DIR; // Get default from environment
 
-// Initialize projectRootDirectoryStore with a default if it's empty
-// This ensures that projectRootDirectoryStore.get() will always return a string or DEFAULT_PROJECT_ROOT_FROM_ENV
-if (projectRootDirectoryStore.get() === null || projectRootDirectoryStore.get() === '') {
+// Initialize projectRootDirectoryStore with a default if it's empty or null
+const initialProjectRoot = projectRootDirectoryStore.get();
+if (initialProjectRoot === null || initialProjectRoot === '') {
   projectRootDirectoryStore.set(DEFAULT_PROJECT_ROOT_FROM_ENV);
 }
 
@@ -26,10 +26,10 @@ interface PlannerState {
   error: string | null;
   applyStatus: 'idle' | 'applying' | 'success' | 'failure';
   applyError: string | null;
-  projectRoot: string; // New field for project root directory
-  scanPathsInput: string; // New field for AI scan paths
-  additionalInstructions: string; // New field for AI's additional instructions
-  expectedOutputFormat: string; // New field for AI's expected output format
+  projectRoot: string;
+  scanPathsInput: string;
+  additionalInstructions: string;
+  expectedOutputFormat: string;
   fileData: string | null; // New: Base64 encoded file content for multimodal input
   fileMimeType: string | null; // New: MIME type of the uploaded file
 }
@@ -37,12 +37,13 @@ interface PlannerState {
 export const plannerStore = atom<PlannerState>({
   userPrompt: '',
   currentPlanId: null,
+    // Ensure projectRoot is always a valid string on initialization
   plan: null,
   isLoading: false,
   error: null,
   applyStatus: 'idle',
   applyError: null,
-  projectRoot: projectRootDirectoryStore.get() ?? DEFAULT_PROJECT_ROOT_FROM_ENV, // Ensure a default string value
+  projectRoot: projectRootDirectoryStore.get() || DEFAULT_PROJECT_ROOT_FROM_ENV, // Fallback to env default
   scanPathsInput: 'src, public, package.json, README.md, .env', // Provide sensible defaults for scan paths
   additionalInstructions: PLANNER_AI_INSTRUCTION, // Default from constants
   expectedOutputFormat: PLANNER_EXPECTED_OUTPUT_FORMAT, // Default from constants

@@ -96,7 +96,7 @@ export const plannerService = {
     try {
       const response = await axios.post<{ result: IApplyPlanResult }>(
         `${API_BASE_URL}/plan/${planId}/apply-chunk/${changeIndex}`,
-        { changeIndex, projectRoot },
+        { projectRoot }, // Backend expects only projectRoot in the body for apply-chunk
         { headers: getAuthHeaders() },
       );
       return response.data.result;

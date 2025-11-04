@@ -70,9 +70,6 @@ const CustomDrawer: React.FC<CustomDrawerProps> = ({
     borderColor: theme.palette.divider,
   };
 
-  // const backdrop = hasBackdrop ? true : false; // Backdrop controlled by hasBackdrop prop
-  // const closeOnKey = closeOnEscape ? undefined : 'escapeKeyDown'; // Not directly used in Drawer component props
-
   return (
     <Drawer
       anchor={position}
@@ -83,8 +80,15 @@ const CustomDrawer: React.FC<CustomDrawerProps> = ({
       disableEscapeKeyDown={!closeOnEscape} // Control escape key behavior
     >
       {isFullScreen ? (
-        <DialogContent sx={{ p: 0, '&:first-of-type': { pt: 0 } }}>
-          <AppBar sx={{ position: 'relative' }}>
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            height: '100vh',
+            width: '100vw',
+          }}
+        >
+          <AppBar position="static">
             <Toolbar>
               <IconButton edge="start" color="inherit" onClick={onClose} aria-label="close">
                 <CloseIcon />
@@ -94,8 +98,8 @@ const CustomDrawer: React.FC<CustomDrawerProps> = ({
               </Typography>
             </Toolbar>
           </AppBar>
-          <Box sx={{ p: 2 }}>{children}</Box>
-        </DialogContent>
+          <Box sx={{ flexGrow: 1, overflowY: 'auto', p: 2 }}>{children}</Box>
+        </Box>
       ) : (
         <Box
           sx={{
@@ -155,7 +159,7 @@ const CustomDrawer: React.FC<CustomDrawerProps> = ({
                 p: 2,
                 bgcolor: theme.palette.background.default,
                 borderTop: `1px solid ${theme.palette.divider}`,
-                justifyContent: `${position === 'left' ? 'flex-end' : 'flex-start'}`,
+                justifyContent: `${position === 'left' || position === 'bottom' ? 'flex-end' : 'flex-start'}`, // Adjust alignment based on position
               }}
             >
               <GlobalActionButton globalActions={footerActionButton} />

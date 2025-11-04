@@ -28,12 +28,14 @@ const InstructionEditorDrawer: React.FC<InstructionEditorDrawerProps> = ({
   const [localValue, setLocalValue] = useState<string>('');
 
   useEffect(() => {
-    if (type === 'ai') {
-      setLocalValue(additionalInstructions);
-    } else {
-      setLocalValue(expectedOutputFormat);
+    if (open) { // Only update local state when the drawer is opened or type/store values change
+      if (type === 'ai') {
+        setLocalValue(additionalInstructions);
+      } else {
+        setLocalValue(expectedOutputFormat);
+      }
     }
-  }, [type, additionalInstructions, expectedOutputFormat, open]); // Re-initialize localValue when drawer opens or type/store values change
+  }, [type, additionalInstructions, expectedOutputFormat, open]); 
 
   const handleSave = useCallback(() => {
     if (type === 'ai') {

@@ -73,7 +73,7 @@ const PlannerList: React.FC<PlannerListProps> = () => {
   };
 
   return (
-    <Box className="p-4 sm:p-6 lg:p-8 flex flex-col overflow-hidden">
+    <Box className="p-4 sm:p-6 lg:p-8 flex flex-col h-full overflow-hidden">
       <Typography variant="h4" component="h1" gutterBottom className="font-bold text-primary-main mb-6">
         Existing AI Plans
       </Typography>
@@ -96,12 +96,11 @@ const PlannerList: React.FC<PlannerListProps> = () => {
         <Alert severity="info">No plans found. Start generating new plans!</Alert>
       ) : (
         <Alert severity="info">Login to see your plans.</Alert>
-      ))
-      }
+      ))}
 
       {!loading && !error && plans.length > 0 && (
-        <Paper className="flex-grow h-full" sx={{ width: '100%',  mb: 3 }}>
-          <TableContainer>
+        <Paper className="flex-grow" sx={{ width: '100%', mb: 3, display: 'flex', flexDirection: 'column' }}>
+          <TableContainer sx={{ flexGrow: 1, overflowY: 'auto' }}>
             <Table stickyHeader aria-label="planner list table">
               <TableHead>
                 <TableRow>
@@ -143,7 +142,7 @@ const PlannerList: React.FC<PlannerListProps> = () => {
               </TableBody>
             </Table>
           </TableContainer>
-          <Box className="flex justify-center p-4">
+          <Box className="flex justify-center p-4 flex-shrink-0">
             <Pagination
               count={totalPages}
               page={page}
@@ -160,4 +159,3 @@ const PlannerList: React.FC<PlannerListProps> = () => {
 };
 
 export default PlannerList;
-
