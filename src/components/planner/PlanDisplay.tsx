@@ -67,6 +67,20 @@ const styles = {
     overflowY: 'auto',
     color: 'text.secondary',
   },
+  loadingOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 10,
+    borderRadius: '12px',
+  },
 };
 
 const PlanDisplay: React.FC<PlanDisplayProps> = ({ plan }) => {
@@ -130,7 +144,16 @@ const PlanDisplay: React.FC<PlanDisplayProps> = ({ plan }) => {
   };
 
   return (
-    <Box className='space-y-6'>
+    <Box className='space-y-6' sx={{ position: 'relative' }}>
+      {applyStatus === 'applying' && (
+        <Box sx={styles.loadingOverlay}>
+          <CircularProgress color='primary' size={60} />
+          <Typography variant='h6' color='primary.contrastText' sx={{ mt: 2 }}>
+            Applying Plan...
+          </Typography>
+        </Box>
+      )}
+
       <Card sx={styles.card}>
         <CardContent>
           <Typography variant='h5' component='h2' gutterBottom sx={styles.sectionTitle}>
@@ -187,15 +210,16 @@ const PlanDisplay: React.FC<PlanDisplayProps> = ({ plan }) => {
                         <TableCell>
                           <Chip
                             label={change.action}
-                            color={
-                              change.action === 'ADD'
-                                ? 'success'
-                                : change.action === 'MODIFY'
-                                ? 'info'
-                                : change.action === 'DELETE'
-                                ? 'error'
-                                : 'default'
-                            }
+                            color=
+                              {
+                                change.action === 'ADD'
+                                  ? 'success'
+                                  : change.action === 'MODIFY'
+                                  ? 'info'
+                                  : change.action === 'DELETE'
+                                  ? 'error'
+                                  : 'default'
+                              }
                             size='small'
                           />
                         </TableCell>
