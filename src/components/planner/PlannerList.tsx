@@ -73,7 +73,7 @@ const PlannerList: React.FC<PlannerListProps> = () => {
   };
 
   return (
-    <Box className="p-4 sm:p-6 lg:p-8 flex flex-col h-full overflow-hidden"> {/* Added Tailwind for responsive padding and flex layout */}
+    <Box className="p-4 sm:p-6 lg:p-8 flex flex-col h-full"> {/* Removed overflow-hidden */}
       <Typography variant="h4" component="h1" gutterBottom className="font-bold text-primary-main mb-6"> {/* Applied Tailwind classes */}
         Existing AI Plans
       </Typography>
