@@ -12,6 +12,7 @@ import {
   setScanPathsInput,
   setAdditionalInstructions,
   setExpectedOutputFormat,
+  updateCurrentPlanMetadata,
 } from './stores/plannerStore';
 import { plannerService } from './api/plannerService';
 import PlanDisplay from './PlanDisplay';
@@ -28,6 +29,7 @@ import CustomDrawer from '@/components/Drawer/CustomDrawer';
 import DirectoryPickerDrawer from '@/components/planner/drawerContent/DirectoryPickerDrawer';
 import ScanPathsDrawer from '@/components/planner/drawerContent/ScanPathsDrawer';
 import InstructionEditorDrawer from '@/components/planner/drawerContent/InstructionEditorDrawer';
+import PlanMetadataEditorDrawer from '@/components/planner/drawerContent/PlanMetadataEditorDrawer'; // New import
 import { projectRootDirectoryStore } from '@/stores/fileTreeStore';
 
 const styles = {
@@ -63,6 +65,7 @@ const PlanGenerator: React.FC = () => {
   const [isScanPathsDialogOpen, setIsScanPathsDialogOpen] = useState(false);
   const [isAiInstructionDrawerOpen, setIsAiInstructionDrawerOpen] = useState(false);
   const [isExpectedOutputDrawerOpen, setIsExpectedOutputDrawerOpen] = useState(false);
+  const [isPlanMetadataEditorOpen, setIsPlanMetadataEditorOpen] = useState(false); // New state for plan metadata editor
   const [snackbarOpen, setSnackbarOpen] = useState(false);
 
   // Local state for the project root input field within the DirectoryPickerDrawer
@@ -175,6 +178,19 @@ const PlanGenerator: React.FC = () => {
     setTempDrawerProjectRootInput(projectRootDirectoryStore.get() || '');
     setLocalScanPaths([]);
   };
+
+  const handleSavePlanMetadata = useCallback(
+    (updatedData: {
+      title: string;
+      summary?: string;
+      thoughtProcess?: string;
+      documentation?: string;
+      gitInstructions?: string[];
+    }) => {
+      updateCurrentPlanMetadata(updatedData);
+    },
+    [],
+  );
 
   // Action buttons for the DirectoryPickerDrawer
   const directoryPickerDrawerActions: GlobalAction[] = [
@@ -328,7 +344,7 @@ const PlanGenerator: React.FC = () => {
 
       {plan && (
         <Box className='flex-grow overflow-y-auto pt-4'>
-          <PlanDisplay plan={plan} />
+          <PlanDisplay plan={plan} onEditPlanMetadata={() => setIsPlanMetadataEditorOpen(true)} />
         </Box>
       )}
 
@@ -379,6 +395,19 @@ const PlanGenerator: React.FC = () => {
         onClose={() => setIsExpectedOutputDrawerOpen(false)}
         type="expected"
       />
+
+      {plan && (
+        <PlanMetadataEditorDrawer
+          open={isPlanMetadataEditorOpen}
+          onClose={() => setIsPlanMetadataEditorOpen(false)}
+          initialTitle={plan.title}
+          initialSummary={plan.summary}
+          initialThoughtProcess={plan.thoughtProcess}
+          initialDocumentation={plan.documentation}
+          initialGitInstructions={plan.gitInstructions}
+          onSave={handleSavePlanMetadata}
+        />
+      )}
 
       <Snackbar
         open={snackbarOpen}

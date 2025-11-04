@@ -26,9 +26,11 @@ import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
 import CloseIcon from '@mui/icons-material/Close'; // Import CloseIcon for Snackbar
+import EditIcon from '@mui/icons-material/Edit'; // Import EditIcon
 
 interface PlanDisplayProps {
   plan: IPlan; // Updated prop type
+  onEditPlanMetadata: () => void; // New prop: callback to open the edit drawer
 }
 
 type ChangeApplyStatus = 'idle' | 'applying' | 'success' | 'failure';
@@ -46,6 +48,9 @@ const styles = {
     marginBottom: 1,
     color: 'primary.main',
     fontWeight: 'bold',
+    display: 'flex',
+    alignItems: 'center',
+    gap: 1, // Space between title and icon
   },
   tableContainer: {
     borderRadius: '8px',
@@ -83,7 +88,7 @@ const styles = {
   },
 };
 
-const PlanDisplay: React.FC<PlanDisplayProps> = ({ plan }) => {
+const PlanDisplay: React.FC<PlanDisplayProps> = ({ plan, onEditPlanMetadata }) => {
   const { applyStatus, applyError, projectRoot } = useStore(plannerStore);
   const [individualChangeStatus, setIndividualChangeStatus] = useState<Map<number, { status: ChangeApplyStatus; error: string | null }>>(
     new Map()
@@ -184,6 +189,16 @@ const PlanDisplay: React.FC<PlanDisplayProps> = ({ plan }) => {
         <CardContent>
           <Typography variant='h5' component='h2' gutterBottom sx={styles.sectionTitle}>
             {plan.title}
+            <Tooltip title="Edit Plan Metadata">
+              <IconButton
+                onClick={onEditPlanMetadata}
+                size='small'
+                color='primary'
+                aria-label="edit plan metadata"
+              >
+                <EditIcon fontSize='small' />
+              </IconButton>
+            </Tooltip>
           </Typography>
           {plan.summary && (
             <Typography variant='body1' paragraph color='text.secondary'>

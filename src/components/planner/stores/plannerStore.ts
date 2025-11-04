@@ -80,6 +80,34 @@ export const setExpectedOutputFormat = (format: string) => {
   plannerStore.set({ ...plannerStore.get(), expectedOutputFormat: format });
 };
 
+/**
+ * Updates specific metadata fields of the currently active plan.
+ * @param updatedMetadata An object containing the fields to update.
+ */
+export const updateCurrentPlanMetadata = (
+  updatedMetadata: {
+    title?: string;
+    summary?: string;
+    thoughtProcess?: string;
+    documentation?: string;
+    gitInstructions?: string[];
+  }
+) => {
+  const current = plannerStore.get();
+  if (current.plan && current.currentPlanId === current.plan.id) {
+    plannerStore.set({
+      ...current,
+      plan: {
+        ...current.plan,
+        ...updatedMetadata,
+        updatedAt: new Date(), // Mark as updated
+      },
+    });
+  } else {
+    console.warn('Attempted to update plan metadata but no current plan or planId mismatch.');
+  }
+};
+
 export const resetPlannerState = () => {
   plannerStore.set({
     userPrompt: '',
