@@ -17,8 +17,12 @@ if (projectRootDirectoryStore.get() === null || projectRootDirectoryStore.get() 
   projectRootDirectoryStore.set(DEFAULT_PROJECT_ROOT_FROM_ENV);
 }
 
+// Dedicated persistent atom for the current plan ID
+export const currentPlanIdAtom = persistentAtom<string | null>('planner_currentPlanId', null);
+
 interface PlannerState {
   userPrompt: string;
+  currentPlanId: string | null;
   plan: IPlan | null;
   isLoading: boolean;
   error: string | null;
@@ -30,10 +34,9 @@ interface PlannerState {
   expectedOutputFormat: string; // New field for AI's expected output format
 }
 
-export const currentPlanIdPersistentAtom = persistentAtom<string | null>('plannerCurrentPlanId', null);
-
 export const plannerStore = atom<PlannerState>({
   userPrompt: '',
+  currentPlanId: currentPlanIdAtom.get(), // Initialize from persistent atom
   plan: null,
   isLoading: false,
   error: null,
@@ -50,13 +53,19 @@ export const setUserPrompt = (prompt: string) => {
 };
 
 export const setPlan = (planId: string | null, plan: IPlan | null) => {
+  currentPlanIdAtom.set(planId); // Persist the plan ID
   plannerStore.set({
     ...plannerStore.get(),
+    currentPlanId: planId,
     plan: plan,
     isLoading: false,
     error: null,
   });
-  currentPlanIdPersistentAtom.set(planId);
+};
+
+export const setCurrentPlanId = (planId: string) => {
+  currentPlanIdAtom.set(planId); // Update persistent atom
+  plannerStore.set({ ...plannerStore.get(), currentPlanId: planId });
 };
 
 export const setIsLoading = (loading: boolean) => {
@@ -102,8 +111,10 @@ export const updateCurrentPlanMetadata = (updatedMetadata: {
   gitInstructions?: string[];
 }) => {
   const current = plannerStore.get();
-  const currentPlanId = currentPlanIdPersistentAtom.get();
-  if (current.plan && currentPlanId === current.plan.id) {
+  // Check against the value from the persistent atom, not just the volatile store state.
+  const actualCurrentPlanId = currentPlanIdAtom.get();
+
+  if (current.plan && actualCurrentPlanId && current.plan.id === actualCurrentPlanId) {
     plannerStore.set({
       ...current,
       plan: {
@@ -125,9 +136,10 @@ export const updateCurrentPlanMetadata = (updatedMetadata: {
  */
 export const updateFileChange = (planId: string, changeIndex: number, updatedChange: IFileChange) => {
   const current = plannerStore.get();
-  // Ensure the plan being updated matches the current active plan by ID
-  const activePlanId = currentPlanIdPersistentAtom.get();
-  if (current.plan && current.plan.id === activePlanId && activePlanId === planId && current.plan.changes[changeIndex]) {
+  // Check against the value from the persistent atom for robustness.
+  const actualCurrentPlanId = currentPlanIdAtom.get();
+
+  if (current.plan && actualCurrentPlanId && current.plan.id === planId && current.plan.changes[changeIndex]) {
     const newChanges = [...current.plan.changes];
     newChanges[changeIndex] = updatedChange;
     plannerStore.set({
@@ -140,14 +152,16 @@ export const updateFileChange = (planId: string, changeIndex: number, updatedCha
     });
   } else {
     console.warn(
-      `Attempted to update file change at index ${changeIndex} for plan ${planId}, but plan or index not found or planId mismatch with active plan.`,
+      `Attempted to update file change at index ${changeIndex} for plan ${planId}, but plan or index not found.`,
     );
   }
 };
 
 export const resetPlannerState = () => {
+  currentPlanIdAtom.set(null); // Clear the persistent plan ID
   plannerStore.set({
     userPrompt: '',
+    currentPlanId: null,
     plan: null,
     isLoading: false,
     error: null,
@@ -158,5 +172,4 @@ export const resetPlannerState = () => {
     additionalInstructions: PLANNER_AI_INSTRUCTION,
     expectedOutputFormat: PLANNER_EXPECTED_OUTPUT_FORMAT,
   });
-  currentPlanIdPersistentAtom.set(null);
 };
