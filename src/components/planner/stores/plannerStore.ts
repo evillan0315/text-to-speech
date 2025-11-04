@@ -61,7 +61,7 @@ export const setPlan = (planId: string | null, plan: IPlan | null) => {
     currentPlanId: planId,
     plan: plan,
     isLoading: false,
-    error: null,
+    error: null, // Clear error on successful plan load/generation
   });
 };
 
@@ -173,7 +173,7 @@ export const resetPlannerState = () => {
     currentPlanId: null,
     plan: null,
     isLoading: false,
-    error: null,
+    error: null, // Ensure error is cleared when resetting state
     applyStatus: 'idle',
     applyError: null,
     projectRoot: projectRootDirectoryStore.get() ?? DEFAULT_PROJECT_ROOT_FROM_ENV,

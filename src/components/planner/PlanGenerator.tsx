@@ -11,6 +11,7 @@ import {
   Tooltip,
   IconButton,
   Snackbar,
+  useTheme,
 } from '@mui/material';
 import { useStore } from '@nanostores/react';
 import {
@@ -40,15 +41,16 @@ import DescriptionIcon from '@mui/icons-material/Description';
 import SchemaIcon from '@mui/icons-material/Schema';
 import CloseIcon from '@mui/icons-material/Close';
 import CheckIcon from '@mui/icons-material/Check';
-import ListAltIcon from '@mui/icons-material/ListAlt'; // New import for the list icon
+import ListAltIcon from '@mui/icons-material/ListAlt';
+import BugReportIcon from '@mui/icons-material/BugReport'; // New import for debug icon
 
 import CustomDrawer from '@/components/Drawer/CustomDrawer';
 import DirectoryPickerDrawer from '@/components/planner/drawerContent/DirectoryPickerDrawer';
 import ScanPathsDrawer from '@/components/planner/drawerContent/ScanPathsDrawer';
 import InstructionEditorDrawer from '@/components/planner/drawerContent/InstructionEditorDrawer';
 import PlanMetadataEditorDrawer from '@/components/planner/drawerContent/PlanMetadataEditorDrawer';
-import FileChangeEditorDrawer from '@/components/planner/drawerContent/FileChangeEditorDrawer'; // New import
-import PlannerList from '@/components/planner/PlannerList'; // New import for PlannerList drawer content
+import FileChangeEditorDrawer from '@/components/planner/drawerContent/FileChangeEditorDrawer';
+import PlannerList from '@/components/planner/PlannerList';
 import { projectRootDirectoryStore } from '@/stores/fileTreeStore';
 import Loading from '@/components/Loading';
 
@@ -77,21 +79,30 @@ const styles = {
   },
 };
 
+// Styles for the error drawer content
+const drawerErrorContentSx = {
+  flexGrow: 1,
+  '.MuiInputBase-root': { height: '100%', alignItems: 'flex-start' },
+  '.MuiInputBase-root .MuiInputBase-input': { height: '100% !important', alignItems: 'flex-start' },
+};
+
 const PlanGenerator: React.FC = () => {
   const { userPrompt, plan, isLoading, error, projectRoot, scanPathsInput, additionalInstructions, expectedOutputFormat, currentPlanId } = useStore(plannerStore);
   const globalProjectRoot = useStore(projectRootDirectoryStore);
-  const navigate = useNavigate(); // Initialize useNavigate
+  const navigate = useNavigate();
+  const theme = useTheme();
 
   const [isProjectRootPickerDialogOpen, setIsProjectRootPickerDialogOpen] = useState(false);
   const [isScanPathsDialogOpen, setIsScanPathsDialogOpen] = useState(false);
   const [isAiInstructionDrawerOpen, setIsAiInstructionDrawerOpen] = useState(false);
   const [isExpectedOutputDrawerOpen, setIsExpectedOutputDrawerOpen] = useState(false);
   const [isPlanMetadataEditorOpen, setIsPlanMetadataEditorOpen] = useState(false);
-  const [isFileChangeEditorOpen, setIsFileChangeEditorOpen] = useState(false); // New state for FileChangeEditorDrawer
-  const [editingFileChange, setEditingFileChange] = useState<IFileChange | null>(null); // State for the file change being edited
-  const [editingFileChangeIndex, setEditingFileChangeIndex] = useState<number | null>(null); // State for the index of the file change being edited
-  const [isPlannerListDrawerOpen, setIsPlannerListDrawerOpen] = useState(false); // New state for PlannerList drawer
+  const [isFileChangeEditorOpen, setIsFileChangeEditorOpen] = useState(false);
+  const [editingFileChange, setEditingFileChange] = useState<IFileChange | null>(null);
+  const [editingFileChangeIndex, setEditingFileChangeIndex] = useState<number | null>(null);
+  const [isPlannerListDrawerOpen, setIsPlannerListDrawerOpen] = useState(false);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [isErrorDetailsDrawerOpen, setIsErrorDetailsDrawerOpen] = useState(false); // New state for error details drawer
 
   // Local state for the project root input field within the DirectoryPickerDrawer
   const [tempDrawerProjectRootInput, setTempDrawerProjectRootInput] = useState(projectRoot || '');
@@ -141,14 +152,14 @@ const PlanGenerator: React.FC = () => {
   useEffect(() => {
     if (plan && currentPlanId === plan.id) {
       setUserPrompt(plan.llmInput?.userPrompt || '');
-      setProjectRoot(plan.llmInput?.projectRoot || globalProjectRoot || ''); // Prefer plan's root, fallback to global, then empty
+      setProjectRoot(plan.llmInput?.projectRoot || globalProjectRoot || '');
       setScanPathsInput(plan.llmInput?.scanPaths?.join(', ') || 'src, public, package.json, README.md, .env');
       setAdditionalInstructions(plan.llmInput?.additionalInstructions || '');
       setExpectedOutputFormat(plan.llmInput?.expectedOutputFormat || '');
     }
-  }, [plan, currentPlanId, globalProjectRoot]); // Depend on plan and currentPlanId
+  }, [plan, currentPlanId, globalProjectRoot]);
 
-  // Effect to open snackbar when an error occurs
+  // Effect to open snackbar when an error occurs in the store
   useEffect(() => {
     if (error) {
       setSnackbarOpen(true);
@@ -167,12 +178,8 @@ const PlanGenerator: React.FC = () => {
   );
 
   const scanPathAutocompleteOptions = useMemo(() => {
-    // In a real scenario, this would be populated from a file tree service.
-    // For now, these are just suggestions.
     return Array.from(new Set(['src', 'public', 'package.json', 'README.md', '.env'])).sort();
   }, []);
-
-  // Removed getRelevantFiles as frontend does not possess file content. Backend will handle scanning.
 
   const handleLoadProject = useCallback(
     (selectedPath: string) => {
@@ -181,10 +188,9 @@ const PlanGenerator: React.FC = () => {
         return;
       }
       setProjectRoot(selectedPath);
-      projectRootDirectoryStore.set(selectedPath); // Update global store
+      projectRootDirectoryStore.set(selectedPath);
       setError('');
       setPlan(null, null);
-      // setIsLoading(false); // No longer needed here as setPlan handles isLoading: false
     },
     [setProjectRoot, setError, setPlan],
   );
@@ -195,19 +201,16 @@ const PlanGenerator: React.FC = () => {
   );
 
   const handleGeneratePlan = async () => {
-    resetPlannerState();
     setIsLoading(true);
-    //
-    //setError(null); // Clear any previous errors
-    //setPlan(null);
+
     try {
       const llmInput: ILlmInput = {
         userPrompt,
         projectRoot,
-        relevantFiles: [], // Frontend doesn't provide file content; backend scans based on projectRoot and scanPaths.
+        relevantFiles: [],
         additionalInstructions,
         expectedOutputFormat,
-        scanPaths: currentScanPathsArray, // Send only the paths for the backend to scan
+        scanPaths: currentScanPathsArray,
         requestType: 'LLM_GENERATION',
         output: 'JSON',
       };
@@ -217,19 +220,17 @@ const PlanGenerator: React.FC = () => {
       setCurrentPlanId(response.planId);
     } catch (err: any) {
       console.log(err, 'err');
-      //setError(err.message || 'Failed to generate plan.');
-      //setPlan(null, null); // Clear plan on error
+      setError(err.message || 'Failed to generate plan.');
     } finally {
-      setIsLoading(false); // Removed: setPlan and setError already handle setting isLoading to false.
+      // setIsLoading(false) is handled by setPlan or setError
     }
   };
 
   const handleClearPlan = () => {
     resetPlannerState();
-    // Re-initialize temporary drawer state to reflect the reset plannerStore value
     setTempDrawerProjectRootInput(projectRootDirectoryStore.get() || '');
     setLocalScanPaths([]);
-    navigate('/planner-generator'); // Navigate to the planner generator page
+    navigate('/planner-generator');
   };
 
   const handleSavePlanMetadata = useCallback(
@@ -266,7 +267,6 @@ const PlanGenerator: React.FC = () => {
     [plan, editingFileChangeIndex],
   );
 
-  // Action buttons for the DirectoryPickerDrawer
   const directoryPickerDrawerActions: GlobalAction[] = [
     {
       label: 'Cancel',
@@ -288,7 +288,6 @@ const PlanGenerator: React.FC = () => {
     },
   ];
 
-  // Action buttons for the ScanPathsDrawer
   const scanPathsDrawerActions: GlobalAction[] = [
     {
       label: 'Cancel',
@@ -310,11 +309,21 @@ const PlanGenerator: React.FC = () => {
     },
   ];
 
-  // Action buttons for the PlannerListDrawer
   const plannerListDrawerActions: GlobalAction[] = [
     {
       label: 'Close',
       action: () => setIsPlannerListDrawerOpen(false),
+      icon: <CloseIcon />,
+      color: 'inherit',
+      variant: 'outlined',
+    },
+  ];
+
+  // Actions for the Error Details Drawer
+  const errorDrawerActions: GlobalAction[] = [
+    {
+      label: 'Close',
+      action: () => setIsErrorDetailsDrawerOpen(false),
       icon: <CloseIcon />,
       color: 'inherit',
       variant: 'outlined',
@@ -326,7 +335,8 @@ const PlanGenerator: React.FC = () => {
       return;
     }
     setSnackbarOpen(false);
-    setError(null); // Clear the error in the store when snackbar closes
+    // Do NOT clear the error from the store here. The error state in plannerStore
+    // should persist until a new generation or an explicit clear action.
   };
 
   return (
@@ -342,9 +352,22 @@ const PlanGenerator: React.FC = () => {
 
       <Card sx={styles.card} className="mb-6 flex-shrink-0">
         <CardContent sx={styles.formSection}>
-          <Typography variant="h6" gutterBottom className="text-text-primary">
-            Generate a New Plan
-          </Typography>
+          <Box className="flex items-center justify-between mb-4">
+            <Typography variant="h6" gutterBottom className="text-text-primary mb-0">
+              Generate a New Plan
+            </Typography>
+            {error && (
+              <Tooltip title="View Error Details">
+                <IconButton
+                  color="error"
+                  onClick={() => setIsErrorDetailsDrawerOpen(true)}
+                  aria-label="view error details"
+                >
+                  <BugReportIcon />
+                </IconButton>
+              </Tooltip>
+            )}
+          </Box>
           <TextField
             label="Enter your prompt for the AI"
             multiline
@@ -450,7 +473,7 @@ const PlanGenerator: React.FC = () => {
           <PlanDisplay
             plan={plan}
             onEditPlanMetadata={() => setIsPlanMetadataEditorOpen(true)}
-            onEditFileChange={handleEditFileChangeRequest} // Pass the new handler
+            onEditFileChange={handleEditFileChangeRequest}
           />
         </Box>
       ) : (
@@ -523,7 +546,7 @@ const PlanGenerator: React.FC = () => {
         />
       )}
 
-      {editingFileChange && ( // Only render if a change is being edited
+      {editingFileChange && (
         <FileChangeEditorDrawer
           open={isFileChangeEditorOpen}
           onClose={() => setIsFileChangeEditorOpen(false)}
@@ -532,17 +555,44 @@ const PlanGenerator: React.FC = () => {
         />
       )}
 
-      {/* New: CustomDrawer for PlannerList */}
       <CustomDrawer
         open={isPlannerListDrawerOpen}
         onClose={() => setIsPlannerListDrawerOpen(false)}
         position="right"
-        size="large" // Adjusted size for better viewing of the list
+        size="large"
         title="All AI Plans"
         hasBackdrop={true}
         footerActionButton={plannerListDrawerActions}
       >
         <PlannerList />
+      </CustomDrawer>
+
+      {/* New: Error Details Drawer */}
+      <CustomDrawer
+        open={isErrorDetailsDrawerOpen}
+        onClose={() => setIsErrorDetailsDrawerOpen(false)}
+        position="right"
+        size="medium"
+        title="Error Details"
+        hasBackdrop={true}
+        footerActionButton={errorDrawerActions}
+      >
+        <Box sx={{ p: 2, height: '100%', display: 'flex', flexDirection: 'column', gap: 2 }}>
+          <Typography variant="body2" color="text.secondary">
+            Detailed information about the last error encountered during plan generation.
+          </Typography>
+          <TextField
+            label="Error Message"
+            multiline
+            rows={15}
+            value={error || 'No error details available.'}
+            fullWidth
+            size="small"
+            variant="outlined"
+            InputProps={{ style: { fontFamily: 'monospace', color: theme.palette.error.main } }}
+            sx={drawerErrorContentSx}
+          />
+        </Box>
       </CustomDrawer>
 
       <Snackbar
@@ -560,3 +610,4 @@ const PlanGenerator: React.FC = () => {
 };
 
 export default PlanGenerator;
+
