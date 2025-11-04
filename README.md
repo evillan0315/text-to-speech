@@ -1,11 +1,14 @@
-
 # Google Gemini TTS & AI Code Planner Frontend
 
 ## Project Overview
 
-This is a modern React/Vite frontend application designed to interact with a Node.js/NestJS backend for Google Gemini Text-to-Speech (TTS) generation and **AI-driven code planning and modification**. It empowers users to input text, configure multiple speakers with specific voice profiles, generate high-quality speech audio, and play it directly within the browser. Additionally, it provides an innovative AI Code Planner that allows users to articulate desired code changes in natural language, receive a structured plan, and apply those changes directly to their local project.
+This is a modern React/Vite frontend application designed to interact with a Node.js/NestJS backend, offering two core AI-powered capabilities: **Google Gemini Text-to-Speech (TTS) generation** and an **AI-driven code planning and modification system**.
 
-The application emphasizes a clean, intuitive user experience with robust authentication and error handling.
+The **Text-to-Speech** feature empowers users to input text, configure multiple speakers with specific voice profiles, generate high-quality speech audio, and play it directly within the browser.
+
+The **AI Code Planner** provides an innovative way to articulate desired code changes in natural language, receive a structured plan, and apply those changes directly to your local project. It supports operations like adding, modifying, deleting, and repairing files.
+
+The application emphasizes a clean, intuitive user experience with robust authentication and error handling across both modules.
 
 For a deep dive into the application's architecture and design principles, please refer to the [Overview and Architecture document](docs/OVERVIEW_ARCHITECTURE.md).
 
@@ -17,7 +20,7 @@ For a deep dive into the application's architecture and design principles, pleas
 *   **Language Selection:** Ability to specify the language code for speech output (defaults to 'en-US').
 *   **Integrated Audio Playback:** Generated `.wav` audio files are played directly in the browser for immediate feedback.
 *   **AI Code Planning & Generation:** Define project context, specify scan paths, provide detailed instructions (system prompt), and define the expected JSON output format to generate structured code modification plans (add, modify, delete, repair, analyze files).
-*   **Plan Application:** Directly apply generated AI plans to your local project directory, automating code changes.
+*   **Granular Plan Application:** Apply entire generated plans or individual file changes to your local project directory, automating code modifications.
 *   **User Feedback:** Provides clear visual cues for loading states, along with comprehensive error handling and messaging.
 *   **Theming:** Light/Dark mode toggle for personalized viewing.
 
@@ -64,8 +67,9 @@ Create a `.env` file in the `apps/text-to-speech` directory for local developmen
 VITE_APP_API_BASE_URL=http://localhost:5000/api
 VITE_FRONTEND_PORT=3003
 VITE_BASE_DIR=/media/eddie/Data/projects/nestJS/nest-modules/project-board-server/apps/text-to-speech
-# VITE_BASE_DIR should point to the root of your 'text-to-speech' project 
-# to enable AI Planner features to correctly scan and apply changes.
+# ^^^ IMPORTANT: VITE_BASE_DIR must point to the ABSOLUTE path of this 'text-to-speech' project root
+#                directory on your local filesystem. This is CRUCIAL for the AI Code Planner
+#                features to correctly scan project files and apply changes.
 ```
 
 -   `VITE_APP_API_BASE_URL`: The base URL of your backend API. Ensure this matches the URL where your `project-board-server` is running.
@@ -130,34 +134,55 @@ For more in-depth information, refer to the following documentation files:
 text-to-speech/
 ├── public/                     # Static assets
 ├── src/                        # Main application source code
-│   ├── api/                    # API client services (Axios)
+│   ├── api/                    # API client services (Axios) for authentication and TTS
+│   │   ├── authService.ts
+│   │   └── geminiTtsService.ts
 │   ├── components/             # Reusable UI components
 │   │   ├── Drawer/             # Custom Drawer component
 │   │   │   └── CustomDrawer.tsx
-│   │   ├── Layout.tsx
+│   │   ├── Layout.tsx          # Main application layout with navigation
 │   │   ├── planner/            # AI Code Planner specific components and logic
 │   │   │   ├── api/            # Planner API services
+│   │   │   │   └── plannerService.ts
 │   │   │   ├── constants/      # AI prompt and schema constants
+│   │   │   │   └── instructions.ts
 │   │   │   ├── drawerContent/  # Drawer content for planner settings
+│   │   │   │   ├── DirectoryPickerDrawer.tsx
+│   │   │   │   ├── InstructionEditorDrawer.tsx
+│   │   │   │   └── ScanPathsDrawer.tsx
 │   │   │   ├── stores/         # Nanostore for planner state
+│   │   │   │   └── plannerStore.ts
 │   │   │   ├── PlanDisplay.tsx # Component to display generated AI plans
 │   │   │   ├── PlanGenerator.tsx # Main component for AI plan generation
 │   │   │   └── types.ts        # Type definitions for the planner
 │   │   ├── ThemeToggle.tsx     # Light/Dark theme toggle
-│   │   └── ui/                 # General UI components
-│   ├── hooks/                  # Custom React hooks
+│   │   └── ui/                 # General UI components (e.g., GlobalActionButton)
+│   │       └── GlobalActionButton.tsx
+│   ├── hooks/                  # Custom React hooks (e.g., useAuth)
+│   │   └── useAuth.ts
 │   ├── pages/                  # Page-level components (routes)
-│   │   ├── AuthCallback.tsx
-│   │   ├── HomePage.tsx        # NEW: Main application homepage
+│   │   ├── AuthCallback.tsx    # Handles OAuth redirects
+│   │   ├── HomePage.tsx        # Main application homepage
 │   │   ├── LoginPage.tsx
-│   │   ├── PlannerLandingPage.tsx # NEW: Landing page for AI Planner
+│   │   ├── PlannerLandingPage.tsx # Landing page for AI Planner features
 │   │   ├── PlannerPage.tsx     # Actual AI Planner generator component
 │   │   ├── TtsGeneratorPage.tsx # Actual TTS generator component
-│   │   └── TtsLandingPage.tsx  # NEW: Landing page for TTS
+│   │   └── TtsLandingPage.tsx  # Landing page for TTS features
 │   ├── stores/                 # Nanostores for global state management
+│   │   ├── authStore.ts
+│   │   ├── fileTreeStore.ts    # Stores global project root
+│   │   ├── themeStore.ts
+│   │   └── ttsStore.ts
 │   ├── theme/                  # Material UI theme configuration
+│   │   └── index.ts
 │   ├── types/                  # TypeScript type definitions
-│   └── App.tsx                 # Main application component
+│   │   ├── action.ts
+│   │   ├── auth.ts
+│   │   └── tts.ts
+│   ├── utils/                  # Utility functions (e.g., persistentAtom)
+│   │   └── persistentAtom.ts
+│   ├── App.tsx                 # Main application component
+│   └── main.tsx                # Entry point for React application
 ├── docs/                       # Project documentation (User, Developer, Overview, Deployment guides)
 ├── kubernetes/                 # Kubernetes deployment configurations
 ├── .env                        # Environment variables
@@ -217,12 +242,22 @@ This frontend interacts with the following backend endpoints (assuming `VITE_APP
 -   `GET /api/plan/:planId`: Fetches the details of a specific AI-generated plan (requires authentication).
     -   **Description:** Retrieves a previously generated plan by its ID.
     -   **Response:** A JSON object containing the `plan` details.
--   `POST /api/plan/apply`: Applies a specified AI-generated plan to the local filesystem (requires authentication).
+-   `POST /api/plan/apply`: Applies a specified AI-generated plan (all changes) to the local filesystem (requires authentication).
     -   **Description:** Executes the file modification instructions from a given plan (identified by `planId`) against the local project files.
     -   **Request Body (JSON):**
         ```json
         {
           "planId": "unique-plan-id",
+          "projectRoot": "/path/to/project" // Optional, falls back to server-side configured root
+        }
+        ```
+    -   **Response:** A JSON object indicating success or failure, with details of the application process.
+-   `POST /api/plan/:planId/apply-change-by-index`: Applies a specific file change from a given plan to the local filesystem (requires authentication).
+    -   **Description:** Executes a single file modification instruction from a plan, identified by its index, against the local project files.
+    -   **Request Body (JSON):**
+        ```json
+        {
+          "changeIndex": 0, // The 0-based index of the change within the plan's 'changes' array
           "projectRoot": "/path/to/project" // Optional, falls back to server-side configured root
         }
         ```
