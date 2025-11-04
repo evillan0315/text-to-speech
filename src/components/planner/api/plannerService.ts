@@ -69,7 +69,7 @@ export const plannerService = {
   async applyFileChange(planId: string, changeIndex: number, projectRoot?: string): Promise<IApplyPlanResult> {
     try {
       const response = await axios.post<{ result: IApplyPlanResult }>(
-        `${API_BASE_URL}/plan/${planId}/apply-change-by-index`,
+        `${API_BASE_URL}/plan/${planId}/apply-chunk/${changeIndex}`,
         { changeIndex, projectRoot },
         { headers: getAuthHeaders() },
       );
